@@ -4,4 +4,4 @@
 
 - Jos aihe ok, niin onko realistista, että hyperparametri olisi betajakautunut ja likelihood (työllistyminen annettuna theta) olisi binomijakautunut --> Olisi konjugaatit jakaumat, jolloin posteriori olisi beta. Vai kannattaako miettiä vielä?
 
-- 
+- Jos täytyy olla kaksi mallia, niin riittäisikö separate-pooled-hierarchical?
