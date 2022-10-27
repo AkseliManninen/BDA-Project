@@ -1,0 +1,7 @@
+- Idea: korkeakoulutettujen työllistyminen 1v valmistumisen jälkeen per opiskeluala/paikkakunta, päätoimiset työlliset
+
+- Kuinka lähellä alithetojen on oltava pääthetaa? Implikaatiot aiheenvalintaan: pääaineet vai asuinalueet? Alkoholi esimerkki. Asuinalue (Hki) - Pääaineet tai pääaineet (esim. kauppatiede) ja eri kaupungit (hki, allpeenranta yms.)
+
+- Jos aihe ok, niin onko realistista, että hyperparametri olisi betajakautunut ja likelihood (työllistyminen annettuna theta) olisi binomijakautunut --> Olisi konjugaatit jakaumat, jolloin posteriori olisi beta. Vai kannattaako miettiä vielä?
+
+- 
