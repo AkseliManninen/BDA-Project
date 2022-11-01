@@ -13,6 +13,7 @@ Turku > Varsinais-Suomi, Jyväskylä > Keskisuomi, Rauma > Satakunta
 Sovittua: 
 - Tustustutaan projektin ohjeistukseen vielä astetta tarkemmin. 
 - Tehdään datan muokkaus Tidyverse / dplyr (Akseli & Santeri tutstuu, Nikolla jo hanskassa)
+- Tehdään plotteja eri alueiden välillä jne., jotta ymmärretään dataa paremmin ja että voidaanko ylipäätään saada kiinnostava projekti tästä datasetistä
 - Tehdään viikkopalautus, niin saadaan parempi kuva hierarkisesta mallista.
 
 Aikataulu:
