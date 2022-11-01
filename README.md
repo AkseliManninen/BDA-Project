@@ -26,3 +26,4 @@ Aikataulu:
 
 Sekalaista:
 - Syy-seuraussuhde: Voidaan selittää työllistymistä sukupuolen perusteella. (Mahdollinen toinen malli, koska pitää olla useampi)
+- Santeri kokeilee että voi päivittää tähän ja se näkyy
