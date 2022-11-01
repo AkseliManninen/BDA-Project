@@ -1,0 +1,39 @@
+---
+title: "BDA Project"
+author: "Niko Miller, Akseli Manninen and Santeri Löppönen"
+output: 
+  pdf_document: 
+    toc: yes
+    toc_depth: 3
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(aaltobda)
+library(tidyverse)
+library(latex2exp)
+library(loo)
+library(bayesplot)
+library(posterior)
+library(rstan)
+
+```
+
+\newpage
+# Project Description
+
+Write about scope and scale of the project 
+
+# Data and Methods
+
+Describe dataset and models
+
+# Conclusions and Discussion
+
+Write conclusions and discuss about results
+
+# References
+
+Insert bibliography here
