@@ -16,9 +16,11 @@ Hierarkinen malli:
 - Public schools --> Tarpeeksi pääaineita, esim. ainakin 10
 - Public schools --> Tietyn alan koulut (ei ehkä löydy > 100)
 
-Toinen:
+Toinen datasettiehdotus:
 - Ilmansaasteiden vaikutus hengitystiesairauksiin / hengitystiesairauskuolleisuuteen.
 - Ei tiedetä mistä saadaan datasetit
+
+- Who ilmanlaatumittaus, astma
 
 Muista kysymyksiä:
 - Voiko muuttujat valita maalaisjärjellä?
