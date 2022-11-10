@@ -1,5 +1,35 @@
 # BDA-Project - Projektisuunnitelma
 
+# Tapaaminen 10.11.2022
+
+Tehty:
+- Katsottu datasettiä: https://collegescorecard.ed.gov/data/
+
+Ehdotettuja tutkimuskysymyksiä:
+- Palkka valmistumisen jälkeen (Public schools)
+- Valmistuminen
+- Opintolainan vaikutus valmistumiseen
+
+(- Työllistyminen)
+
+Hierarkinen malli:
+- Public schools --> Tarpeeksi pääaineita, esim. ainakin 10
+- Public schools --> Tietyn alan koulut (ei ehkä löydy > 100)
+
+Toinen:
+- Ilmansaasteiden vaikutus hengitystiesairauksiin / hengitystiesairauskuolleisuuteen.
+- Ei tiedetä mistä saadaan datasetit
+
+Muista kysymyksiä:
+- Voiko muuttujat valita maalaisjärjellä?
+- Vai pitääkö tehdä jotenkin matemaattisesti valita?
+
+- Miten se karsisi muuttujat?
+
+Mitä seuraavaksi:
+- Selvitetään R:llä onko tarpeeksi havaintoja ehdotettuihin hierarkisiin malleihin
+- Muuttujien kartoitus ja valinta
+
 # Tapaaminen 1.11.2022 
 
 Tehty:
