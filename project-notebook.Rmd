@@ -24,6 +24,24 @@ library(rstan)
 \newpage
 # Project Description
 
+Studying the relationship between income and education has been the focus on many studies, which have 
+concluded that there is a strong correlation between higher education and income (Card, 1999). In general, 
+individuals with stronger education are more likely to be employed and earn a big salary compared to less 
+educated people (Card, 1999). For that reason, education is described as an investment in human capital 
+(Wolla & Sullivan, 2017). 
+
+This study examines this phenomenon from the perspective of people that have acquired their education from 
+public colleges of the United States. This research is not limited to only considering educational aspects but 
+expands it to family backgrounds. As the connection between education and income has been shown in the 
+existing literature, this study is more concentrated on the association of the specific features and income.
+
+In this study, a Bayesian approach is taken to observe the bond between the education and family related 
+features and earnings. It is in our interest to find out, how accurately the selected features can predict future 
+income for the students from public schools. Furthermore, finding the best predictive features amongst the 
+vast number of features is pursued. As this study is conducted in a university environment by university 
+students, the possible insight would be especially meaningful for the members of the group and peers.
+
+
 Write about scope and scale of the project 
 
 # Data and Methods
@@ -37,3 +55,5 @@ Write conclusions and discuss about results
 # References
 
 Insert bibliography here
+Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
+Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
