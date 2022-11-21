@@ -3,6 +3,7 @@
 # load libraries
 library(tidyverse)
 library(reshape2)
+library(ggcorrplot)
 
 # read in data sets
 data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",") %>% as_tibble()
@@ -12,13 +13,16 @@ data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep =
 
 # list variables
 id.vars <- c("UNITID", "INSTNM", "CITY", "ST_FIPS", "REGION")
-numerical.vars <- c("SATVRMID", "SATMTMID", "SATWRMID", "MD_FAMINC", "AGE_ENTRY", "FEMALE", "FIRST_GEN", "PCT_WHITE", "DEBT_MDN_SUPP", "C150_4", "COSTT4_A", "MD_EARN_WNE_P10", "POVERTY_RATE", "UNEMP_RATE", "MARRIED", "VETERAN")
+numerical.vars <- c("SATVRMID", "SATMTMID", "MD_FAMINC", "AGE_ENTRY", "FEMALE", "FIRST_GEN", "PCT_WHITE", "DEBT_MDN_SUPP", "C150_4", "COSTT4_A", "MD_EARN_WNE_P10", "POVERTY_RATE", "UNEMP_RATE", "MARRIED")
 categorical.vars <- c("LOCALE", "CCBASIC", "CONTROL")
-SAT.vars <- c("SATVRMID", "SATMTMID", "SATWRMID") # helper variable later on
+SAT.vars <- c("SATVRMID", "SATMTMID") # helper variable later on
+
+# filtering options
+degreetype.filter <- c(seq(18,23))
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
-  select(VARIABLE.NAME, NAME.OF.DATA.ELEMENT, NOTES) %>%
+  select(VARIABLE.NAME, ï..NAME.OF.DATA.ELEMENT, NOTES) %>%
   filter(VARIABLE.NAME %in% c(id.vars, categorical.vars, numerical.vars))
 
 # extract categorical variables
@@ -42,11 +46,16 @@ data.filtered.numerical.dropna <- data.filtered.numerical %>%
 # join categorical and numerical variables by id
 data.filtered.numerical.dropna <- data.filtered.numerical.dropna %>%
   mutate(SAT_ALL = data.filtered.numerical.dropna %>%
-           select(SATVRMID, SATMTMID, SATWRMID) %>%
+           select(SATVRMID, SATMTMID) %>%
            rowMeans())
 
-data.filtered.all <- data.filtered.numerical.dropna %>%
-  inner_join(data.filtered.categorical.dropna, by = id.vars)
+data.filtered.all <- data.filtered.numerical %>%
+  inner_join(data.filtered.categorical, by = id.vars) %>%
+  filter(CCBASIC %in% degreetype.filter)
+
+data.filtered.all.dropna <- data.filtered.numerical.dropna %>%
+  inner_join(data.filtered.categorical.dropna, by = id.vars) %>%
+  filter(CCBASIC %in% degreetype.filter)
 
 # PRELIMINARY ANALYSIS ----
 
@@ -55,11 +64,17 @@ glimpse(data.filtered.all)
 summary(data.filtered.all)
 
 # make variable type specific data frames for plots etc.
-numerical.vars.data <- data.filtered.all %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
-categorical.vars.data <- data.filtered.all %>% select(all_of(categorical.vars))
+numerical.vars.data <- data.filtered.all.dropna %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
+categorical.vars.data <- data.filtered.all.dropna %>% select(all_of(categorical.vars))
 
 # visualizations
-corrplot::corrplot(cor(numerical.vars.data))
+r <- cor(numerical.vars.data)
+ggcorrplot(r,
+           hc.order = TRUE,
+           type = "lower",
+           lab = TRUE)
+
+
 melted <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 
 ggplot(melted, aes(x = value, y = MD_EARN_WNE_P10)) +
@@ -72,8 +87,9 @@ summary(model)
 
 # step wise regression implied "best" model in terms of AIC
 step(model)
-stepwise.model <- lm(MD_EARN_WNE_P10 ~ FEMALE + C150_4 + COSTT4_A + POVERTY_RATE +
-  UNEMP_RATE + MARRIED + SAT_ALL, data = numerical.vars.data)
+stepwise.model <- lm(MD_EARN_WNE_P10 ~ MD_FAMINC + FEMALE + FIRST_GEN +
+                       PCT_WHITE + DEBT_MDN_SUPP + C150_4 + COSTT4_A + POVERTY_RATE +
+                       UNEMP_RATE + SAT_ALL, data = numerical.vars.data)
 summary(stepwise.model)
 
 # numerical + categorical vars model
