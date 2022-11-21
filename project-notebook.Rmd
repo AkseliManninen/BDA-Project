@@ -1,15 +1,17 @@
 ---
 title: "BDA Project"
 author: "Niko Miller, Akseli Manninen and Santeri Löppönen"
-output: 
-  pdf_document: 
+output:
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
     toc: yes
     toc_depth: 3
 urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
-
 knitr::opts_chunk$set(echo = TRUE)
 library(aaltobda)
 library(tidyverse)
@@ -18,7 +20,8 @@ library(loo)
 library(bayesplot)
 library(posterior)
 library(rstan)
-
+library(tidyverse)
+library(reshape2)
 ```
 
 \newpage
@@ -46,12 +49,198 @@ students, the possible insight would be especially meaningful for the members of
 Description of the data and the analysis problem. Provide information where the data was obtained, and 
 if it has been previously used in some online case study and how your analysis differs from the existing analyses.
 
+
+```{r}
+# read in data sets
+data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",") %>% as_tibble()
+data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",") %>% as_tibble()
+```
+
+```{r}
+dim(data)
+sum(data == "NULL")
+```
+## Feature selection
+
+The initial data set had almost 3000 features and in that regards, the number
+of observations is relatively small. There are also a lot of missing values
+in the data set and some features are missing. For these reasons, there was
+a need to prune features.
+
+(Etsi lähteet: 1)Tarvittavat observaatiot suhteessa featureihin,
+2) Korreloituneiden muuttujien poistaminen)
+
+The used process of feature selection consisted of two phases: In the first phase,
+a subset of features was select based on the features used in the existing 
+literature and using domain knowledge. From the potential features, only those
+having enough data were included in the subset and others were discarded.
+
+The selected features were: 
+
+NOTE: The first variable MD_EARN_WNE_P10 is the dependent variable.
+
+$$
+\begin{array} {c|c|c|c|c|c|c|c} & name & datatype & description \\ 
+\hline
+1 & SATVRMID & float & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(critical\:reading) \\
+2 & SATMTMID & float & Midpoint\:of SAT scores at the institution (math) \\
+3 & SATWRMID & float & Midpoint of SAT scores at the institution (writing) \\
+4 & MD\_FAMINC & float & Median family income \\
+5 & AGE\_ENTRY & float & Average age of entry \\
+6 & FEMALE & float & Share of female students \\
+7 & FIRST\_GEN & float & Share of first-generation students \\
+8 & PCT\_WHITE & float & Percent of the population from students' zip codes that is White \\
+9 & DEBT\_MDN\_SUPP & float & Median debt, suppressed for n=30 \\
+10 & C150\_4 & float & Completion rate for first-time, full-time students \\
+11 & COSTT4\_A & float & Average cost of attendance (academic year institutions) \\
+12 & POVERTY\_RATE & float & Poverty\:rate \\
+13 & UNEMP\_RATE & float & Unemployment\:rate \\
+14 & MARRIED & float & Share\:of\:married students \\
+15 & VETERAN & float & Share\:of\:veteran students \\
+16 & LOCALE & float & Locale\:of\:institution \\
+17 & CCBASIC & float & Carnegie\:Classification -- basic \\
+18 & CONTROL & float & Control\:of\:institution \\
+\end{array}
+$$
+
+## Code for extracting the subset features
+```{r, warning = FALSE}
+
+# DATA MANIPULATION ----
+
+# list variables
+id.vars <- c("UNITID", "INSTNM", "CITY", "ST_FIPS", "REGION")
+numerical.vars <- c("SATVRMID", "SATMTMID", "SATWRMID", "MD_FAMINC", "AGE_ENTRY", "FEMALE", "FIRST_GEN", "PCT_WHITE", "DEBT_MDN_SUPP", "C150_4", "COSTT4_A", "MD_EARN_WNE_P10", "POVERTY_RATE", "UNEMP_RATE", "MARRIED", "VETERAN")
+categorical.vars <- c("LOCALE", "CCBASIC", "CONTROL")
+SAT.vars <- c("SATVRMID", "SATMTMID", "SATWRMID") # helper variable later on
+
+# create map for variable descriptions
+variable.descriptions <- data.description %>%
+  select(VARIABLE.NAME, NAME.OF.DATA.ELEMENT, NOTES) %>%
+  filter(VARIABLE.NAME %in% c(id.vars, categorical.vars, numerical.vars))
+
+# extract categorical variables
+data.filtered.categorical <- data %>%
+  select(all_of(id.vars), all_of(categorical.vars)) %>%
+  mutate(across(.cols = all_of(categorical.vars), .fns = as.factor))
+
+# drop rows with NA for categorical vars
+data.filtered.categorical.dropna <- data.filtered.categorical %>%
+  drop_na()
+
+# extract numerical variables
+data.filtered.numerical <- data %>%
+  select(all_of(id.vars), all_of(numerical.vars)) %>%
+  mutate(across(.cols = c(id.vars[1], numerical.vars), .fns = as.numeric))
+
+# drop rows with NA for numerical vars
+data.filtered.numerical.dropna <- data.filtered.numerical %>%
+  drop_na()
+
+# join categorical and numerical variables by id
+data.filtered.numerical.dropna <- data.filtered.numerical.dropna %>%
+  mutate(SAT_ALL = data.filtered.numerical.dropna %>%
+           select(SATVRMID, SATMTMID, SATWRMID) %>%
+           rowMeans())
+
+data.filtered.all <- data.filtered.numerical.dropna %>%
+  inner_join(data.filtered.categorical.dropna, by = id.vars)
+```
+
+
+In the second phase of feature selection, a subset of features was selected from
+the subset of the first phase. The approach used in this phase was mathematical 
+and programmatic.
+
+Firstly, correlation between the features was studied. Due to high correlation
+between SAT scores, these variables were combined into one by calculating the
+average scores. However, there were too little observations with SATWRNID 
+(writing) so only the math and critical thinking SAT scores were included.
+
+Secondly, step wise regression was used to find the features resulting 
+with the best AIC score.
+
+
+```{r, warning = FALSE}
+# PRELIMINARY ANALYSIS ----
+
+# summarize data
+summary(data.filtered.all)
+
+# make variable type specific data frames for plots etc.
+numerical.vars.data <- data.filtered.all %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
+categorical.vars.data <- data.filtered.all %>% select(all_of(categorical.vars))
+
+# visualizations
+corrplot::corrplot(cor(numerical.vars.data))
+melted <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
+
+ggplot(melted, aes(x = value, y = MD_EARN_WNE_P10)) +
+  facet_wrap(~variable, scales = "free") +
+  geom_point()
+
+# preliminary model with all numerical vars (not yet categorical)
+model <- lm(MD_EARN_WNE_P10 ~ ., data = numerical.vars.data)
+summary(model)
+
+# step wise regression implied "best" model in terms of AIC
+step(model)
+stepwise.model <- lm(MD_EARN_WNE_P10 ~ FEMALE + C150_4 + COSTT4_A + POVERTY_RATE +
+                       UNEMP_RATE + MARRIED + SAT_ALL, data = numerical.vars.data)
+summary(stepwise.model)
+
+# numerical + categorical vars model
+full.model.data <- data.filtered.all %>%
+  select(!c(id.vars, SAT.vars))
+model.full <- lm(MD_EARN_WNE_P10 ~ ., full.model.data)
+summary(model.full)
+
+```
+
+
+
 # 3. Description of the models
 
 Description of at least two models, for example:
 - non hierarchical and hierarchical,
 - linear and non linear,
 - variable selection with many models.
+
+## Description of the separate model
+
+$θ_j ∼ Normal(0, 200)$
+
+$σ_j ∼ Inv-\chi^2(0, 1)$ 
+
+$y_{ij}|θ_j, σ_j ∼ N(θ_j, σ_j^2)$
+
+
+## Description of the pooled model
+
+$θ ∼ Normal(0, 200)$
+
+$σ ∼ Inv-\chi^2(0, 1)$ 
+
+$y_{i}|θ, σ ∼ N(θ, σ^2)$
+
+
+## Description of the hierarchical model
+
+$θ_P ∼ Normal(0, 200)$
+
+
+$σ_P ∼ Inv-\chi^2(0, 1)$
+
+
+$θ_j |θ_P, σ_P^2 ∼ Normal(θ_P, σ_P^2)$
+
+
+$σ ∼ Normal(0, 200)$
+
+
+$y_{ij} |θ_j ∼ N(θ_j, σ^2)$
+
+---Linear model??? Should we describe this
 
 # 4. Informative or weakly informative priors, and justification of their choices.
 
