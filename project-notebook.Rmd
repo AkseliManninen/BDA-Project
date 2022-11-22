@@ -28,29 +28,26 @@ library(ggcorrplot)
 \newpage
 # 1. Project Description and Motivation
 
-Studying the relationship between income and education has been the focus on many studies, which have 
+Studying the relationship between income and education has been the focus on many studies. The studies have 
 concluded that there is a strong correlation between higher education and income (Card, 1999). In general, 
 individuals with stronger education are more likely to be employed and earn a big salary compared to less 
 educated people (Card, 1999). For that reason, education is described as an investment in human capital 
 (Wolla & Sullivan, 2017). 
 
-This study examines this phenomenon from the perspective of people that have acquired their education from 
-public colleges of the United States. This research is not limited to only considering educational aspects but 
-expands it to family backgrounds. As the connection between education and income has been shown in the 
-existing literature, this study is more concentrated on the association of the specific features and income.
+This study examines this phenomenon from the perspective of people that have acquired their education
+from colleges of the United States. As the connection between education and income has been
+shown in the existing literature, this study strives to examine the associations between college related
+features and income level years after graduation. This project is not limited to only 
+considering educational aspects but expands it to family backgrounds.
 
-In this study, a Bayesian approach is taken to observe the bond between the education and family related 
+In this study, a Bayesian approach is taken to observe the bond between the educational and family related 
 features and earnings. It is in our interest to find out, how accurately the selected features can predict future 
-income for the students from public schools. Furthermore, finding the best predictive features amongst the 
-vast number of features is pursued. As this study is conducted in a university environment by university 
-students, the possible insight would be especially meaningful for the members of the group and peers.
+income for the students. Furthermore, finding a well-predictive features among the vast number of
+variables is pursed and evaluating the predictive performance of selected statistical models. As this study is conducted 
+in a university environment by university students, the possible insight would be especially meaningful for the 
+members of the group and peers.
 
 # 2. Data and the analysis problem
-
-Description of the data and the analysis problem. Provide information where the data was obtained, and 
-if it has been previously used in some online case study and how your analysis differs from the existing analyses.
-
-Description of the Dataset
 
 We use the most recent institutional-level college scorecard data from the US Department of Education. 
 The institutional-level dataset contains aggregate data for each educational institution and includes data on 
@@ -65,8 +62,6 @@ posed challenges, as it was arguably slower and more burdensome to find the most
 We were somewhat surprised by how fast the observation count started to shrink when we began cleaning the data, 
 so in hindsight we should have maybe paid more attention to cleanliness, as this dataset had for example a lot of missing values
 
-Online case studies?
-
 ```{r}
 # read in data sets
 data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
@@ -77,15 +72,13 @@ data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep =
 dim(data)
 sum(data == "NULL")
 ```
+
 ## Feature selection
 
 The initial data set had almost 3000 features and in that regards, the number
 of observations is relatively small. There are also a lot of missing values
 in the data set and some features are missing. For these reasons, there was
 a need to prune features.
-
-(Etsi lähteet: 1)Tarvittavat observaatiot suhteessa featureihin,
-2) Korreloituneiden muuttujien poistaminen)
 
 The used process of feature selection consisted of two phases: In the first phase,
 a subset of features was select based on the features used in the existing 
@@ -94,29 +87,30 @@ having enough data were included in the subset and others were discarded.
 
 The selected features were: 
 
-NOTE: The first variable MD_EARN_WNE_P10 is the dependent variable.
+NOTE: The last variable MD_EARN_WNE_P10 is the dependent variable.
 
 $$
-\begin{array} {c|c|c|c|c|c|c|c} & name & datatype & description \\ 
+\begin{array} {c|c|c|c|c|c|c|c} & name & data\:type & description \\ 
 \hline
-1 & SATVRMID & float & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(critical\:reading) \\
-2 & SATMTMID & float & Midpoint\:of SAT scores at the institution (math) \\
-3 & SATWRMID & float & Midpoint of SAT scores at the institution (writing) \\
-4 & MD\_FAMINC & float & Median family income \\
-5 & AGE\_ENTRY & float & Average age of entry \\
-6 & FEMALE & float & Share of female students \\
-7 & FIRST\_GEN & float & Share of first-generation students \\
-8 & PCT\_WHITE & float & Percent of the population from students' zip codes that is White \\
-9 & DEBT\_MDN\_SUPP & float & Median debt, suppressed for n=30 \\
-10 & C150\_4 & float & Completion rate for first-time, full-time students \\
-11 & COSTT4\_A & float & Average cost of attendance (academic year institutions) \\
-12 & POVERTY\_RATE & float & Poverty\:rate \\
-13 & UNEMP\_RATE & float & Unemployment\:rate \\
-14 & MARRIED & float & Share\:of\:married students \\
-15 & VETERAN & float & Share\:of\:veteran students \\
-16 & LOCALE & float & Locale\:of\:institution \\
-17 & CCBASIC & float & Carnegie\:Classification -- basic \\
-18 & CONTROL & float & Control\:of\:institution \\
+1 & SATVRMID & int & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(critical\:reading) \\
+2 & SATMTMID & int & Midpoint\:of SAT scores at the institution (math) \\
+3 & SATWRMID & int & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(writing) \\
+4 & MD\_FAMINC & float [0,1] & Median\:family\:income \\
+5 & AGE\_ENTRY & float & Average\:age\:of\:entry \\
+6 & FEMALE & float [0,1] & Share\:of\:female\:students \\
+7 & FIRST\_GEN & float [0,1] & Share\:of\:first-generation students \\
+8 & PCT\_WHITE & float [0,1] & Percent\:of\:the\:population\:from\:students'\:zip\:codes\:that\:is\:White \\
+9 & DEBT\_MDN\_SUPP & float & Median\:debt,\:suppressed\:for\:n=30 \\
+10 & C150\_4 & float[0,1] & Completion\:rate\:for\:first-time,\:full-tim\:students \\
+11 & COSTT4\_A & float[0,1] & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
+12 & POVERTY\_RATE & float[0,1] & Poverty\:rate \\
+13 & UNEMP\_RATE & float[0,1] & Unemployment\:rate \\
+14 & MARRIED & float[0,1] & Share\:of\:married students \\
+15 & VETERAN & float[0,1] & Share\:of\:veteran students \\
+16 & LOCALE & categorical & Locale\:of\:institution \\
+17 & CCBASIC & categoriacal & Carnegie\:Classification -- basic \\
+18 & CONTROL & categorical & Control\:of\:institution \\
+19 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:working\:and\:not\:enrolled\:10\:years\:after\:entry\\
 \end{array}
 $$
 
@@ -181,7 +175,7 @@ correlated with MD_Faminc and MD_Faminc. MD_Faminc was selected because
 it had higher correlation with the dependant variable, and there seemed to
 be linear dependecy based on the plotted data points.
 
-Female was excluded because...
+Female was excluded because..
 
 First gen was excluded because...
 
