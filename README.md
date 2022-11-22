@@ -5,15 +5,23 @@
 Muuttujat:
 
 Numeeriset:
+
 -MD_Faminic 
+
 -Age_entry 
+
 -Costt4_a
+
 -Poverty_rate
+
 -SAT
 
 Kategoriset:
+
 -Rural vs City 
+
 -Public vs Private school
+
 -Kandi vs Maisteri vs doctoral
 
 
