@@ -163,18 +163,53 @@ data.filtered.all <- data.filtered.numerical.dropna %>%
   inner_join(data.filtered.categorical.dropna, by = id.vars)
 ```
 
+In the second phase of feature selection, a subset of features was selected
+from the 18 variables of the first phase. The correlations between the features 
+were examined as well as their associations to the dependent variable.
 
-In the second phase of feature selection, a subset of features was selected from
-the subset of the first phase. The approach used in this phase was mathematical 
-and programmatic.
+## Numerical variables
 
-Firstly, correlation between the features was studied. Due to high correlation
-between SAT scores, these variables were combined into one by calculating the
-average scores. However, there were too little observations with SATWRNID 
-(writing) so only the math and critical thinking SAT scores were included.
+SAT scores were combined as one variable, because they were correlated and
+viewed as one entity. However, writing SAT scores had too few observations,
+due to discontinued tracking, so the variable SAT_ALL was formed by calculating
+the average of math and critical thinking SAT scores. SAT scores were included
+because the correlation was high with the dependent variable.
 
-Secondly, step wise regression was used to find the features resulting 
-with the best AIC score.
+From the numerical variables, First Gen was eliminated because it was highly
+correlated with MD_Faminc and MD_Faminc. MD_Faminc was selected because
+it had higher correlation with the dependant variable, and there seemed to
+be linear dependecy based on the plotted data points.
+
+Female was excluded because...
+
+First gen was excluded because...
+
+Pct_white was eliminated, because it had little correlation with the dependent
+variable.
+
+Debt_mdn_supp was excluded because...
+
+C150_4 was excluded because..
+
+Costt4_a was included because...
+
+Poverty_rate was included because...
+
+Unemp_was excluded because...
+
+Married was excluded because...
+
+## Categorical variables
+
+Rural vs City
+
+Public vs Private
+
+Bachelor vs. Master vs Doctoral
+
+
+After the second phase the selected variables were: SAT_ALL, MD_Faminic, Age_entry, Costt4_a, Poverty_rate, (rural vs. city, public vs. private, kandi vs. maisteri vs. doctorla (fixaa nää oikeiks)) 
+
 
 
 ```{r, warning = FALSE}
@@ -215,6 +250,9 @@ summary(model.full)
 
 ## Variable correlation matrix
 ```{r, warning = FALSE, fig.align='left', out.width='70%', optipng = '-o7'}
+
+# comment
+
 r <- cor(numerical.vars.data)
 ggcorrplot(r,
            hc.order = TRUE,
@@ -222,6 +260,14 @@ ggcorrplot(r,
            lab_size = 3.5)
 
 ```
+Finally, the variables were tested with...
+
+The results were intuitive, suggested including all of the variables --> 
+Stays the same
+
+Secondly, step wise regression was used to find the features resulting 
+with the best AIC score.
+
 
 # 3. Description of the models
 
