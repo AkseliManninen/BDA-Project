@@ -1,5 +1,24 @@
 # BDA-Project - Projektisuunnitelma
 
+# Tapaaminen 22.11.
+
+Muuttujat:
+
+Numeeriset:
+MD_Faminic 
+Age_entry 
+Costt4_a
+Poverty_rate
+SAT
+
+Kategoriset:
+Rural vs City 
+Public vs Private school
+Kandi vs Maisteri vs doctoral
+
+
+
+
 # Tapaaminen 10.11.2022
 
 Tehty:
