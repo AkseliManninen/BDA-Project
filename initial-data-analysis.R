@@ -18,7 +18,7 @@ categorical.vars <- c("LOCALE", "CCBASIC", "CONTROL")
 SAT.vars <- c("SATVRMID", "SATMTMID")
 
 # filter specific school types
-schooltype.filter <- c(seq(14,23))
+schooltype.filter <- seq(14,23)
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
@@ -86,7 +86,6 @@ ggplot(melted.numerical, aes(x = value, y = MD_EARN_WNE_P10)) +
   facet_wrap(~variable, scales = "free") +
   geom_point()
 
-
 # categorical variable box plots
 melted.categorial <- melt(categorical.vars.data, id.vars = "MD_EARN_WNE_P10")
 melted.categorial.ccbasic <- melted.categorial %>% as_tibble() %>% filter(variable=="CCBASIC")
@@ -152,5 +151,5 @@ stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A 
 summary(stepwise.model)
 
 # TO DO ----
-# - start to think about hierarchical structure after ensuring sufficient amount of data
-# - If hierarchical structure does not work, start to think about nonlinear models, data clearly shows some nonlinear relationships with earnings. For example, married and cost of education
+# - start to think about hierarchical structure
+# - If hierarchical structure does not work, start to think about nonlinear models, data clearly shows some nonlinear relationships with earnings. For example, poverty rate
