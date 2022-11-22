@@ -68,8 +68,8 @@ Online case studies?
 
 ```{r}
 # read in data sets
-data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",") %>% as_tibble()
-data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",") %>% as_tibble()
+data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
+data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
 ```
 
 ```{r}
