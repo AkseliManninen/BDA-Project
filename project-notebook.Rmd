@@ -49,6 +49,13 @@ students, the possible insight would be especially meaningful for the members of
 Description of the data and the analysis problem. Provide information where the data was obtained, and 
 if it has been previously used in some online case study and how your analysis differs from the existing analyses.
 
+Description of the Dataset
+
+We use the most recent institutional-level college scorecard data from the US Department of Education. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. The dataset has over 6000 observations on more than 3000 variables.
+
+We chose to use this dataset because we could use the data to answer interesting education-related questions in our project, and also because the dataset has a large number of observations and also a large number of variables. The large amount of variables means we would have a lot of flexibility when it came to modelling our data and there would be enough data to possibly make valid inferences due to many observations. Of course, the large amount of variables also posed challenges, as it was arguably slower and more burdensome to find the most relevant variables to use in our analysis. We were somewhat surprised by how fast the observation count started to shrink when we began cleaning the data, so in hindsight we should have maybe paid more attention to cleanliness, as this dataset had for example a lot of missing values
+
+Online case studies?
 
 ```{r}
 # read in data sets
