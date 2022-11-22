@@ -18,7 +18,7 @@ categorical.vars <- c("LOCALE", "CCBASIC", "CONTROL")
 SAT.vars <- c("SATVRMID", "SATMTMID") # helper variable later on
 
 # filtering options
-degreetype.filter <- c(seq(18,23))
+degreetype.filter <- c(seq(14,23))
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
@@ -65,7 +65,7 @@ summary(data.filtered.all)
 
 # make variable type specific data frames for plots etc.
 numerical.vars.data <- data.filtered.all.dropna %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
-categorical.vars.data <- data.filtered.all.dropna %>% select(all_of(categorical.vars))
+categorical.vars.data <- data.filtered.all.dropna %>% select(all_of(categorical.vars), MD_EARN_WNE_P10)
 
 # visualizations
 r <- cor(numerical.vars.data)
@@ -75,21 +75,70 @@ ggcorrplot(r,
            lab = TRUE)
 
 
-melted <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
+melted.numerical <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 
-ggplot(melted, aes(x = value, y = MD_EARN_WNE_P10)) +
+ggplot(melted.numerical, aes(x = value, y = MD_EARN_WNE_P10)) +
   facet_wrap(~variable, scales = "free") +
   geom_point()
+
+
+melted.categorial <- melt(categorical.vars.data, id.vars = "MD_EARN_WNE_P10")
+melted.categorial.ccbasic <- melted.categorial %>% as_tibble() %>% filter(variable=="CCBASIC")
+melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variable=="LOCALE")
+melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variable=="CONTROL")
+
+ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("A boxplot with jitter") +
+  xlab("")
+
+
+ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("A boxplot with jitter") +
+  xlab("")
+
+ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("A boxplot with jitter") +
+  xlab("")
+
+melted.all <- melt(data, id.vars = "MD_EARN_WNE_P10") %>% as_tibble()
+melted.all.ccbasic <- melted.all %>% filter(variable=="CCBASIC")
+ggplot(melted.all.ccbasic, aes(x=value, y=MD_EARN_WNE_P10 %>% as.numeric, fill=value)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("A boxplot with jitter") +
+  xlab("")
 
 # preliminary model with all numerical vars (not yet categorical)
 model <- lm(MD_EARN_WNE_P10 ~ ., data = numerical.vars.data)
 summary(model)
 
 # step wise regression implied "best" model in terms of AIC
-step(model)
-stepwise.model <- lm(MD_EARN_WNE_P10 ~ MD_FAMINC + FEMALE + FIRST_GEN +
-                       PCT_WHITE + DEBT_MDN_SUPP + C150_4 + COSTT4_A + POVERTY_RATE +
-                       UNEMP_RATE + SAT_ALL, data = numerical.vars.data)
+step(model, direction = "backward")
+stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ MD_FAMINC + AGE_ENTRY + FEMALE +
+                       FIRST_GEN + PCT_WHITE + C150_4 + COSTT4_A + POVERTY_RATE +
+                       UNEMP_RATE + MARRIED + SAT_ALL, data = numerical.vars.data)
 summary(stepwise.model)
 
 # numerical + categorical vars model
