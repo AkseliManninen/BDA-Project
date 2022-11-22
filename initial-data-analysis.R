@@ -6,8 +6,8 @@ library(reshape2)
 library(ggcorrplot)
 
 # read in data sets
-data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",") %>% as_tibble()
-data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",") %>% as_tibble()
+data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
+data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
 
 # DATA MANIPULATION ----
 
@@ -22,7 +22,7 @@ schooltype.filter <- c(seq(14,23))
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
-  select(VARIABLE.NAME, ï..NAME.OF.DATA.ELEMENT, NOTES) %>%
+  select(VARIABLE.NAME, NAME.OF.DATA.ELEMENT, NOTES) %>%
   filter(VARIABLE.NAME %in% c(id.vars, categorical.vars, numerical.vars))
 
 # extract categorical variables
