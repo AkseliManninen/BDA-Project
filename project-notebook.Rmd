@@ -233,37 +233,15 @@ Description of at least two models, for example:
 
 ## Description of the separate model
 
-$\theta_j ∼ Normal(0, 200)$
-
-$\sigma_j ∼ Inv-\chi^2(0, 1)$ 
-
-$y_{ij}|\theta_j, \sigma_j ∼ N(\theta_j, \sigma_j^2)$
-
+Add LaTeX!
 
 ## Description of the pooled model
 
-$\theta ∼ Normal(0, 200)$
-
-$\sigma ∼ Inv-\chi^2(0, 1)$ 
-
-$y_{i}|\theta, \sigma ∼ N(\theta, \sigma^2)$
-
+Add LaTeX!
 
 ## Description of the hierarchical model
 
-$\theta_P ∼ Normal(0, 200)$
-
-
-$\sigma_P ∼ Inv-\chi^2(0, 1)$
-
-
-$\theta_j |\theta_P, \sigma_P^2 ∼ Normal(\theta_P, \sigma_P^2)$
-
-
-$\sigma ∼ Normal(0, 200)$
-
-
-$y_{ij} |\theta_j ∼ N(\theta_j, \sigma^2)$
+Add LaTeX!
 
 ---Linear model??? Should we describe this
 
