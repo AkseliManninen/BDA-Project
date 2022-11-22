@@ -213,7 +213,15 @@ summary(model.full)
 
 ```
 
+## Variable correlation matrix
+```{r, warning = FALSE, fig.align='left', out.width='70%', optipng = '-o7'}
+r <- cor(numerical.vars.data)
+ggcorrplot(r,
+           hc.order = TRUE,
+           lab = TRUE,
+           lab_size = 3.5)
 
+```
 
 # 3. Description of the models
 
