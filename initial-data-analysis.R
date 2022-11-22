@@ -138,10 +138,16 @@ data.joined.model <- data.joined.dropna %>%
 
 numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", "COSTT4_A", "POVERTY_RATE")
 categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
-data.joined.model <- data.joined.model %>%
-  select(c(numerical.vars.model, categorical.vars.model))
 
-# preliminary model with all numerical vars (not yet categorical)
+# data with REGION identifier for STAN
+data.joined.stan <- data.joined.model %>%
+  select(REGION, numerical.vars.model, categorical.vars.model)
+
+# data for linear regression model in R
+data.joined.model <- data.joined.stan %>%
+    select(-REGION)
+
+# baseline model
 model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
 summary(model)
 
