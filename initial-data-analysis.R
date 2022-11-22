@@ -15,10 +15,10 @@ data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep =
 id.vars <- c("UNITID", "INSTNM", "CITY", "ST_FIPS", "REGION")
 numerical.vars <- c("SATVRMID", "SATMTMID", "MD_FAMINC", "AGE_ENTRY", "FEMALE", "FIRST_GEN", "PCT_WHITE", "DEBT_MDN_SUPP", "C150_4", "COSTT4_A", "MD_EARN_WNE_P10", "POVERTY_RATE", "UNEMP_RATE", "MARRIED")
 categorical.vars <- c("LOCALE", "CCBASIC", "CONTROL")
-SAT.vars <- c("SATVRMID", "SATMTMID") # helper variable later on
+SAT.vars <- c("SATVRMID", "SATMTMID")
 
-# filtering options
-degreetype.filter <- c(seq(14,23))
+# filter specific school types
+schooltype.filter <- c(seq(14,23))
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
@@ -26,66 +26,72 @@ variable.descriptions <- data.description %>%
   filter(VARIABLE.NAME %in% c(id.vars, categorical.vars, numerical.vars))
 
 # extract categorical variables
-data.filtered.categorical <- data %>%
+data.categorical <- data %>%
   select(all_of(id.vars), all_of(categorical.vars)) %>%
   mutate(across(.cols = all_of(categorical.vars), .fns = as.factor))
 
-# drop rows with NA for categorical vars
-data.filtered.categorical.dropna <- data.filtered.categorical %>%
+data.categorical.dropna <- data.categorical %>%
   drop_na()
 
 # extract numerical variables
-data.filtered.numerical <- data %>%
+data.numerical <- data %>%
   select(all_of(id.vars), all_of(numerical.vars)) %>%
   mutate(across(.cols = c(id.vars[1], numerical.vars), .fns = as.numeric))
 
-# drop rows with NA for numerical vars
-data.filtered.numerical.dropna <- data.filtered.numerical %>%
+data.numerical.dropna <- data.numerical %>%
   drop_na()
 
-# join categorical and numerical variables by id
-data.filtered.numerical.dropna <- data.filtered.numerical.dropna %>%
-  mutate(SAT_ALL = data.filtered.numerical.dropna %>%
+# aggregate SAT scores
+data.numerical.dropna <- data.numerical.dropna %>%
+  mutate(SAT_ALL = data.numerical.dropna %>%
            select(SATVRMID, SATMTMID) %>%
-           rowMeans())
+           rowMeans()
+         )
 
-data.filtered.all <- data.filtered.numerical %>%
-  inner_join(data.filtered.categorical, by = id.vars) %>%
-  filter(CCBASIC %in% degreetype.filter)
+data.joined <- data.numerical %>%
+  inner_join(data.categorical, by = id.vars) %>%
+  filter(CCBASIC %in% schooltype.filter)
 
-data.filtered.all.dropna <- data.filtered.numerical.dropna %>%
-  inner_join(data.filtered.categorical.dropna, by = id.vars) %>%
-  filter(CCBASIC %in% degreetype.filter)
+data.joined.dropna <- data.numerical.dropna %>%
+  inner_join(data.categorical.dropna, by = id.vars) %>%
+  filter(CCBASIC %in% schooltype.filter)
 
 # PRELIMINARY ANALYSIS ----
 
 # summarize data
-glimpse(data.filtered.all)
-summary(data.filtered.all)
+glimpse(data.joined.dropna)
+summary(data.joined.dropna)
 
 # make variable type specific data frames for plots etc.
-numerical.vars.data <- data.filtered.all.dropna %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
-categorical.vars.data <- data.filtered.all.dropna %>% select(all_of(categorical.vars), MD_EARN_WNE_P10)
+numerical.vars.data <- data.joined.dropna %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
 
-# visualizations
+categorical.vars.data <- data.joined.dropna %>%
+  select(all_of(categorical.vars), MD_EARN_WNE_P10) %>%
+  relocate(MD_EARN_WNE_P10, 1)
+
+# VISUALIZATION ----
+
+# correlation between numerical variables
 r <- cor(numerical.vars.data)
 ggcorrplot(r,
            hc.order = TRUE,
-           type = "lower",
-           lab = TRUE)
+           type = "full",
+           lab = TRUE,
+           title = "Correlation between numerical variables")
 
 
+# scatter plot between predictors and earnings
 melted.numerical <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
-
 ggplot(melted.numerical, aes(x = value, y = MD_EARN_WNE_P10)) +
   facet_wrap(~variable, scales = "free") +
   geom_point()
 
 
+# categorical variable box plots
 melted.categorial <- melt(categorical.vars.data, id.vars = "MD_EARN_WNE_P10")
 melted.categorial.ccbasic <- melted.categorial %>% as_tibble() %>% filter(variable=="CCBASIC")
+melted.categorial.control <- melted.categorial %>% as_tibble() %>% filter(variable=="CONTROL")
 melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variable=="LOCALE")
-melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variable=="CONTROL")
 
 ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -94,9 +100,8 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("A boxplot with jitter") +
-  xlab("")
-
+  ggtitle("University types") +
+  xlab("CCBASIC")
 
 ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -105,8 +110,8 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("A boxplot with jitter") +
-  xlab("")
+  ggtitle("Public vs. Private") +
+  xlab("CONTROL")
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -115,43 +120,37 @@ ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
     legend.position="none",
     plot.title = element_text(size=11)
   ) +
-  ggtitle("A boxplot with jitter") +
-  xlab("")
+  ggtitle("Location of school") +
+  xlab("LOCALE")
 
-melted.all <- melt(data, id.vars = "MD_EARN_WNE_P10") %>% as_tibble()
-melted.all.ccbasic <- melted.all %>% filter(variable=="CCBASIC")
-ggplot(melted.all.ccbasic, aes(x=value, y=MD_EARN_WNE_P10 %>% as.numeric, fill=value)) +
-  geom_boxplot() +
-  geom_jitter(color="black", size=0.4, alpha=0.9) +
-  theme(
-    legend.position="none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("A boxplot with jitter") +
-  xlab("")
+# MODELING ----
+
+data.joined.model <- data.joined.dropna %>%
+  mutate(URBAN = case_when(LOCALE %in% c(seq(11,13), seq(21,23)) ~ 1,
+                           TRUE ~ 0),
+         PRIVATE = case_when(CONTROL %in% c(2,3) ~ 1,
+                             TRUE ~ 0),
+         DOCTORAL = case_when(CCBASIC %in% seq(15,17) ~ 1,
+                              TRUE ~ 0),
+         MASTER = case_when(CCBASIC %in% seq(18,20) ~ 1,
+                            TRUE ~ 0)
+  )
+
+
+numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", "COSTT4_A", "POVERTY_RATE")
+categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
+data.joined.model <- data.joined.model %>%
+  select(c(numerical.vars.model, categorical.vars.model))
 
 # preliminary model with all numerical vars (not yet categorical)
-model <- lm(MD_EARN_WNE_P10 ~ ., data = numerical.vars.data)
+model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
 summary(model)
 
 # step wise regression implied "best" model in terms of AIC
 step(model, direction = "backward")
-stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ MD_FAMINC + AGE_ENTRY + FEMALE +
-                       FIRST_GEN + PCT_WHITE + C150_4 + COSTT4_A + POVERTY_RATE +
-                       UNEMP_RATE + MARRIED + SAT_ALL, data = numerical.vars.data)
+stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + POVERTY_RATE + URBAN + PRIVATE + MASTER, data = data.joined.model)
 summary(stepwise.model)
 
-# numerical + categorical vars model
-full.model.data <- data.filtered.all %>%
-  select(!c(id.vars, SAT.vars))
-model.full <- lm(MD_EARN_WNE_P10 ~ ., full.model.data)
-summary(model.full)
-
-# TO DO: ----
-# - see what data we have from id.vars, e.g., CCBASIC implies that subset might be to small
-# - choose predictors such that we get a sufficiently large sample of schools
-# - consider filtering the data such that we focus on e.g., certain types of schools
-# - visualize categorical vars after choosing filtering to ensure we have enough variability
-# - sanity check variables such that they are surely comparable (data comes from different sources)
+# TO DO ----
 # - start to think about hierarchical structure after ensuring sufficient amount of data
 # - If hierarchical structure does not work, start to think about nonlinear models, data clearly shows some nonlinear relationships with earnings. For example, married and cost of education
