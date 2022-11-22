@@ -2,12 +2,12 @@
 title: "BDA Project"
 author: "Niko Miller, Akseli Manninen and Santeri Löppönen"
 output:
-  word_document:
-    toc: yes
-    toc_depth: '3'
   pdf_document:
     toc: yes
     toc_depth: 3
+  word_document:
+    toc: yes
+    toc_depth: '3'
 urlcolor: blue
 ---
 
@@ -22,6 +22,7 @@ library(posterior)
 library(rstan)
 library(tidyverse)
 library(reshape2)
+library(ggcorrplot)
 ```
 
 \newpage
@@ -68,8 +69,8 @@ Online case studies?
 
 ```{r}
 # read in data sets
-data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",") %>% as_tibble()
-data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",") %>% as_tibble()
+data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
+data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
 ```
 
 ```{r}
@@ -278,37 +279,15 @@ Description of at least two models, for example:
 
 ## Description of the separate model
 
-$θ_j ∼ Normal(0, 200)$
-
-$σ_j ∼ Inv-\chi^2(0, 1)$ 
-
-$y_{ij}|θ_j, σ_j ∼ N(θ_j, σ_j^2)$
-
+Add LaTeX!
 
 ## Description of the pooled model
 
-$θ ∼ Normal(0, 200)$
-
-$σ ∼ Inv-\chi^2(0, 1)$ 
-
-$y_{i}|θ, σ ∼ N(θ, σ^2)$
-
+Add LaTeX!
 
 ## Description of the hierarchical model
 
-$θ_P ∼ Normal(0, 200)$
-
-
-$σ_P ∼ Inv-\chi^2(0, 1)$
-
-
-$θ_j |θ_P, σ_P^2 ∼ Normal(θ_P, σ_P^2)$
-
-
-$σ ∼ Normal(0, 200)$
-
-
-$y_{ij} |θ_j ∼ N(θ_j, σ^2)$
+Add LaTeX!
 
 ---Linear model??? Should we describe this
 
