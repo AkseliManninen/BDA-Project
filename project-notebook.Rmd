@@ -306,29 +306,74 @@ Add LaTeX!
 
 # 4. Informative or weakly informative priors, and justification of their choices.
 
-SAT_ALL  Norm(mu, 500)
--	mu = Keskimääräinen tulo / keskimääräinen SAT tulos (lähteet), iso hajonta, ei rajoteta nollaan.
--	SAT jossain määrin positiivisesti priorin perusteella, mutta ison hajonnan perusteella voi olla negatiivinen. Iso hajonta, koska palkka selittyy monista tekijöistä.
-MD_FAMINIC (median family income)  Norm(0, 100)
--	Ei tiedetä miten vaikuttaa
--	Median income absoluuttiset luvut ovat isoja (isompia, kuin vaikka SAT)  Pienempi hajonta kuin SAT, koska etsitään painoarvoa.
--	Mutta vanhemmat voivat olla köyhiä, mutta lapsi tienaa paljon rahaa.
-AGE_ENTRY  Norm(0, 2500)
--	Relatistisesti 10 – 50v, suurin osa on 20 v.
--	Iso hajonta. Esimerkiksi 50v aloitus, palkka voi olla 50k pienempi, jolloin beta olisi – 1000.
-COSTT4_A (Average cost of attendance)  MD_FAMINIC (median family income)  Norm(0, 500)
--	Pienempi arvoja kuin family income. 
--	Suuritulosesta perheestä ei varaa lähettää montaa lasta yliopistoo, vs. ainut lapsi. Nämä kohdistuu suoraan lapseen vs. perheen tulot, ei välttämättä indikoi, paljon lapsi saa rahaa. 
-POVERTY_RATE  Norm(0, 2500)
--	Arvot pieniä  Isompi hajonta.
--	Tarvitsee tosi ison painon, jos työttömyyttä on vähän. Absoluuttinen arvo voilla olla tosi pieni, esim 0.01  Tarvitsee ison hajonna.
-MASTER  Normal(0, 25 000)
--	Oletetaan ettei vaikuta, mutta on mahdollista, että vaikuttaa palkkaan suurestikin. Estimaatin mahdolliset arvot oltava isoja, koska dummy muuttujan on oltava aina 0 tai 1.
-PRIVATE  Normal(0, 25 000)
--	Oletetaan ettei vaikuta, mutta on mahdollista, että vaikuttaa palkkaan suurestikin. Estimaatin mahdolliset arvot oltava isoja, koska dummy muuttujan on oltava aina 0 tai 1.
+The selected priors are mostly weakly informative, as we do not posses enough
+information about the dependency between the independent variables and the
+dependent variable. When selecting the priors, proper distribution type
+was considered for each variable. What comes to the standard deviations, they
+were selected based on the magnitude of absolute values of the variables,
+and considering what kind of impact they could have for income, with 
+somewhat exaggerated estimates to avoid limiting the values too much.
+
+SAT_ALL ~ Normal(43, 500)
+
+Justification: Weakly informative prior as we don't posses enough information
+on the dependency, although it would be intuitive that success in the SAT exam
+would be associated with higher income. For that reason, the standard deviation
+is set to be high, and the variable is not limited to be greater than one.
+
+The mean is calculated with the following formula: Median individual income
+in the United States / Median SAT Score (math and writing).
+
+mu = 31 000 / (523 + 528/2) = 43.2...
+
+TODO: Add sources to the end and to the text:
+https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en 
+https://www.number2.com/average-sat-score/
+- Tarkista, oliko niko laskenut tulokset yhteen, vai keskiarvon tuloksista.
+Aikaisemmin tässä tiedostossa puhutaan keskiarvoista, joten fixaa tarvittessa.
+
+MD_FAMINIC ~ Normal(0, 100)
+
+Justification: Weakly informative prior, is selected as we don't posses enough 
+information on the dependency. The absolute values are in general high, 
+(for example compared to AGE_OF_ENTRY) and thus the standard deviation is set 
+lower for this variable.However, there could be cases where MD_FAMINIC is low, 
+due to for example unemployment, so the standard deviation is still set 
+considerably high.
+
+AGE_ENTRY ~ NORM(0, 2500)
+
+Justification: Weakly informative prior, is selected as we don't posses enough 
+information on the dependency. As the age of entry could be somewhere in the 
+range of 15 - 50 without considering outliers, a few dozen years difference
+could have dramatic changes in income either way, the standard deviation is set 
+high.
 
 
+COSTT4_A ~ Norm(0, 500)
 
+Justification: Weakly informative prior, is selected as we don't posses enough 
+information on the dependency. The average cost entry per academic year is
+most likely lower than median family income, but higher than average age of
+entry and thus the standard deviation is set between the standard deviations
+of those.
+
+POVERTY_RATE ~ Norm(0, 2500)
+
+Justification: Weakly informative prior, is selected as we don't posses enough 
+information on the dependency. The possible values are between 0 and 100.
+There could be situations were poverty rate in an area is really low,
+for instance 0.5%. For that reason, the standard deviation in the prior
+is set high to enable possibly high weight for a small value.
+
+MASTER ~ Normal(0, 2500)
+
+PRIVATE ~ Normal(0, 2500)
+
+Justification: For MASTER and PRIVATE weakly informative prior, is selected as 
+we don't posses enough information on the dependency with the dependent variable.
+Because the values are always either 0 and 1, the standard deviation is set
+high.
 
 # 5. Stan, rstanarm or brms code.
 
