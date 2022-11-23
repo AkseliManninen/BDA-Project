@@ -265,7 +265,8 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
     plot.title = element_text(size=11)
   ) +
   ggtitle("University types") +
-  xlab("CCBASIC")
+  xlab("CCBASIC") +
+  labs(caption = "Doctoral (15-17), Master's (18-20), Bachelor's (21-23)")
 
 ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -275,7 +276,8 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
     plot.title = element_text(size=11)
   ) +
   ggtitle("Public vs. Private") +
-  xlab("CONTROL")
+  xlab("CONTROL") +
+  scale_x_discrete(labels = c("Public","Private, Nonprofit","Proprietary"))
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -285,7 +287,9 @@ ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
     plot.title = element_text(size=11)
   ) +
   ggtitle("Location of school") +
-  xlab("LOCALE")
+  xlab("LOCALE") +
+  labs(caption = "City (11-13), Suburb (21-23), Town (31-33), Rural (41-43")
+
 ```
 
 
