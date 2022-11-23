@@ -175,7 +175,9 @@ correlated with MD_Faminc and MD_Faminc. MD_Faminc was selected because
 it had higher correlation with the dependant variable, and there seemed to
 be linear dependecy based on the plotted data points.
 
-Female was excluded because..
+Female was excluded because there did not seem to be dependency between
+the dependent variable and Female. Also, the aboslut value 
+of correlation was low.
 
 First gen was excluded because...
 
