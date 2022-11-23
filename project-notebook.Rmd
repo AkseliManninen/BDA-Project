@@ -170,42 +170,20 @@ due to discontinued tracking, so the variable SAT_ALL was formed by calculating
 the average of math and critical thinking SAT scores. SAT scores were included
 because the correlation was high with the dependent variable.
 
-From the numerical variables, First Gen was eliminated because it was highly
-correlated with MD_Faminc and MD_Faminc. MD_Faminc was selected because
-it had higher correlation with the dependant variable, and there seemed to
-be linear dependecy based on the plotted data points.
+For the rest of the numerical variables, if the correlation between a feature
+and the dependent variable was low and there was not observable dependency 
+between the two in the scatter plot, the feature was excluded. Also, if multiple
+independent variables were highly correlated, for the sake of simplicity only
+one of them was selected to the model, based on the highest correlation and 
+dependency with the dependent variable.
 
-Female was excluded because there did not seem to be dependency between
-the dependent variable and Female. Also, the aboslut value 
-of correlation was low.
+The selected numerical variables were: SAT_ALL, MD_FAMINIC, AGE_ENTRY, 
+COSTT4_A, and POVERTY_RATE.
 
-First gen was excluded because...
-
-Pct_white was eliminated, because it had little correlation with the dependent
-variable.
-
-Debt_mdn_supp was excluded because...
-
-C150_4 was excluded because..
-
-Costt4_a was included because...
-
-Poverty_rate was included because...
-
-Unemp_was excluded because...
-
-Married was excluded because...
 
 ## Categorical variables
 
-Rural vs City
-
-Public vs Private
-
-Bachelor vs. Master vs Doctoral
-
-
-After the second phase the selected variables were: SAT_ALL, MD_Faminic, Age_entry, Costt4_a, Poverty_rate, (rural vs. city, public vs. private, kandi vs. maisteri vs. doctorla (fixaa nää oikeiks)) 
+The selected categorical variables were: LOCALE, CCBASIC and CONTROL.
 
 
 
