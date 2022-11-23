@@ -4,10 +4,10 @@ author: "Niko Miller, Akseli Manninen and Santeri Löppönen"
 output:
   pdf_document:
     toc: yes
-    toc_depth: 3
+    toc_depth: 1
   word_document:
     toc: yes
-    toc_depth: '3'
+    toc_depth: '1'
 urlcolor: blue
 ---
 
@@ -184,8 +184,8 @@ were examined as well as their associations to the dependent variable.
 
 SAT scores were combined as one variable, because they were correlated and
 viewed as one entity. However, writing SAT scores had too few observations,
-due to discontinued tracking, so the variable SAT_ALL was formed by calculating
-the average of math and critical thinking SAT scores. SAT scores were included
+due to discontinued tracking, so the variable SAT_ALL was formed by summing the 
+math and critical thinking SAT scores. SAT scores were included
 because the correlation was high with the dependent variable.
 
 For the rest of the numerical variables, if the correlation between a feature
@@ -288,7 +288,7 @@ ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   ) +
   ggtitle("Location of school") +
   xlab("LOCALE") +
-  labs(caption = "City (11-13), Suburb (21-23), Town (31-33), Rural (41-43")
+  labs(caption = "City (11-13), Suburb (21-23), Town (31-33), Rural (41-43)")
 
 ```
 
@@ -320,7 +320,7 @@ $$
 $$
 
 
-# Generating binary features from the categorical features
+## Generating binary features from the categorical features
 ```{r, warning = FALSE}
 data.joined.model <- data.joined.dropna %>%
   mutate(URBAN = case_when(LOCALE %in% c(seq(11,13), seq(21,23)) ~ 1,
@@ -349,11 +349,6 @@ data.joined.model <- data.joined.stan %>%
 
 # 3. Description of the models
 
-Description of at least two models, for example:
-- non hierarchical and hierarchical,
-- linear and non linear,
-- variable selection with many models.
-
 ## Description of the separate model
 
 Add LaTeX!
@@ -366,7 +361,7 @@ Add LaTeX!
 
 Add LaTeX!
 
----Linear model??? Should we describe this
+## Description of the linear model
 
 # 4. Informative or weakly informative priors, and justification of their choices.
 
