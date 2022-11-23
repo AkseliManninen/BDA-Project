@@ -75,6 +75,8 @@ sum(data == "NULL")
 
 ## Feature selection
 
+## Phase 1 - Feature selection based on literature and domain knowledge
+
 The initial data set had almost 3000 features and in that regards, the number
 of observations is relatively small. There are also a lot of missing values
 in the data set and some features are missing. For these reasons, there was
@@ -87,30 +89,28 @@ having enough data were included in the subset and others were discarded.
 
 The selected features were: 
 
-NOTE: The last variable MD_EARN_WNE_P10 is the dependent variable.
-
 $$
 \begin{array} {c|c|c|c|c|c|c|c} & name & data\:type & description \\ 
 \hline
 1 & SATVRMID & int & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(critical\:reading) \\
 2 & SATMTMID & int & Midpoint\:of SAT scores at the institution (math) \\
 3 & SATWRMID & int & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(writing) \\
-4 & MD\_FAMINC & float [0,1] & Median\:family\:income \\
+4 & MD\_FAMINC & float & Median\:family\:income \\
 5 & AGE\_ENTRY & float & Average\:age\:of\:entry \\
-6 & FEMALE & float [0,1] & Share\:of\:female\:students \\
-7 & FIRST\_GEN & float [0,1] & Share\:of\:first-generation students \\
-8 & PCT\_WHITE & float [0,1] & Percent\:of\:the\:population\:from\:students'\:zip\:codes\:that\:is\:White \\
+6 & FEMALE & float [0,100] & Share\:of\:female\:students \\
+7 & FIRST\_GEN & float [0,100] & Share\:of\:first-generation students \\
+8 & PCT\_WHITE & float [0,100] & Percent\:of\:the\:population\:from\:students'\:zip\:codes\:that\:is\:White \\
 9 & DEBT\_MDN\_SUPP & float & Median\:debt,\:suppressed\:for\:n=30 \\
-10 & C150\_4 & float[0,1] & Completion\:rate\:for\:first-time,\:full-tim\:students \\
-11 & COSTT4\_A & float[0,1] & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
-12 & POVERTY\_RATE & float[0,1] & Poverty\:rate \\
-13 & UNEMP\_RATE & float[0,1] & Unemployment\:rate \\
-14 & MARRIED & float[0,1] & Share\:of\:married students \\
-15 & VETERAN & float[0,1] & Share\:of\:veteran students \\
+10 & C150\_4 & float[0,100] & Completion\:rate\:for\:first-time,\:full-tim\:students \\
+11 & COSTT4\_A & float & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
+12 & POVERTY\_RATE & float[0,100] & Poverty\:rate \\
+13 & UNEMP\_RATE & float[0,100] & Unemployment\:rate \\
+14 & MARRIED & float[0,100] & Share\:of\:married students \\
+15 & VETERAN & float[0,100] & Share\:of\:veteran students \\
 16 & LOCALE & categorical & Locale\:of\:institution \\
 17 & CCBASIC & categoriacal & Carnegie\:Classification -- basic \\
 18 & CONTROL & categorical & Control\:of\:institution \\
-19 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:working\:and\:not\:enrolled\:10\:years\:after\:entry\\
+19 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:working\:and\:not\:enrolled\:10\:years\:after\:entry \:(dependent\:variable)\\
 \end{array}
 $$
 
@@ -158,6 +158,9 @@ data.filtered.all <- data.filtered.numerical.dropna %>%
   inner_join(data.filtered.categorical.dropna, by = id.vars)
 ```
 
+## Phase 2 - Feature selection wiht correlation and visual dependency
+
+
 In the second phase of feature selection, a subset of features was selected
 from the 18 variables of the first phase. The correlations between the features 
 were examined as well as their associations to the dependent variable.
@@ -185,13 +188,24 @@ COSTT4_A, and POVERTY_RATE.
 
 The categorical variables were observed with box plots to see if there were 
 differences between the categories and the dependent variable. Based on an 
-analysis on the variable LOCALE, a new variable was CITY was generated
-which represents, whether ... 
+analysis on the variable LOCALE, a new binary variable URBAN was generated
+which represents, where value 1 represents city-like area which includes
+categories Large City, Mid-Size City, Urban Fringe of a Large City and Urban 
+Fringe of a Mid-Size City of the LOCALE variable from the dataset.
 
+The categorical variable CCBASIC which represented the Carnegie Classification
+was divided into two binary MASTER and DOCTORL. These variables represent
+if the college is classified as Master's college and university or Doctoral's
+college and university. If a college does not belong to either of those,
+it is a Bachelor's college and university. Other special focus colleges
+and universities were discarded from the dataset to keep the model more simple.
 
-The selected categorical variables were: LOCALE, CCBASIC and CONTROL.
+The categorical variable CONTROL, which had three classes Public, Private
+and Private, Nonprofit and Proprietary was modified into binary variable
+Private representing if the school is private or public school. There
+were only few Proprietary observations, so those were discarded.
 
-
+The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
 
 ```{r, warning = FALSE}
 # PRELIMINARY ANALYSIS ----
@@ -241,13 +255,32 @@ ggcorrplot(r,
            lab_size = 3.5)
 
 ```
-Finally, the variables were tested with...
 
-The results were intuitive, suggested including all of the variables --> 
-Stays the same
+## Phase 3 - Feature selection with Stepwise regression
 
-Secondly, step wise regression was used to find the features resulting 
-with the best AIC score.
+In the third phase, the remaining variables were used with Stepwise
+regression, to test which subset of features perform the best, and
+whether the received coefficients are reasonable, and if there are signs
+of overfitting.
+
+The Stepwise regression suggested using all of the variables, except CITY
+and DOCTORAL.
+
+The final features are listed in the table below:
+
+$$
+\begin{array} {c|c|c|c|c|c|c|c} & name & data\:type & description \\ 
+\hline
+1 & SAT\_ALL & int & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(Average\:of\:critical\:reading\:math) \\
+2 & MD\_FAMINC & float & Median\:family\:income \\
+3 & AGE\_ENTRY & float & Average\:age\:of\:entry \\
+4 & COSTT4\_A & float & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
+5 & POVERTY\_RATE & float[0,100] & Poverty\:rate \\
+6 & PRIVATE & binary & Carnegie\:Classification -- basic \\
+7 & MASTER & binary & Control\:of\:institution \\
+8 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:working\:and\:not\:enrolled\:10\:years\:after\:entry \:(dependent\:variable)\\
+\end{array}
+$$
 
 
 # 3. Description of the models
@@ -273,6 +306,30 @@ Add LaTeX!
 
 # 4. Informative or weakly informative priors, and justification of their choices.
 
+SAT_ALL  Norm(mu, 500)
+-	mu = Keskimääräinen tulo / keskimääräinen SAT tulos (lähteet), iso hajonta, ei rajoteta nollaan.
+-	SAT jossain määrin positiivisesti priorin perusteella, mutta ison hajonnan perusteella voi olla negatiivinen. Iso hajonta, koska palkka selittyy monista tekijöistä.
+MD_FAMINIC (median family income)  Norm(0, 100)
+-	Ei tiedetä miten vaikuttaa
+-	Median income absoluuttiset luvut ovat isoja (isompia, kuin vaikka SAT)  Pienempi hajonta kuin SAT, koska etsitään painoarvoa.
+-	Mutta vanhemmat voivat olla köyhiä, mutta lapsi tienaa paljon rahaa.
+AGE_ENTRY  Norm(0, 2500)
+-	Relatistisesti 10 – 50v, suurin osa on 20 v.
+-	Iso hajonta. Esimerkiksi 50v aloitus, palkka voi olla 50k pienempi, jolloin beta olisi – 1000.
+COSTT4_A (Average cost of attendance)  MD_FAMINIC (median family income)  Norm(0, 500)
+-	Pienempi arvoja kuin family income. 
+-	Suuritulosesta perheestä ei varaa lähettää montaa lasta yliopistoo, vs. ainut lapsi. Nämä kohdistuu suoraan lapseen vs. perheen tulot, ei välttämättä indikoi, paljon lapsi saa rahaa. 
+POVERTY_RATE  Norm(0, 2500)
+-	Arvot pieniä  Isompi hajonta.
+-	Tarvitsee tosi ison painon, jos työttömyyttä on vähän. Absoluuttinen arvo voilla olla tosi pieni, esim 0.01  Tarvitsee ison hajonna.
+MASTER  Normal(0, 25 000)
+-	Oletetaan ettei vaikuta, mutta on mahdollista, että vaikuttaa palkkaan suurestikin. Estimaatin mahdolliset arvot oltava isoja, koska dummy muuttujan on oltava aina 0 tai 1.
+PRIVATE  Normal(0, 25 000)
+-	Oletetaan ettei vaikuta, mutta on mahdollista, että vaikuttaa palkkaan suurestikin. Estimaatin mahdolliset arvot oltava isoja, koska dummy muuttujan on oltava aina 0 tai 1.
+
+
+
+
 # 5. Stan, rstanarm or brms code.
 
 # 6. How to the Stan model was run, that is, what options were used. 
@@ -290,6 +347,10 @@ of practical usefulness of the accuracy. This should be reported for all models 
 is changed). This should be reported for all models.
 
 # 11. Discussion of issues and potential improvements.
+
+- Correlation does not mean causality
+- Ethics selecting features
+- 
 
 # 12. Conclusion what was learned from the data analysis.
 
