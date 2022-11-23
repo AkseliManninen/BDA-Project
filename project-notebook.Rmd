@@ -183,6 +183,12 @@ COSTT4_A, and POVERTY_RATE.
 
 ## Categorical variables
 
+The categorical variables were observed with box plots to see if there were 
+differences between the categories and the dependent variable. Based on an 
+analysis on the variable LOCALE, a new variable was CITY was generated
+which represents, whether ... 
+
+
 The selected categorical variables were: LOCALE, CCBASIC and CONTROL.
 
 
