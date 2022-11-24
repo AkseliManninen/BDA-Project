@@ -400,7 +400,7 @@ lower for this variable.However, there could be cases where MD_FAMINIC is low,
 due to for example unemployment, so the standard deviation is still set 
 considerably high.
 
-AGE_ENTRY ~ NORM(0, 2500)
+AGE_ENTRY ~ Normal(0, 2500)
 
 Justification: Weakly informative prior, is selected as we don't posses enough 
 information on the dependency. As the age of entry could be somewhere in the 
@@ -409,7 +409,7 @@ could have dramatic changes in income either way, the standard deviation is set
 high.
 
 
-COSTT4_A ~ Norm(0, 500)
+COSTT4_A ~ Normal(0, 500)
 
 Justification: Weakly informative prior, is selected as we don't posses enough 
 information on the dependency. The average cost entry per academic year is
@@ -417,7 +417,7 @@ most likely lower than median family income, but higher than average age of
 entry and thus the standard deviation is set between the standard deviations
 of those.
 
-POVERTY_RATE ~ Norm(0, 2500)
+POVERTY_RATE ~ Normal(0, 2500)
 
 Justification: Weakly informative prior, is selected as we don't posses enough 
 information on the dependency. The possible values are between 0 and 100.
@@ -436,6 +436,68 @@ high.
 
 # 5. Stan, rstanarm or brms code.
 
+
+# Pooled model
+```{r}
+
+stan_pooled_model <- "
+
+data {
+  int<lower=0> N; // number of observations
+  vector[N] SAT_ALL; // real valued observations
+  vector[N] AGE_ENTRY; 
+  vector[N] y;
+}
+
+parameters {
+  real alpha;
+  real beta_SAT_ALL;
+  real beta_AGE_ENTRY;
+  real<lower=0> sigma;
+}
+
+transformed parameters {
+  vector[N] mu;
+  mu = alpha + beta_SAT_ALL * SAT_ALL + beta_AGE_ENTRY * AGE_ENTRY;
+}
+
+
+model {
+  // weekly informative priors
+  alpha ~ normal(0, 100);
+  beta_SAT_ALL ~ normal(43, 500);
+  beta_AGE_ENTRY ~ normal(0, 2500);
+  
+  y ~ normal(mu, sigma);
+}
+
+generated quantities {
+  vector[N] log_lik;
+  
+  for (i in 1:N)
+    log_lik[i] = normal_lpdf(y[i] | mu, sigma);
+}
+
+"
+```
+
+
+## Pooled model fit
+```{r, results = "hide", message=FALSE, warning = FALSE}
+
+pooled_model_data <- list(N = nrow(data.joined.stan),
+             y = data.joined.stan$MD_EARN_WNE_P10,
+             SAT_ALL = data.joined.stan$SAT_ALL,
+             AGE_ENTRY = data.joined.stan$AGE_ENTRY)
+
+pooled_model_fit <- stan(model_code = stan_pooled_model, 
+                           data = pooled_model_data)
+```
+
+## Results of the pooled model
+```{r}
+pooled_model_fit
+```
 # 6. How to the Stan model was run, that is, what options were used. 
 This is also more clear as combination of textual explanation and the actual code line.
 
