@@ -381,15 +381,13 @@ would be associated with higher income. For that reason, the standard deviation
 is set to be high, and the variable is not limited to be greater than one.
 
 The mean is calculated with the following formula: Median individual income
-in the United States / Median SAT Score (math and writing).
+in the United States / Average SAT Score (math and writing).
+
+The median individual income in the US was approximately 31 000 in 2020 
+(Data Commons, 2020). The average SAT score in the US in 2020 were 523 in Math
+and 582 in Evidence-Based Reading and Writing (Number2, 2020).
 
 mu = 31 000 / (523 + 528/2) = 43.2...
-
-TODO: Add sources to the end and to the text:
-https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en 
-https://www.number2.com/average-sat-score/
-- Tarkista, oliko niko laskenut tulokset yhteen, vai keskiarvon tuloksista.
-Aikaisemmin tässä tiedostossa puhutaan keskiarvoista, joten fixaa tarvittessa.
 
 MD_FAMINIC ~ Normal(0, 100)
 
@@ -444,38 +442,53 @@ stan_pooled_model <- "
 
 data {
   int<lower=0> N; // number of observations
-  vector[N] SAT_ALL; // real valued observations
-  vector[N] AGE_ENTRY; 
+  vector[N] SAT_ALL; 
+  vector[N] MD_FAMINIC;
+  vector[N] AGE_ENTRY;
+  vector[N] COSTT4_A;
+  vector[N] POVERTY_RATE;
+  vector[N] MASTER;
+  vector[N] PRIVATE;
   vector[N] y;
 }
 
 parameters {
   real alpha;
   real beta_SAT_ALL;
+  real beta_MD_FAMINIC;
   real beta_AGE_ENTRY;
+  real beta_COSTT4_A;
+  real beta_POVERTY_RATE;
+  real beta_MASTER;
+  real beta_PRIVATE;
   real<lower=0> sigma;
 }
 
-transformed parameters {
-  vector[N] mu;
-  mu = alpha + beta_SAT_ALL * SAT_ALL + beta_AGE_ENTRY * AGE_ENTRY;
-}
-
-
 model {
   // weekly informative priors
-  alpha ~ normal(0, 100);
-  beta_SAT_ALL ~ normal(43, 500);
+  beta_SAT_ALL ~ normal(43, 500); 
+  beta_MD_FAMINIC ~ normal(0, 100);
   beta_AGE_ENTRY ~ normal(0, 2500);
+  beta_COSTT4_A ~ normal(0, 500);
+  beta_POVERTY_RATE ~ normal(0, 2500);
+  beta_MASTER ~ normal(0, 2500);
+  beta_PRIVATE ~ normal(0, 2500);
+
   
-  y ~ normal(mu, sigma);
+  y ~ normal(alpha + beta_SAT_ALL * SAT_ALL + beta_MD_FAMINIC * MD_FAMINIC +
+  beta_AGE_ENTRY * AGE_ENTRY + beta_COSTT4_A * COSTT4_A + 
+  beta_POVERTY_RATE * POVERTY_RATE + beta_MASTER * MASTER +
+  beta_PRIVATE * PRIVATE, sigma);
 }
 
 generated quantities {
   vector[N] log_lik;
   
   for (i in 1:N)
-    log_lik[i] = normal_lpdf(y[i] | mu, sigma);
+    log_lik[i] = normal_lpdf(y[i] | alpha + beta_SAT_ALL * SAT_ALL 
+    + beta_MD_FAMINIC * MD_FAMINIC + beta_AGE_ENTRY * AGE_ENTRY + 
+    beta_COSTT4_A * COSTT4_A + beta_POVERTY_RATE * POVERTY_RATE + 
+    beta_MASTER * MASTER + beta_PRIVATE * PRIVATE, sigma);
 }
 
 "
@@ -488,7 +501,12 @@ generated quantities {
 pooled_model_data <- list(N = nrow(data.joined.stan),
              y = data.joined.stan$MD_EARN_WNE_P10,
              SAT_ALL = data.joined.stan$SAT_ALL,
-             AGE_ENTRY = data.joined.stan$AGE_ENTRY)
+             MD_FAMINIC = data.joined.stan$MD_FAMINC,
+             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+             COSTT4_A = data.joined.stan$COSTT4_A,
+             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+             MASTER = data.joined.stan$MASTER,
+             PRIVATE = data.joined.stan$PRIVATE)
 
 pooled_model_fit <- stan(model_code = stan_pooled_model, 
                            data = pooled_model_data)
@@ -498,11 +516,46 @@ pooled_model_fit <- stan(model_code = stan_pooled_model,
 ```{r}
 pooled_model_fit
 ```
+
 # 6. How to the Stan model was run, that is, what options were used. 
 This is also more clear as combination of textual explanation and the actual code line.
 
 # 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try. 
 This should be reported for all models.
+
+## Code
+```{r}
+## For alpha
+fit_extract <- extract(pooled_model_fit, permuted = FALSE)
+
+alpha1 <- fit_extract[, 1, 1]
+alpha2 <- fit_extract[, 2, 1]
+alpha3 <- fit_extract[, 3, 1]
+alpha4 <- fit_extract[, 4, 1]
+
+round(rhat_basic(cbind(alpha1, alpha2, alpha3, alpha4)), 4)
+
+
+## For beta_SAT_ALL
+
+beta1_SAT_ALL <- fit_extract[, 1, 2]
+beta2_SAT_ALL <- fit_extract[, 2, 2]
+beta3_SAT_ALL <- fit_extract[, 3, 2]
+beta4_SAT_ALL <- fit_extract[, 4, 2]
+
+round(rhat_basic(cbind(beta1_SAT_ALL, beta2_SAT_ALL, beta3_SAT_ALL, beta4_SAT_ALL)),4)
+
+
+## For beta_MD_FAMINIC
+
+beta1_MD_FAMINIC <- fit_extract[, 1, 2]
+beta2_MD_FAMINIC <- fit_extract[, 2, 2]
+beta3_MD_FAMINIC <- fit_extract[, 3, 2]
+beta4_MD_FAMINIC <- fit_extract[, 4, 2]
+
+round(rhat_basic(cbind(beta1_MD_FAMINIC, beta2_MD_FAMINIC, beta3_MD_FAMINIC, beta4_MD_FAMINIC)),4)
+
+```
 
 # 8. Posterior predictive checks and what was done to improve the model. This should be reported for all models.
 
@@ -527,6 +580,12 @@ is changed). This should be reported for all models.
 Insert bibliography here
 Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
 Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
+
+Data Commons. (2020). Gross domestic product per capita in United States of America [Graph]. 
+Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
+
+Number2. (2020). Average SAT Score [Blog Post].
+Retrieved from: https://www.number2.com/average-sat-score/
 
 # 15. Appendices
 
