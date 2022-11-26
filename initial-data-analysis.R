@@ -141,7 +141,7 @@ categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 
 # data with REGION identifier for STAN
 data.joined.stan <- data.joined.model %>%
-  select(REGION, numerical.vars.model, categorical.vars.model)
+  select(REGION, all_of(numerical.vars.model), all_of(categorical.vars.model))
 
 # data for linear regression model in R
 data.joined.model <- data.joined.stan %>%
