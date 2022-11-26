@@ -139,7 +139,7 @@ COSTT4_A, and POVERTY_RATE.
 
 ### Pearson's Correlation
 
-```{r, warning = FALSE}
+```{r}
 
 # correlation plot
 ggcorrplot(cor(numerical.vars.data),
@@ -149,9 +149,10 @@ ggcorrplot(cor(numerical.vars.data),
           tl.cex = 5)
 
 ```
+
 ### Dependent variable vs. feature scatter plots
 
-```{r}
+```{r, fig.height=12, fig.width=12}
 
 melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) + 
@@ -194,7 +195,7 @@ melted.categorial.ccbasic <- melted.categorial %>% as_tibble() %>% filter(variab
 melted.categorial.control <- melted.categorial %>% as_tibble() %>% filter(variable=="CONTROL")
 melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variable=="LOCALE")
 
-ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+ggplot(melted.categorial.ccbasic, aes(x=value %>% as.factor(), y=MD_EARN_WNE_P10, fill=value %>% factor())) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
   theme(
@@ -205,7 +206,7 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   xlab("CCBASIC") +
   labs(caption = "Doctoral (15-17), Master's (18-20), Bachelor's (21-23)")
 
-ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+ggplot(melted.categorial.control, aes(x=value %>% as.factor(), y=MD_EARN_WNE_P10, fill=value %>% as.factor())) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
   theme(
@@ -216,7 +217,7 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   xlab("CONTROL") +
   scale_x_discrete(labels = c("Public","Private, Nonprofit","Proprietary"))
 
-ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+ggplot(melted.categorial.locale, aes(x=value %>% as.factor(), y=MD_EARN_WNE_P10, fill=value %>% as.factor())) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
   theme(
@@ -379,40 +380,22 @@ This is also more clear as combination of textual explanation and the actual cod
 # 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try. 
 This should be reported for all models.
 
-## Code
+## Pooled model
 
 ```{r, eval=FALSE}
 
-## For alpha
-
-fit_extract <- extract(pooled_model_fit, permuted = FALSE)
-
-alpha1 <- fit_extract[, 1, 1]
-alpha2 <- fit_extract[, 2, 1]
-alpha3 <- fit_extract[, 3, 1]
-alpha4 <- fit_extract[, 4, 1]
-
-round(rhat_basic(cbind(alpha1, alpha2, alpha3, alpha4)), 4)
-
-
-## For beta_SAT_ALL
-
-beta1_SAT_ALL <- fit_extract[, 1, 2]
-beta2_SAT_ALL <- fit_extract[, 2, 2]
-beta3_SAT_ALL <- fit_extract[, 3, 2]
-beta4_SAT_ALL <- fit_extract[, 4, 2]
-
-round(rhat_basic(cbind(beta1_SAT_ALL, beta2_SAT_ALL, beta3_SAT_ALL, beta4_SAT_ALL)),4)
-
-
-## For beta_MD_FAMINIC
-
-beta1_MD_FAMINIC <- fit_extract[, 1, 2]
-beta2_MD_FAMINIC <- fit_extract[, 2, 2]
-beta3_MD_FAMINIC <- fit_extract[, 3, 2]
-beta4_MD_FAMINIC <- fit_extract[, 4, 2]
-
-round(rhat_basic(cbind(beta1_MD_FAMINIC, beta2_MD_FAMINIC, beta3_MD_FAMINIC, beta4_MD_FAMINIC)),4)
+params <- pooled.model$variables()$parameters %>% names()
+rhat.df <- tibble()
+for (param in params) {
+  rhats <- extract_variable_matrix(pooled.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+rhat.df
 
 ```
 
