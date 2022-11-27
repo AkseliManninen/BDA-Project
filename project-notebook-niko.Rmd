@@ -369,7 +369,89 @@ pooled.fit
 
 ## Separate model
 
-Lorem Ipsum
+
+```{r, results = "hide", eval=FALSE}
+
+SAT.data <- 
+  data.joined.stan %>% 
+  select(REGION, SAT_ALL) %>%
+  arrange(REGION) %>% 
+  group_by(REGION) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider(names_from = REGION, values_from = SAT_ALL) %>%
+  select(-row)
+
+
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.mod.stan")
+
+separate.model.data <- list(N = nrow(data.joined.stan),
+                            K = length(unique(data.joined.stan$REGION)),
+                            x = data.joined.stan$REGION,
+                            
+                            SAT_ALL = SAT.data,
+                            y = data.joined.stan$MD_EARN_WNE_P10,
+                            
+                            pm_alpha = 0,
+                            ps_alpha = 1000,
+                            pm_SAT_ALL = 0,
+                            ps_SAT_ALL = 1000,
+                            pm_sigma = 0,
+                            ps_sigma = 1000
+                            
+)
+
+
+separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
+
+separate.fit
+
+```
+
+
+```{r, results = "hide", eval=FALSE}
+
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
+
+separate.model.data <- list(N = nrow(data.joined.stan),
+                            K = length(unique(data.joined.stan$REGION)),
+                            x = data.joined.stan$REGION,
+                            
+                            SAT_ALL = data.joined.stan$SAT_ALL,
+                            MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                            COSTT4_A = data.joined.stan$COSTT4_A,
+                            POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            MASTER = data.joined.stan$MASTER,
+                            PRIVATE = data.joined.stan$PRIVATE,
+                            y = data.joined.stan$MD_EARN_WNE_P10,
+                            
+                            pm_alpha = 0,
+                            ps_alpha = 1000,
+                            pm_SAT_ALL = 0,
+                            ps_SAT_ALL = 1000,
+                            pm_MD_FAMINC = 0,
+                            ps_MD_FAMINC = 1000,
+                            pm_AGE_ENTRY = 0,
+                            ps_AGE_ENTRY = 1000,
+                            pm_COSTT4_A = 0,
+                            ps_COSTT4_A = 1000,
+                            pm_POVERTY_RATE = 0,
+                            ps_POVERTY_RATE = 1000,
+                            pm_MASTER = 0,
+                            ps_MASTER = 1000,
+                            pm_PRIVATE = 0,
+                            ps_PRIVATE = 1000,
+                            pm_sigma = 0,
+                            ps_sigma = 1000
+                            
+)
+
+
+separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
+
+separate.fit
+
+```
 
 ## Hierarchical model
 
