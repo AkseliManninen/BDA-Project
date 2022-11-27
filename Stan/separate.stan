@@ -6,9 +6,12 @@ data {
   // number of regions
   int<lower=0> K;
 
+  // region indicators
+  array[N] int<lower=1, upper=K> x;
+
   // data vectors
   vector[N] SAT_ALL; // composite SAT score
-  vector[N] MD_FAMINIC; // median ffamily income
+  vector[N] MD_FAMINIC; // median family income
   vector[N] AGE_ENTRY; // age of entry
   vector[N] COSTT4_A; // cost of education
   vector[N] POVERTY_RATE; // povery rate
@@ -69,16 +72,14 @@ model {
 
   // likelihoods
   for (j in 1:K) {
-    y ~ normal(alpha[j] + beta_SAT_ALL[j] * SAT_ALL + beta_MD_FAMINIC[j] *
-    MD_FAMINIC + beta_AGE_ENTRY[j] * AGE_ENTRY + beta_COSTT4_A[j] * COSTT4_A +
-    beta_POVERTY_RATE[j] * POVERTY_RATE + beta_MASTER[j] * MASTER +
-    beta_PRIVATE[j] * PRIVATE, sigma);
+    y ~ normal(alpha[j] + beta_SAT_ALL[j] * SAT_ALL[x] + beta_MD_FAMINIC[j] *
+    MD_FAMINIC[x] + beta_AGE_ENTRY[j] * AGE_ENTRY[x] + beta_COSTT4_A[j] * COSTT4_A[x] +
+    beta_POVERTY_RATE[j] * POVERTY_RATE[x] + beta_MASTER[j] * MASTER[x] +
+    beta_PRIVATE[j] * PRIVATE[x], sigma);
   }
 
 }
 
 generated quantities {
-  vector[N] log_lik;
+  vector[N] log_lik; // to do
 }
-
-
