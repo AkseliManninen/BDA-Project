@@ -19,6 +19,7 @@ SAT.vars <- c("SATVRMID", "SATMTMID")
 
 # filter specific school types
 schooltype.filter <- seq(14,23)
+region.filter <- seq(1,8)
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
@@ -50,11 +51,11 @@ data.numerical.dropna <- data.numerical.dropna %>%
 
 data.joined <- data.numerical %>%
   inner_join(data.categorical, by = id.vars) %>%
-  filter(CCBASIC %in% schooltype.filter)
+  filter(CCBASIC %in% schooltype.filter & REGION %in% region.filter)
 
 data.joined.dropna <- data.numerical.dropna %>%
   inner_join(data.categorical.dropna, by = id.vars) %>%
-  filter(CCBASIC %in% schooltype.filter)
+  filter(CCBASIC %in% schooltype.filter & REGION %in% region.filter)
 
 # PRELIMINARY ANALYSIS ----
 
