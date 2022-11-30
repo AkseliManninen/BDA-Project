@@ -67,7 +67,7 @@ data.joined.stan <- read.csv(file = "./Data/data.joined.stan.csv")
 numerical.vars.data <- read.csv(file = "./Data/numerical.vars.data.csv")
 categorical.vars.data <- read.csv(file = "./Data/categorical.vars.data.csv")
 
-# test dataset for Stan sampling
+# lightweight dataset for Stan sampling
 data.joined.stan.lw <- sample_n(tbl = data.joined.stan, size = 50)
 
 ```
@@ -232,7 +232,6 @@ ggplot(melted.categorial.locale, aes(x=value %>% as.factor(), y=MD_EARN_WNE_P10,
   labs(caption = "City (11-13), Suburb (21-23), Town (31-33), Rural (41-43)")
 
 ```
-
 
 ## Phase 3 - Feature selection with Stepwise regression
 
@@ -456,9 +455,9 @@ compute_rhat_matrix <- function(model) {
 
 }
 
-compute_rhat_matrix(pooled.model)
+compute_rhat_matrix(pooled.model)feature
 compute_rhat_matrix(separate.model)
-compute_rhat_matrix(hierarchical.model)
+# compute_rhat_matrix(hierarchical.model)
 
 ```
 
