@@ -609,26 +609,25 @@ model {
 
   
   // likelihoods
-  for (j in 1:K) {
-    y ~ normal(alpha[j] + beta_SAT_ALL[j] * SAT_ALL[x] + beta_MD_FAMINIC[j] *
-    MD_FAMINIC[x] + beta_AGE_ENTRY[j] * AGE_ENTRY[x] + beta_COSTT4_A[j] * COSTT4_A[x] +
-    beta_POVERTY_RATE[j] * POVERTY_RATE[x] + beta_MASTER[j] * MASTER[x] +
-    beta_PRIVATE[j] * PRIVATE[x], sigma);
+  for (n in 1:N) {
+    y[n] ~ normal(alpha[x[n]] + beta_SAT_ALL[x[n]] * SAT_ALL[n] + beta_MD_FAMINIC[x[n]] *
+    MD_FAMINIC[n] + beta_AGE_ENTRY[x[n]] * AGE_ENTRY[n] + beta_COSTT4_A[x[n]] * COSTT4_A[n] +
+    beta_POVERTY_RATE[x[n]] * POVERTY_RATE[n] + beta_MASTER[x[n]] * MASTER[n] +
+    beta_PRIVATE[x[n]] * PRIVATE[n], sigma);
   }
-
 }
 
 
 generated quantities {
   vector[N] log_lik;
   
-  for (i in 1:N)
-    log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL 
+  for (i in 1:N) {log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL 
     + beta_MD_FAMINIC[x[i]] * MD_FAMINIC + beta_AGE_ENTRY[x[i]] * AGE_ENTRY + 
     beta_COSTT4_A[x[i]] * COSTT4_A + beta_POVERTY_RATE[x[i]] * POVERTY_RATE + 
     beta_MASTER[x[i]] * MASTER + beta_PRIVATE[x[i]] * PRIVATE, sigma);
-}
+ }
 
+}
 "
 ```
 
@@ -676,7 +675,28 @@ This is also more clear as combination of textual explanation and the actual cod
 # 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try. 
 This should be reported for all models.
 
-## Code
+## Hierarchical model
+```{r}
+fit_extract <- extract(hierarchical_model_fit, permuted = FALSE)
+
+alpha1 <- fit_extract[, 1, 1]
+alpha2 <- fit_extract[, 2, 1]
+alpha3 <- fit_extract[, 3, 1]
+alpha4 <- fit_extract[, 4, 1]
+
+round(rhat_basic(cbind(alpha1, alpha2, alpha3, alpha4)), 4)
+
+beta1_SAT_ALL <- fit_extract[, 1, 2]
+beta2_SAT_ALL <- fit_extract[, 2, 2]
+beta3_SAT_ALL <- fit_extract[, 3, 2]
+beta4_SAT_ALL <- fit_extract[, 4, 2]
+
+round(rhat_basic(cbind(beta1_SAT_ALL, beta2_SAT_ALL, beta3_SAT_ALL, beta4_SAT_ALL)),4)
+
+```
+
+
+## Pooled model
 ```{r}
 ## For alpha
 fit_extract <- extract(pooled_model_fit, permuted = FALSE)
