@@ -43,6 +43,7 @@ data {
 
 parameters {
 
+  // regression model parameters
   vector[K] alpha;
   vector[K] beta_SAT_ALL;
   vector[K] beta_MD_FAMINIC;
@@ -57,7 +58,7 @@ parameters {
 
 model {
 
-  // weakly informative prior distributions
+  // priors
   for (j in 1:K) {
     alpha[j] ~ normal(pm_alpha, ps_alpha);
     beta_SAT_ALL[j] ~ normal(pm_SAT_ALL, ps_SAT_ALL);
@@ -81,5 +82,15 @@ model {
 }
 
 generated quantities {
-  vector[N] log_lik; // to do
+
+  // log-likelihoods
+  vector[N] log_lik;
+
+  for (i in 1:N) {
+    log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL[i] + beta_MD_FAMINIC[x[i]] *
+    MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] * AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] +
+    beta_POVERTY_RATE[x[i]] * POVERTY_RATE[i] + beta_MASTER[x[i]] * MASTER[i] +
+    beta_PRIVATE[x[i]] * PRIVATE[i], sigma);
+  }
+
 }
