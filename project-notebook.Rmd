@@ -517,13 +517,186 @@ pooled_model_fit <- stan(model_code = stan_pooled_model,
 pooled_model_fit
 ```
 
+
+# Hierarchical model
+```{r}
+
+stan_hierarchical_model <- "
+
+data {
+  int<lower=0> N; // number of observations
+  vector[N] SAT_ALL; 
+  vector[N] MD_FAMINIC;
+  vector[N] AGE_ENTRY;
+  vector[N] COSTT4_A;
+  vector[N] POVERTY_RATE;
+  vector[N] MASTER;
+  vector[N] PRIVATE;
+  vector[N] y;
+  int<lower=0> K; // number of groups
+  int<lower=1, upper=K> x[N]; // discrete group indicators
+}
+
+parameters {
+  vector[K] alpha;
+  vector[K] beta_SAT_ALL;
+  vector[K] beta_MD_FAMINIC;
+  vector[K] beta_AGE_ENTRY;
+  vector[K] beta_COSTT4_A;
+  vector[K] beta_POVERTY_RATE;
+  vector[K] beta_MASTER;
+  vector[K] beta_PRIVATE;
+  real<lower=0> sigma; // shared standard deviation
+  
+  real mu_SAT_ALL; 
+  real<lower=0> sigma_SAT_ALL; 
+  
+  real mu_MD_FAMINIC; 
+  real<lower=0> sigma_MD_FAMINIC; 
+  
+  real mu_AGE_ENTRY; 
+  real<lower=0> sigma_AGE_ENTRY; 
+  
+  real mu_COSTT4_A; 
+  real<lower=0> sigma_COSTT4_A; 
+  
+  real mu_POVERTY_RATE; 
+  real<lower=0> sigma_POVERTY_RATE;
+  
+  real mu_MASTER; 
+  real<lower=0> sigma_MASTER; 
+  
+  real mu_PRIVATE; 
+  real<lower=0> sigma_PRIVATE; 
+
+}
+
+model {
+  // weekly informative priors
+  beta_SAT_ALL ~ normal(43, 500); 
+  beta_MD_FAMINIC ~ normal(0, 100);
+  beta_AGE_ENTRY ~ normal(0, 2500);
+  beta_COSTT4_A ~ normal(0, 500);
+  beta_POVERTY_RATE ~ normal(0, 2500);
+  beta_MASTER ~ normal(0, 2500);
+  beta_PRIVATE ~ normal(0, 2500);
+  
+  mu_SAT_ALL ~  normal(0, 500);
+  sigma_SAT_ALL ~ inv_chi_square(1);
+  beta_SAT_ALL ~ normal(mu_SAT_ALL, sigma_SAT_ALL);
+  
+  mu_MD_FAMINIC ~  normal(0, 500);
+  sigma_MD_FAMINIC ~ inv_chi_square(1);
+  beta_MD_FAMINIC ~ normal(mu_MD_FAMINIC, sigma_MD_FAMINIC);
+
+  mu_AGE_ENTRY ~  normal(0, 500);
+  sigma_AGE_ENTRY ~ inv_chi_square(1);
+  beta_AGE_ENTRY ~ normal(mu_AGE_ENTRY, sigma_AGE_ENTRY);
+
+
+  mu_COSTT4_A ~  normal(0, 500);
+  sigma_COSTT4_A ~ inv_chi_square(1);
+  beta_AGE_ENTRY ~ normal(mu_AGE_ENTRY, sigma_AGE_ENTRY);
+
+  mu_POVERTY_RATE ~  normal(0, 500);
+  sigma_POVERTY_RATE ~ inv_chi_square(1);
+  
+  mu_MASTER ~  normal(0, 500);
+  sigma_MASTER ~ inv_chi_square(1);
+
+  mu_PRIVATE ~  normal(0, 500);
+  sigma_PRIVATE ~ inv_chi_square(1);
+
+  
+  // likelihoods
+  for (n in 1:N) {
+    y[n] ~ normal(alpha[x[n]] + beta_SAT_ALL[x[n]] * SAT_ALL[n] + beta_MD_FAMINIC[x[n]] *
+    MD_FAMINIC[n] + beta_AGE_ENTRY[x[n]] * AGE_ENTRY[n] + beta_COSTT4_A[x[n]] * COSTT4_A[n] +
+    beta_POVERTY_RATE[x[n]] * POVERTY_RATE[n] + beta_MASTER[x[n]] * MASTER[n] +
+    beta_PRIVATE[x[n]] * PRIVATE[n], sigma);
+  }
+}
+
+
+generated quantities {
+  vector[N] log_lik;
+  
+  for (i in 1:N) {log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL 
+    + beta_MD_FAMINIC[x[i]] * MD_FAMINIC + beta_AGE_ENTRY[x[i]] * AGE_ENTRY + 
+    beta_COSTT4_A[x[i]] * COSTT4_A + beta_POVERTY_RATE[x[i]] * POVERTY_RATE + 
+    beta_MASTER[x[i]] * MASTER + beta_PRIVATE[x[i]] * PRIVATE, sigma);
+ }
+
+}
+"
+```
+
+
+## Hierarchical model fit
+```{r, results = "hide", message=FALSE, warning = FALSE}
+
+hierarchical_model_data <- list(N = nrow(data.joined.stan),
+             y = data.joined.stan$MD_EARN_WNE_P10,
+             SAT_ALL = data.joined.stan$SAT_ALL,
+             MD_FAMINIC = data.joined.stan$MD_FAMINC,
+             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+             COSTT4_A = data.joined.stan$COSTT4_A,
+             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+             MASTER = data.joined.stan$MASTER,
+             PRIVATE = data.joined.stan$PRIVATE,
+             K = length(unique(data.joined.stan$REGION)),
+             x = data.joined.stan$REGION)
+
+hierarchical_model_fit <- stan(model_code = stan_hierarchical_model, 
+                           data = hierarchical_model_data)
+```
+
+
+```{r, results = "hide", message=FALSE, warning = FALSE}
+N <- length(as.matrix(factory))
+y <- as.vector(as.matrix(factory))
+x <- c(1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6)
+
+hierarchical_model_data <- list(N=N, y = y, x = x, K = 6)
+hierarchical_model_fit <- stan(model_code = stan_hierarchical_model, 
+                           data = hierarchical_model_data)
+```
+
+## Results of the pooled model
+```{r}
+hierarchical_model_fit
+```
+
+
+
 # 6. How to the Stan model was run, that is, what options were used. 
 This is also more clear as combination of textual explanation and the actual code line.
 
 # 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try. 
 This should be reported for all models.
 
-## Code
+## Hierarchical model
+```{r}
+fit_extract <- extract(hierarchical_model_fit, permuted = FALSE)
+
+alpha1 <- fit_extract[, 1, 1]
+alpha2 <- fit_extract[, 2, 1]
+alpha3 <- fit_extract[, 3, 1]
+alpha4 <- fit_extract[, 4, 1]
+
+round(rhat_basic(cbind(alpha1, alpha2, alpha3, alpha4)), 4)
+
+beta1_SAT_ALL <- fit_extract[, 1, 2]
+beta2_SAT_ALL <- fit_extract[, 2, 2]
+beta3_SAT_ALL <- fit_extract[, 3, 2]
+beta4_SAT_ALL <- fit_extract[, 4, 2]
+
+round(rhat_basic(cbind(beta1_SAT_ALL, beta2_SAT_ALL, beta3_SAT_ALL, beta4_SAT_ALL)),4)
+
+```
+
+
+## Pooled model
 ```{r}
 ## For alpha
 fit_extract <- extract(pooled_model_fit, permuted = FALSE)
