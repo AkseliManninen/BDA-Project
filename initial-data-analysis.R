@@ -160,6 +160,6 @@ data.joined.stan <- data.joined.model %>%
 data.joined.model <- data.joined.stan %>%
   select(-REGION)
 
-write.csv2(x = numerical.vars.data, file = "./Data/numerical.vars.data.csv", row.names = FALSE)
-write.csv2(x = categorical.vars.data, file = "./Data/categorical.vars.data.csv", row.names = FALSE)
-write.csv2(x = data.joined.stan, file = "./Data/data.joined.stan.csv", row.names = FALSE)
+write.csv(x = numerical.vars.data, file = "./Data/numerical.vars.data.csv", row.names = FALSE)
+write.csv(x = categorical.vars.data, file = "./Data/categorical.vars.data.csv", row.names = FALSE)
+write.csv(x = data.joined.stan, file = "./Data/data.joined.stan.csv", row.names = FALSE)
