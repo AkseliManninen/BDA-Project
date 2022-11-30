@@ -140,14 +140,6 @@ data.joined.model <- data.joined.dropna %>%
 numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", "COSTT4_A", "POVERTY_RATE")
 categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 
-# data with REGION identifier for STAN
-data.joined.stan <- data.joined.model %>%
-  select(REGION, all_of(numerical.vars.model), all_of(categorical.vars.model))
-
-# data for linear regression model in R
-data.joined.model <- data.joined.stan %>%
-    select(-REGION)
-
 # baseline model
 model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
 summary(model)
@@ -157,6 +149,17 @@ step(model, direction = "backward")
 stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + POVERTY_RATE + URBAN + PRIVATE + MASTER, data = data.joined.model)
 summary(stepwise.model)
 
-# TO DO ----
-# - start to think about hierarchical structure
-# - If hierarchical structure does not work, start to think about nonlinear models, data clearly shows some nonlinear relationships with earnings. For example, poverty rate
+
+# EXPORT DATA ----
+
+# data with REGION identifier for STAN
+data.joined.stan <- data.joined.model %>%
+  select(REGION, all_of(numerical.vars.model), all_of(categorical.vars.model))
+
+# data for linear regression model in R
+data.joined.model <- data.joined.stan %>%
+  select(-REGION)
+
+write.csv2(x = numerical.vars.data, file = "./Data/numerical.vars.data.csv", row.names = FALSE)
+write.csv2(x = categorical.vars.data, file = "./Data/categorical.vars.data.csv", row.names = FALSE)
+write.csv2(x = data.joined.stan, file = "./Data/data.joined.stan.csv", row.names = FALSE)
