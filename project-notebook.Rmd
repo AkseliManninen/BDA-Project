@@ -24,7 +24,7 @@ library(rstan)
 library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
-#set_cmdstan_path('/coursedata/cmdstan')
+set_cmdstan_path('/coursedata/cmdstan')
 ```
 
 \newpage
@@ -436,26 +436,42 @@ high.
 
 # 5. Stan, rstanarm or brms code.
 
+## Separate model
 ```{r, results = "hide", eval=FALSE}
 
-separate.model <- cmdstan_model(stan_file = "./Stan/separate.mod.stan")
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
 separate.model.data <- list(N = nrow(data.joined.stan),
-                          y = data.joined.stan$MD_EARN_WNE_P10,
-                          SAT_ALL = data.joined.stan$SAT_ALL,
-                          MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
-                          COSTT4_A = data.joined.stan$COSTT4_A,
-                          POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                          MASTER = data.joined.stan$MASTER,
-                          PRIVATE = data.joined.stan$PRIVATE,
+                            K = length(unique(data.joined.stan$REGION)),
+                            x = data.joined.stan$REGION,
                             
-                          pm_alpha = 0,
-                          ps_alpha = 1000,
-                          pm_SAT_ALL = 0,
-                          ps_SAT_ALL = 1000,
-                          pm_sigma = 0,
-                          ps_sigma = 1000
+                            SAT_ALL = data.joined.stan$SAT_ALL,
+                            MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                            COSTT4_A = data.joined.stan$COSTT4_A,
+                            POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            MASTER = data.joined.stan$MASTER,
+                            PRIVATE = data.joined.stan$PRIVATE,
+                            y = data.joined.stan$MD_EARN_WNE_P10,
+                            
+                            pm_alpha = 0,
+                            ps_alpha = 10000,
+                            pm_SAT_ALL = 50,
+                            ps_SAT_ALL = 500,
+                            pm_MD_FAMINC = 0,
+                            ps_MD_FAMINC = 100,
+                            pm_AGE_ENTRY = 0,
+                            ps_AGE_ENTRY = 2500,
+                            pm_COSTT4_A = 0,
+                            ps_COSTT4_A = 500,
+                            pm_POVERTY_RATE = 0,
+                            ps_POVERTY_RATE = 2500,
+                            pm_MASTER = 0,
+                            ps_MASTER = 2500,
+                            pm_PRIVATE = 0,
+                            ps_PRIVATE = 2500,
+                            pm_sigma = 10000,
+                            ps_sigma = 10000
                             
 )
 
@@ -517,6 +533,30 @@ This is also more clear as combination of textual explanation and the actual cod
 
 # 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try.
 
+## Separate model Rhat
+```{r, eval = FALSE}
+
+rhat.df <- tibble()
+
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
+            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
+            "beta_MASTER[1]", "beta_PRIVATE[1]")
+
+for (param in params) {
+  rhats <- extract_variable_matrix(separate.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+
+rhat.df
+
+``` 
+
+
 ## Pooled model Rhat
 ```{r, eval=FALSE}
 
@@ -558,6 +598,29 @@ for (param in params) {
 rhat.df
 
 ``` 
+## Serparate Model Effective sample size (ESS)
+```{r, eval = FALSE}
+
+params <- separate.model$variables()$parameters %>% names()
+ess.df <- tibble()
+
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
+            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
+            "beta_MASTER[1]", "beta_PRIVATE[1]")
+
+for (param in params) {
+  ess <- extract_variable_matrix(separate.fit$draws(), variable = param) %>% apply(2, ess_basic)
+  row <- tibble("Parameter" = param, 
+                "ESS" = ess)
+  ess.df <- rbind(ess.df, row)
+}
+ess.df <- ess.df  %>% group_by(Parameter) %>% summarise(ESS = sum(ESS)/n(),)
+
+ess.df
+
+
+``` 
+
 
 ## Pooled Model Effective sample size (ESS)
 ```{r, eval = FALSE}
@@ -602,9 +665,33 @@ ess.df
 
 ``` 
 
-
-
 # 8. Posterior predictive checks and what was done to improve the model. This should be reported for all models.
+
+
+## LOO
+```{r, eval = FALSE}
+
+separate.loo <- separate.fit$loo()
+
+hierarchical.loo <- hierarchical.fit$loo()
+
+pooled.loo <- pooled.fit$loo()
+
+loo_compare(separate.loo, pooled.loo, hierarchical.loo)
+
+``` 
+
+
+## K hat
+```{r, eval = FALSE}
+
+pareto_k_table(separate.fit$loo())
+
+pareto_k_table(hierarchical.fit$loo())
+
+pareto_k_table(pooled.fit$loo())
+
+``` 
 
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
 of practical usefulness of the accuracy. This should be reported for all models as well.
@@ -621,6 +708,9 @@ is changed). This should be reported for all models.
 # 12. Conclusion what was learned from the data analysis.
 
 # 13. Self-reflection of what the group learned while making the project.
+
+- Multivariable regression
+- Feature selection from a massive dataset
  
 # 14. References
 
@@ -692,20 +782,35 @@ params <- c("alpha[1]", "alpha[2]", "alpha[3]", "alpha[4]", "alpha[5]", "alpha[6
             "beta_MD_FAMINIC[9]",
             "beta_AGE_ENTRY[1]", "beta_AGE_ENTRY[2]", "beta_AGE_ENTRY[3]", "beta_AGE_ENTRY[4]", 
             "beta_AGE_ENTRY[5]", "beta_AGE_ENTRY[6]", "beta_AGE_ENTRY[7]", "beta_AGE_ENTRY[8]",
-            "beta_AGE_ENTRY[9]")
+            "beta_AGE_ENTRY[9]",
+            "beta_COSTT4_A[1]", "beta_COSTT4_A[2]", "beta_COSTT4_A[3]", "beta_COSTT4_A[4]", 
+            "beta_COSTT4_A[5]", "beta_COSTT4_A[6]", "beta_COSTT4_A[7]", "beta_COSTT4_A[8]",
+            "beta_COSTT4_A[9]",
+            "beta_POVERTY_RATE[1]", "beta_POVERTY_RATE[2]", "beta_POVERTY_RATE[3]", "beta_POVERTY_RATE[4]", 
+            "beta_POVERTY_RATE[5]", "beta_POVERTY_RATE[6]", "beta_POVERTY_RATE[7]", "beta_POVERTY_RATE[8]",
+            "beta_POVERTY_RATE[9]",
+            "beta_MASTER[1]", "beta_MASTER[2]", "beta_MASTER[3]", "beta_MASTER[4]", 
+            "beta_MASTER[5]", "beta_MASTER[6]", "beta_MASTER[7]", "beta_MASTER[8]",
+            "beta_MASTER[9]",
+            "beta_PRIVATE[1]", "beta_PRIVATE[2]", "beta_PRIVATER[3]", "beta_PRIVATE[4]", 
+            "beta_PRIVATE[5]", "beta_PRIVATE[6]", "beta_PRIVATE[7]", "beta_PRIVATE[8]",
+            "beta_PRIVATE[9]",
+            "sigma[1]", "sigma[2]", "sigma[3]", "sigma[4]", 
+            "sigma[5]", "sigma[6]", "sigma[7]", "sigma[8]",
+            "sigma[9]")
             
             
             
-for (param in params) {
-  rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
-  row <- tibble("Parameter" = param, 
-                "Chain 1" = rhats[1], 
-                "Chain 2" = rhats[2], 
-                "Chain 3" = rhats[3], 
-                "Chain 4" = rhats[4])
-  rhat.df <- rbind(rhat.df, row)
-}
-
-rhat.df
+#for (param in params) {
+#  rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
+#  row <- tibble("Parameter" = param, 
+#                "Chain 1" = rhats[1], 
+#                "Chain 2" = rhats[2], 
+#                "Chain 3" = rhats[3], 
+#                "Chain 4" = rhats[4])
+#  rhat.df <- rbind(rhat.df, row)
+#}
+#
+#rhat.df
 
 ``` 
