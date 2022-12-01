@@ -19,10 +19,12 @@ library(latex2exp)
 library(loo)
 library(bayesplot)
 library(posterior)
+library(cmdstanr)
 library(rstan)
 library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
+#set_cmdstan_path('/coursedata/cmdstan')
 ```
 
 \newpage
@@ -434,208 +436,65 @@ high.
 
 # 5. Stan, rstanarm or brms code.
 
+```{r, results = "hide", eval=FALSE}
 
-# Pooled model
-```{r}
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.mod.stan")
 
-stan_pooled_model <- "
+separate.model.data <- list(N = nrow(data.joined.stan),
+                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          SAT_ALL = data.joined.stan$SAT_ALL,
+                          MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                          COSTT4_A = data.joined.stan$COSTT4_A,
+                          POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          MASTER = data.joined.stan$MASTER,
+                          PRIVATE = data.joined.stan$PRIVATE,
+                            
+                          pm_alpha = 0,
+                          ps_alpha = 1000,
+                          pm_SAT_ALL = 0,
+                          ps_SAT_ALL = 1000,
+                          pm_sigma = 0,
+                          ps_sigma = 1000
+                            
+)
 
-data {
-  int<lower=0> N; // number of observations
-  vector[N] SAT_ALL; 
-  vector[N] MD_FAMINIC;
-  vector[N] AGE_ENTRY;
-  vector[N] COSTT4_A;
-  vector[N] POVERTY_RATE;
-  vector[N] MASTER;
-  vector[N] PRIVATE;
-  vector[N] y;
-}
 
-parameters {
-  real alpha;
-  real beta_SAT_ALL;
-  real beta_MD_FAMINIC;
-  real beta_AGE_ENTRY;
-  real beta_COSTT4_A;
-  real beta_POVERTY_RATE;
-  real beta_MASTER;
-  real beta_PRIVATE;
-  real<lower=0> sigma;
-}
+separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
 
-model {
-  // weekly informative priors
-  beta_SAT_ALL ~ normal(43, 500); 
-  beta_MD_FAMINIC ~ normal(0, 100);
-  beta_AGE_ENTRY ~ normal(0, 2500);
-  beta_COSTT4_A ~ normal(0, 500);
-  beta_POVERTY_RATE ~ normal(0, 2500);
-  beta_MASTER ~ normal(0, 2500);
-  beta_PRIVATE ~ normal(0, 2500);
+separate.fit
 
-  
-  y ~ normal(alpha + beta_SAT_ALL * SAT_ALL + beta_MD_FAMINIC * MD_FAMINIC +
-  beta_AGE_ENTRY * AGE_ENTRY + beta_COSTT4_A * COSTT4_A + 
-  beta_POVERTY_RATE * POVERTY_RATE + beta_MASTER * MASTER +
-  beta_PRIVATE * PRIVATE, sigma);
-}
-
-generated quantities {
-  vector[N] log_lik;
-  
-  for (i in 1:N)
-    log_lik[i] = normal_lpdf(y[i] | alpha + beta_SAT_ALL * SAT_ALL 
-    + beta_MD_FAMINIC * MD_FAMINIC + beta_AGE_ENTRY * AGE_ENTRY + 
-    beta_COSTT4_A * COSTT4_A + beta_POVERTY_RATE * POVERTY_RATE + 
-    beta_MASTER * MASTER + beta_PRIVATE * PRIVATE, sigma);
-}
-
-"
 ```
 
 
-## Pooled model fit
-```{r, results = "hide", message=FALSE, warning = FALSE}
+## Pooled model
+```{r, results = "hide", eval=FALSE}
 
-pooled_model_data <- list(N = nrow(data.joined.stan),
-             y = data.joined.stan$MD_EARN_WNE_P10,
-             SAT_ALL = data.joined.stan$SAT_ALL,
-             MD_FAMINIC = data.joined.stan$MD_FAMINC,
-             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
-             COSTT4_A = data.joined.stan$COSTT4_A,
-             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-             MASTER = data.joined.stan$MASTER,
-             PRIVATE = data.joined.stan$PRIVATE)
+pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
-pooled_model_fit <- stan(model_code = stan_pooled_model, 
-                           data = pooled_model_data)
+pooled.model.data <- list(N = nrow(data.joined.stan),
+                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          SAT_ALL = data.joined.stan$SAT_ALL,
+                          MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                          COSTT4_A = data.joined.stan$COSTT4_A,
+                          POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          MASTER = data.joined.stan$MASTER,
+                          PRIVATE = data.joined.stan$PRIVATE)
+
+
+pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
+
+pooled.fit
+
 ```
-
-## Results of the pooled model
-```{r}
-pooled_model_fit
-```
-
-
-# Hierarchical model
-```{r}
-
-stan_hierarchical_model <- "
-
-data {
-  int<lower=0> N; // number of observations
-  vector[N] SAT_ALL; 
-  vector[N] MD_FAMINIC;
-  vector[N] AGE_ENTRY;
-  vector[N] COSTT4_A;
-  vector[N] POVERTY_RATE;
-  vector[N] MASTER;
-  vector[N] PRIVATE;
-  vector[N] y;
-  int<lower=0> K; // number of groups
-  int<lower=1, upper=K> x[N]; // discrete group indicators
-}
-
-parameters {
-  vector[K] alpha;
-  vector[K] beta_SAT_ALL;
-  vector[K] beta_MD_FAMINIC;
-  vector[K] beta_AGE_ENTRY;
-  vector[K] beta_COSTT4_A;
-  vector[K] beta_POVERTY_RATE;
-  vector[K] beta_MASTER;
-  vector[K] beta_PRIVATE;
-  real<lower=0> sigma; // shared standard deviation
-  
-  real mu_SAT_ALL; 
-  real<lower=0> sigma_SAT_ALL; 
-  
-  real mu_MD_FAMINIC; 
-  real<lower=0> sigma_MD_FAMINIC; 
-  
-  real mu_AGE_ENTRY; 
-  real<lower=0> sigma_AGE_ENTRY; 
-  
-  real mu_COSTT4_A; 
-  real<lower=0> sigma_COSTT4_A; 
-  
-  real mu_POVERTY_RATE; 
-  real<lower=0> sigma_POVERTY_RATE;
-  
-  real mu_MASTER; 
-  real<lower=0> sigma_MASTER; 
-  
-  real mu_PRIVATE; 
-  real<lower=0> sigma_PRIVATE; 
-
-}
-
-model {
-  // weekly informative priors
-  beta_SAT_ALL ~ normal(43, 500); 
-  beta_MD_FAMINIC ~ normal(0, 100);
-  beta_AGE_ENTRY ~ normal(0, 2500);
-  beta_COSTT4_A ~ normal(0, 500);
-  beta_POVERTY_RATE ~ normal(0, 2500);
-  beta_MASTER ~ normal(0, 2500);
-  beta_PRIVATE ~ normal(0, 2500);
-  
-  mu_SAT_ALL ~  normal(0, 500);
-  sigma_SAT_ALL ~ inv_chi_square(1);
-  beta_SAT_ALL ~ normal(mu_SAT_ALL, sigma_SAT_ALL);
-  
-  mu_MD_FAMINIC ~  normal(0, 500);
-  sigma_MD_FAMINIC ~ inv_chi_square(1);
-  beta_MD_FAMINIC ~ normal(mu_MD_FAMINIC, sigma_MD_FAMINIC);
-
-  mu_AGE_ENTRY ~  normal(0, 500);
-  sigma_AGE_ENTRY ~ inv_chi_square(1);
-  beta_AGE_ENTRY ~ normal(mu_AGE_ENTRY, sigma_AGE_ENTRY);
-
-
-  mu_COSTT4_A ~  normal(0, 500);
-  sigma_COSTT4_A ~ inv_chi_square(1);
-  beta_AGE_ENTRY ~ normal(mu_AGE_ENTRY, sigma_AGE_ENTRY);
-
-  mu_POVERTY_RATE ~  normal(0, 500);
-  sigma_POVERTY_RATE ~ inv_chi_square(1);
-  
-  mu_MASTER ~  normal(0, 500);
-  sigma_MASTER ~ inv_chi_square(1);
-
-  mu_PRIVATE ~  normal(0, 500);
-  sigma_PRIVATE ~ inv_chi_square(1);
-
-  
-  // likelihoods
-  for (n in 1:N) {
-    y[n] ~ normal(alpha[x[n]] + beta_SAT_ALL[x[n]] * SAT_ALL[n] + beta_MD_FAMINIC[x[n]] *
-    MD_FAMINIC[n] + beta_AGE_ENTRY[x[n]] * AGE_ENTRY[n] + beta_COSTT4_A[x[n]] * COSTT4_A[n] +
-    beta_POVERTY_RATE[x[n]] * POVERTY_RATE[n] + beta_MASTER[x[n]] * MASTER[n] +
-    beta_PRIVATE[x[n]] * PRIVATE[n], sigma);
-  }
-}
-
-
-generated quantities {
-  vector[N] log_lik;
-  
-  for (i in 1:N) {log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL 
-    + beta_MD_FAMINIC[x[i]] * MD_FAMINIC + beta_AGE_ENTRY[x[i]] * AGE_ENTRY + 
-    beta_COSTT4_A[x[i]] * COSTT4_A + beta_POVERTY_RATE[x[i]] * POVERTY_RATE + 
-    beta_MASTER[x[i]] * MASTER + beta_PRIVATE[x[i]] * PRIVATE, sigma);
- }
-
-}
-"
-```
-
 
 ## Hierarchical model fit
-```{r, results = "hide", message=FALSE, warning = FALSE}
+```{r, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
 
-hierarchical_model_data <- list(N = nrow(data.joined.stan),
+hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical-akseli.stan")
+
+hierarchical.model.data <- list(N = nrow(data.joined.stan),
              y = data.joined.stan$MD_EARN_WNE_P10,
              SAT_ALL = data.joined.stan$SAT_ALL,
              MD_FAMINIC = data.joined.stan$MD_FAMINC,
@@ -647,88 +506,103 @@ hierarchical_model_data <- list(N = nrow(data.joined.stan),
              K = length(unique(data.joined.stan$REGION)),
              x = data.joined.stan$REGION)
 
-hierarchical_model_fit <- stan(model_code = stan_hierarchical_model, 
-                           data = hierarchical_model_data)
+hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, seed = 1234, refresh = 1e3)
+
+hierarchical.fit
 ```
-
-
-```{r, results = "hide", message=FALSE, warning = FALSE}
-N <- length(as.matrix(factory))
-y <- as.vector(as.matrix(factory))
-x <- c(1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6)
-
-hierarchical_model_data <- list(N=N, y = y, x = x, K = 6)
-hierarchical_model_fit <- stan(model_code = stan_hierarchical_model, 
-                           data = hierarchical_model_data)
-```
-
-## Results of the pooled model
-```{r}
-hierarchical_model_fit
-```
-
 
 
 # 6. How to the Stan model was run, that is, what options were used. 
 This is also more clear as combination of textual explanation and the actual code line.
 
-# 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try. 
-This should be reported for all models.
+# 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try.
 
-## Hierarchical model
-```{r}
-fit_extract <- extract(hierarchical_model_fit, permuted = FALSE)
+## Pooled model Rhat
+```{r, eval=FALSE}
 
-alpha1 <- fit_extract[, 1, 1]
-alpha2 <- fit_extract[, 2, 1]
-alpha3 <- fit_extract[, 3, 1]
-alpha4 <- fit_extract[, 4, 1]
-
-round(rhat_basic(cbind(alpha1, alpha2, alpha3, alpha4)), 4)
-
-beta1_SAT_ALL <- fit_extract[, 1, 2]
-beta2_SAT_ALL <- fit_extract[, 2, 2]
-beta3_SAT_ALL <- fit_extract[, 3, 2]
-beta4_SAT_ALL <- fit_extract[, 4, 2]
-
-round(rhat_basic(cbind(beta1_SAT_ALL, beta2_SAT_ALL, beta3_SAT_ALL, beta4_SAT_ALL)),4)
+params <- pooled.model$variables()$parameters %>% names()
+rhat.df <- tibble()
+for (param in params) {
+  rhats <- extract_variable_matrix(pooled.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+rhat.df
 
 ```
 
 
-## Pooled model
-```{r}
-## For alpha
-fit_extract <- extract(pooled_model_fit, permuted = FALSE)
+## Hierarchical model Rhat
+```{r, eval = FALSE}
 
-alpha1 <- fit_extract[, 1, 1]
-alpha2 <- fit_extract[, 2, 1]
-alpha3 <- fit_extract[, 3, 1]
-alpha4 <- fit_extract[, 4, 1]
+rhat.df <- tibble()
 
-round(rhat_basic(cbind(alpha1, alpha2, alpha3, alpha4)), 4)
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
+            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
+            "beta_MASTER[1]", "beta_PRIVATE[1]")
+
+for (param in params) {
+  rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+
+rhat.df
+
+``` 
+
+## Pooled Model Effective sample size (ESS)
+```{r, eval = FALSE}
+
+#pooled.fit$cmdstan_summary()
+
+params <- pooled.model$variables()$parameters %>% names()
+ess.df <- tibble()
+
+for (param in params) {
+  ess <- extract_variable_matrix(pooled.fit$draws(), variable = param) %>% apply(2, ess_basic)
+  row <- tibble("Parameter" = param, 
+                "ESS" = ess)
+  ess.df <- rbind(ess.df, row)
+}
+ess.df <- ess.df  %>% group_by(Parameter) %>% summarise(ESS = sum(ESS)/n(),)
+
+ess.df
+
+``` 
+
+## Hierarchical Model Effective sample size (ESS)
+```{r, eval = FALSE}
+
+params <- hierarchical.model$variables()$parameters %>% names()
+ess.df <- tibble()
+
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
+            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
+            "beta_MASTER[1]", "beta_PRIVATE[1]")
+
+for (param in params) {
+  ess <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, ess_basic)
+  row <- tibble("Parameter" = param, 
+                "ESS" = ess)
+  ess.df <- rbind(ess.df, row)
+}
+ess.df <- ess.df  %>% group_by(Parameter) %>% summarise(ESS = sum(ESS)/n(),)
+
+ess.df
 
 
-## For beta_SAT_ALL
-
-beta1_SAT_ALL <- fit_extract[, 1, 2]
-beta2_SAT_ALL <- fit_extract[, 2, 2]
-beta3_SAT_ALL <- fit_extract[, 3, 2]
-beta4_SAT_ALL <- fit_extract[, 4, 2]
-
-round(rhat_basic(cbind(beta1_SAT_ALL, beta2_SAT_ALL, beta3_SAT_ALL, beta4_SAT_ALL)),4)
+``` 
 
 
-## For beta_MD_FAMINIC
-
-beta1_MD_FAMINIC <- fit_extract[, 1, 2]
-beta2_MD_FAMINIC <- fit_extract[, 2, 2]
-beta3_MD_FAMINIC <- fit_extract[, 3, 2]
-beta4_MD_FAMINIC <- fit_extract[, 4, 2]
-
-round(rhat_basic(cbind(beta1_MD_FAMINIC, beta2_MD_FAMINIC, beta3_MD_FAMINIC, beta4_MD_FAMINIC)),4)
-
-```
 
 # 8. Posterior predictive checks and what was done to improve the model. This should be reported for all models.
 
@@ -742,7 +616,7 @@ is changed). This should be reported for all models.
 
 - Correlation does not mean causality
 - Ethics selecting features
-- 
+- Selecting priors properly 
 
 # 12. Conclusion what was learned from the data analysis.
 
@@ -750,7 +624,6 @@ is changed). This should be reported for all models.
  
 # 14. References
 
-Insert bibliography here
 Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
 Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
 
@@ -800,3 +673,39 @@ step(model, direction = "backward")
 stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + POVERTY_RATE + URBAN + PRIVATE + MASTER, data = data.joined.model)
 summary(stepwise.model)
 ```
+
+
+## Appendix 2 - Separate model, all r_hat values
+
+## Appendix 3 Hierarchical model, all r_hat values
+```{r, eval = FALSE}
+
+rhat.df <- tibble()
+
+params <- c("alpha[1]", "alpha[2]", "alpha[3]", "alpha[4]", "alpha[5]", "alpha[6]", 
+            "alpha[7]", "alpha[8]", "alpha[9]",             
+            "beta_SAT_ALL[1]", "beta_SAT_ALL[2]", "beta_SAT_ALL[3]", "beta_SAT_ALL[4]", 
+            "beta_SAT_ALL[5]", "beta_SAT_ALL[6]", "beta_SAT_ALL[7]", "beta_SAT_ALL[8]",
+            "beta_SAT_ALL[9]",
+            "beta_MD_FAMINIC[1]", "beta_MD_FAMINIC[2]", "beta_MD_FAMINIC[3]", "beta_MD_FAMINIC[4]", 
+            "beta_MD_FAMINIC[5]", "beta_MD_FAMINIC[6]", "beta_MD_FAMINIC[7]", "beta_MD_FAMINIC[8]",
+            "beta_MD_FAMINIC[9]",
+            "beta_AGE_ENTRY[1]", "beta_AGE_ENTRY[2]", "beta_AGE_ENTRY[3]", "beta_AGE_ENTRY[4]", 
+            "beta_AGE_ENTRY[5]", "beta_AGE_ENTRY[6]", "beta_AGE_ENTRY[7]", "beta_AGE_ENTRY[8]",
+            "beta_AGE_ENTRY[9]")
+            
+            
+            
+for (param in params) {
+  rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+
+rhat.df
+
+``` 
