@@ -665,10 +665,21 @@ ess.df
 
 ``` 
 
+## HMC specific convergence diagnostics for all models
+```{r, eval = FALSE}
+
+separate.fit$cmdstan_diagnose()
+
+pooled.fit$cmdstan_diagnose()
+
+hierarchical.fit$cmdstan_diagnose()
+
+``` 
+
 # 8. Posterior predictive checks and what was done to improve the model. This should be reported for all models.
 
 
-## LOO
+## LOO (Model comparison)
 ```{r, eval = FALSE}
 
 separate.loo <- separate.fit$loo()
