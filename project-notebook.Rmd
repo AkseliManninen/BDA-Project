@@ -366,6 +366,9 @@ data.joined.model <- data.joined.stan %>%
 
 ## Description of the separate model
 
+In the separate model, posteriors for the parameters are constructed. In
+the context of the project, the separate model considers all regions independent
+from each other, meaning that each region have individual parameters (mu, sigma).
 
 Mathematical description:
 
@@ -378,6 +381,10 @@ priors.
 
 ## Description of the pooled model
 
+As in the separate model, the pooled model constructs posteriors for the 
+parameters. However, the regions are considered as one entity meaning that
+all regions share the same distribution and parameter values.
+
 Mathematical description:
 
 $y_{i}|mu, sigma ∼ N(mu, sigma^2)$
@@ -388,6 +395,12 @@ The parameters of the parameter vector are given in the section 4 with their
 priors.
 
 ## Description of the hierarchical model
+
+Contrary to the other two models, in the hierarchical model posteriors
+are constructed for the prior parameters. With the hierarchical model,
+the regions are considered as individual but similar. In the context of the
+project, the regions share same sigma and the parameters forming mu are similarly
+distributed (sharing the hyperparameters).
 
 Mathematical description:
 
@@ -638,6 +651,7 @@ for (param in params) {
 rhat.df
 
 ``` 
+
 ## Serparate Model Effective sample size (ESS)
 ```{r, eval = FALSE}
 
