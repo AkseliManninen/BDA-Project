@@ -20,6 +20,7 @@ parameters {
   real beta_MASTER;
   real beta_PRIVATE;
   real<lower=0> sigma;
+
 }
 
 model {
@@ -41,10 +42,17 @@ model {
 
 generated quantities {
   vector[N] log_lik;
+  vector[N] y_rep;
 
-  for (i in 1:N)
+  for (i in 1:N) {
     log_lik[i] = normal_lpdf(y[i] | alpha + beta_SAT_ALL * SAT_ALL
     + beta_MD_FAMINIC * MD_FAMINIC + beta_AGE_ENTRY * AGE_ENTRY +
     beta_COSTT4_A * COSTT4_A + beta_POVERTY_RATE * POVERTY_RATE +
     beta_MASTER * MASTER + beta_PRIVATE * PRIVATE, sigma);
+    
+    y_rep[i] = normal_rng(alpha + beta_SAT_ALL * SAT_ALL[i]
+    + beta_MD_FAMINIC * MD_FAMINIC[i] + beta_AGE_ENTRY * AGE_ENTRY[i] +
+    beta_COSTT4_A * COSTT4_A[i] + beta_POVERTY_RATE * POVERTY_RATE[i] +
+    beta_MASTER * MASTER[i] + beta_PRIVATE * PRIVATE[i], sigma);
+  }
 }
