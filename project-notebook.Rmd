@@ -38,7 +38,7 @@ educated people (Card, 1999). For that reason, education is described as an inve
 
 This study examines this phenomenon from the perspective of people that have acquired their education
 from colleges in the United States. As the connection between education and income has been
-shown in the existing literature, this study strives to examine the associations between college related
+shown in the existing literature, this study strives to further examine the associations between college related
 features and income level years after graduation. This project is not limited to only 
 considering educational aspects but expands it to family backgrounds.
 
@@ -47,26 +47,30 @@ features and earnings. It is in our interest to find out how accurately the sele
 income for the students.
 
 ## Mitä seuraava lause yrittää sanoa?
-Furthermore, finding well-predictive features among the vast number of variables is pursed and evaluating the 
-predictive performance of selected statistical models. 
+## Meinaa että meillä on paljon muuttujia, mistä voidaan valita, ja koitetaan löytää niistä parhaiten ennustavat.
+## Sitten testataan, että miten hyvin ne unnustaa. Muotoilin vähän uusiks jos näyttää järkevämmält nyt.
+Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating
+predictive performance using these features with a selected statistical models.
 
 As this study is conducted in a university environment by university students and presented mainly to other students and faculty, 
 the findings of this study could be especially meaningful for the members of the group and peers on the course.
 
 # 2. Data and the analysis problem
 
-We use the most recent institutional-level college scorecard data from the US Department of Education. 
+The used dataset is the most recent institutional-level college scorecard data from the US Department of Education. 
 The institutional-level dataset contains aggregate data for each educational institution and includes data on 
 institutional characteristics, enrollment, student aid, costs and student outcomes. 
 The dataset has over 6000 observations on more than 3000 variables.
 
-We chose to use this dataset because we could use the data to answer interesting education-related questions in our project, 
-and also because the dataset has a large number of observations and a large number of variables. 
-The large amount of variables will allow for a lot of flexibility when it comes to modelling our data and it's important to have 
-enough data in order to be able to make valid inferences. During the project, the large amount of variables also 
-posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
-We were somewhat surprised by how fast the observation count started to shrink when we began cleaning the data, 
-so in hindsight we should have maybe paid more attention to cleanliness, as this dataset had for example a lot of missing values
+This dataset was chosen because it seemed to provide information that could answer
+interesting education-related questions in the project, and also because the dataset 
+has a large number of observations and a large number of variables. The large amount 
+of variables permits for a lot of flexibility when it comes to modelling with the data 
+and also having enough data is important in order to be able to make valid inferences. 
+During the project, the large amount of variables also posed challenges, as it 
+was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
+It was somewhat surprising how fast the observation count started to shrink in data cleaning process, 
+so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
 
 ```{r}
 # read in data sets
@@ -181,7 +185,6 @@ data.joined.dropna <- data.numerical.dropna %>%
 
 ## Phase 2 - Feature selection wiht correlation and visual dependency
 
-
 In the second phase of feature selection, a subset of features was selected
 from the 18 variables of the first phase. The correlations between the features 
 were examined as well as their associations to the dependent variable.
@@ -222,7 +225,7 @@ melted <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 # Correlation plot
 ggcorrplot(cor(numerical.vars.data),
           lab = TRUE,
-          lab_size = 1,
+          lab_size = 2,
           title = "Correlations",
           tl.cex = 8,
           )
@@ -717,6 +720,67 @@ pareto_k_table(hierarchical.fit$loo())
 pareto_k_table(pooled.fit$loo())
 
 ``` 
+
+## Pooled predictive checking
+```{r, eval = FALSE}
+
+pooled.extract <- pooled.fit$draws(variable = "y_rep")
+
+y <- data.joined.stan$MD_EARN_WNE_P10
+
+y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
+
+ppc_dens_overlay(y, y_rep)
+``` 
+
+## Hierarchical predictive checking
+```{r, eval = FALSE}
+
+hierarchical.extract <- hierarchical.fit$draws(variable = "y_rep")
+
+y <- data.joined.stan$MD_EARN_WNE_P10
+
+y_rep <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
+
+ppc_dens_overlay(y, y_rep)
+```
+## Separate predictive checking
+```{r, eval = FALSE}
+
+separate.extract <- separate.fit$draws(variable = "y_rep")
+
+y <- data.joined.stan$MD_EARN_WNE_P10
+
+y_rep <- matrix(data = separate.extract[,1,], nrow = 1000)
+
+separate.ppctitle <- ggtitle("Separate model",
+                             "Comparing densities of y and y_rep")
+
+ppc_dens_overlay(y, y_rep) + separate.ppctitle
+
+# Pooled
+
+pooled.extract <- pooled.fit$draws(variable = "y_rep")
+
+y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
+
+pooled.ppctitle <- ggtitle("Pooled model",
+                             "Comparing densities of y and y_rep")
+
+ppc_dens_overlay(y, y_rep) + pooled.ppctitle
+
+# Hierarchical
+
+hierarchical.extract <- hierarchical.fit$draws(variable = "y_rep")
+
+y_rep <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
+
+hierarchical.ppctitle <- ggtitle("Hierarchical model",
+                             "Comparing densities of y and y_rep")
+
+ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
+```
+
 
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
 of practical usefulness of the accuracy. This should be reported for all models as well.

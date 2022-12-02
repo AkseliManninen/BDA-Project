@@ -85,12 +85,20 @@ generated quantities {
 
   // log-likelihoods
   vector[N] log_lik;
+  vector[N] y_rep;
 
   for (i in 1:N) {
-    log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL[i] + beta_MD_FAMINIC[x[i]] *
-    MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] * AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] +
-    beta_POVERTY_RATE[x[i]] * POVERTY_RATE[i] + beta_MASTER[x[i]] * MASTER[i] +
-    beta_PRIVATE[x[i]] * PRIVATE[i], sigma);
+    log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] 
+    * SAT_ALL[i] + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] 
+    * AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] 
+    * POVERTY_RATE[i] + beta_MASTER[x[i]] * MASTER[i] + beta_PRIVATE[x[i]] * 
+    PRIVATE[i], sigma[x[i]]);
+    
+    y_rep[i] = normal_rng(alpha[x[i]] + beta_SAT_ALL[x[i]] 
+    * SAT_ALL[i] + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] 
+    * AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] 
+    * POVERTY_RATE[i] + beta_MASTER[x[i]] * MASTER[i] + beta_PRIVATE[x[i]] * 
+    PRIVATE[i], sigma[x[i]]);
   }
 
 }
