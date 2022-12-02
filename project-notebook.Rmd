@@ -44,12 +44,7 @@ considering educational aspects but expands it to family backgrounds.
 
 In this study, a Bayesian approach is taken to observe the bond between the educational and family related 
 features and earnings. It is in our interest to find out how accurately the selected features can predict future 
-income for the students.
-
-## Mitä seuraava lause yrittää sanoa?
-## Meinaa että meillä on paljon muuttujia, mistä voidaan valita, ja koitetaan löytää niistä parhaiten ennustavat.
-## Sitten testataan, että miten hyvin ne unnustaa. Muotoilin vähän uusiks jos näyttää järkevämmält nyt.
-Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating
+income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating
 predictive performance using these features with a selected statistical models.
 
 As this study is conducted in a university environment by university students and presented mainly to other students and faculty, 
@@ -74,8 +69,10 @@ so in hindsight more attention could have been paid to cleanliness, as this data
 
 ```{r}
 # read in data sets
-data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
-data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
+data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", 
+                  sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
+data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", 
+                              sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
 ```
 
 ## Feature selection
@@ -126,7 +123,9 @@ $$
 
 # list variables
 id.vars <- c("UNITID", "INSTNM", "CITY", "ST_FIPS", "REGION")
-numerical.vars <- c("SATVRMID", "SATMTMID", "MD_FAMINC", "AGE_ENTRY", "FEMALE", "FIRST_GEN", "PCT_WHITE", "DEBT_MDN_SUPP", "C150_4", "COSTT4_A", "MD_EARN_WNE_P10", "POVERTY_RATE", "UNEMP_RATE", "MARRIED")
+numerical.vars <- c("SATVRMID", "SATMTMID", "MD_FAMINC", "AGE_ENTRY", "FEMALE", 
+                    "FIRST_GEN", "PCT_WHITE", "DEBT_MDN_SUPP", "C150_4", "COSTT4_A", 
+                    "MD_EARN_WNE_P10", "POVERTY_RATE", "UNEMP_RATE", "MARRIED")
 categorical.vars <- c("LOCALE", "CCBASIC", "CONTROL")
 SAT.vars <- c("SATVRMID", "SATMTMID")
 
@@ -214,7 +213,8 @@ COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area th
 # PRELIMINARY ANALYSIS ----
 
 # make variable type specific data frames for plots etc.
-numerical.vars.data <- data.joined.dropna %>% select(!c(id.vars, categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
+numerical.vars.data <- data.joined.dropna %>% select(!c(id.vars, 
+  categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
 
 categorical.vars.data <- data.joined.dropna %>%
   select(all_of(categorical.vars), MD_EARN_WNE_P10) %>%
@@ -348,7 +348,8 @@ data.joined.model <- data.joined.dropna %>%
   )
 
 
-numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", "COSTT4_A", "POVERTY_RATE")
+numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", 
+                          "COSTT4_A", "POVERTY_RATE")
 categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 
 # data with REGION identifier for STAN
@@ -365,15 +366,36 @@ data.joined.model <- data.joined.stan %>%
 
 ## Description of the separate model
 
-Add LaTeX!
+
+Mathematical description:
+
+$y_{ij}|mu_j, sigma_j ∼ N(mu_j, sigma_j^2)$
+
+where $mu_j = a_j +\textbf{X}\textbf{B}_j$
+
+The parameters of the parameter vector are given in the section 4 with their
+priors.
 
 ## Description of the pooled model
 
-Add LaTeX!
+Mathematical description:
+
+$y_{i}|mu, sigma ∼ N(mu, sigma^2)$
+
+where $mu = a +\textbf{X}\textbf{B}$
+
+The parameters of the parameter vector are given in the section 4 with their
+priors.
 
 ## Description of the hierarchical model
 
-Add LaTeX!
+Mathematical description:
+
+$y_{ij} |mu_j ∼ N(mu_j, sigma^2)$
+
+where $mu_j |mu_P, sigma_P^2 ∼ N(mu_P, sigma_P^2)$
+
+The hyperparameters and parameters are given in the section 4 with their priors.
 
 ## Description of the linear model
 
@@ -539,7 +561,8 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
              K = length(unique(data.joined.stan$REGION)),
              x = data.joined.stan$REGION)
 
-hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, seed = 1234, refresh = 1e3)
+hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
+                                              seed = 1234, refresh = 1e3)
 
 hierarchical.fit
 ```
@@ -697,13 +720,13 @@ hierarchical.fit$cmdstan_diagnose()
 
 
 ## LOO (Model comparison)
-```{r, eval = FALSE}
+```{r, eval = FALSE, warnings = FALSE}
 
 separate.loo <- separate.fit$loo()
 
-hierarchical.loo <- hierarchical.fit$loo()
-
 pooled.loo <- pooled.fit$loo()
+
+hierarchical.loo <- hierarchical.fit$loo()
 
 loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
@@ -715,36 +738,14 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
 pareto_k_table(separate.fit$loo())
 
-pareto_k_table(hierarchical.fit$loo())
-
 pareto_k_table(pooled.fit$loo())
 
+pareto_k_table(hierarchical.fit$loo())
+
 ``` 
 
-## Pooled predictive checking
-```{r, eval = FALSE}
 
-pooled.extract <- pooled.fit$draws(variable = "y_rep")
-
-y <- data.joined.stan$MD_EARN_WNE_P10
-
-y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
-
-ppc_dens_overlay(y, y_rep)
-``` 
-
-## Hierarchical predictive checking
-```{r, eval = FALSE}
-
-hierarchical.extract <- hierarchical.fit$draws(variable = "y_rep")
-
-y <- data.joined.stan$MD_EARN_WNE_P10
-
-y_rep <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
-
-ppc_dens_overlay(y, y_rep)
-```
-## Separate predictive checking
+## Posterior predictive checking
 ```{r, eval = FALSE}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
@@ -832,7 +833,8 @@ data.joined.model <- data.joined.dropna %>%
   )
 
 
-numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", "COSTT4_A", "POVERTY_RATE")
+numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", 
+                          "COSTT4_A", "POVERTY_RATE")
 categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 
 # data with REGION identifier for STAN
@@ -849,57 +851,8 @@ summary(model)
 
 # step wise regression implied "best" model in terms of AIC
 step(model, direction = "backward")
-stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + POVERTY_RATE + URBAN + PRIVATE + MASTER, data = data.joined.model)
+stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
+                       POVERTY_RATE + URBAN + PRIVATE + MASTER, data = data.joined.model)
 summary(stepwise.model)
 ```
 
-
-## Appendix 2 - Separate model, all r_hat values
-
-## Appendix 3 Hierarchical model, all r_hat values
-```{r, eval = FALSE}
-
-rhat.df <- tibble()
-
-params <- c("alpha[1]", "alpha[2]", "alpha[3]", "alpha[4]", "alpha[5]", "alpha[6]", 
-            "alpha[7]", "alpha[8]", "alpha[9]",             
-            "beta_SAT_ALL[1]", "beta_SAT_ALL[2]", "beta_SAT_ALL[3]", "beta_SAT_ALL[4]", 
-            "beta_SAT_ALL[5]", "beta_SAT_ALL[6]", "beta_SAT_ALL[7]", "beta_SAT_ALL[8]",
-            "beta_SAT_ALL[9]",
-            "beta_MD_FAMINIC[1]", "beta_MD_FAMINIC[2]", "beta_MD_FAMINIC[3]", "beta_MD_FAMINIC[4]", 
-            "beta_MD_FAMINIC[5]", "beta_MD_FAMINIC[6]", "beta_MD_FAMINIC[7]", "beta_MD_FAMINIC[8]",
-            "beta_MD_FAMINIC[9]",
-            "beta_AGE_ENTRY[1]", "beta_AGE_ENTRY[2]", "beta_AGE_ENTRY[3]", "beta_AGE_ENTRY[4]", 
-            "beta_AGE_ENTRY[5]", "beta_AGE_ENTRY[6]", "beta_AGE_ENTRY[7]", "beta_AGE_ENTRY[8]",
-            "beta_AGE_ENTRY[9]",
-            "beta_COSTT4_A[1]", "beta_COSTT4_A[2]", "beta_COSTT4_A[3]", "beta_COSTT4_A[4]", 
-            "beta_COSTT4_A[5]", "beta_COSTT4_A[6]", "beta_COSTT4_A[7]", "beta_COSTT4_A[8]",
-            "beta_COSTT4_A[9]",
-            "beta_POVERTY_RATE[1]", "beta_POVERTY_RATE[2]", "beta_POVERTY_RATE[3]", "beta_POVERTY_RATE[4]", 
-            "beta_POVERTY_RATE[5]", "beta_POVERTY_RATE[6]", "beta_POVERTY_RATE[7]", "beta_POVERTY_RATE[8]",
-            "beta_POVERTY_RATE[9]",
-            "beta_MASTER[1]", "beta_MASTER[2]", "beta_MASTER[3]", "beta_MASTER[4]", 
-            "beta_MASTER[5]", "beta_MASTER[6]", "beta_MASTER[7]", "beta_MASTER[8]",
-            "beta_MASTER[9]",
-            "beta_PRIVATE[1]", "beta_PRIVATE[2]", "beta_PRIVATER[3]", "beta_PRIVATE[4]", 
-            "beta_PRIVATE[5]", "beta_PRIVATE[6]", "beta_PRIVATE[7]", "beta_PRIVATE[8]",
-            "beta_PRIVATE[9]",
-            "sigma[1]", "sigma[2]", "sigma[3]", "sigma[4]", 
-            "sigma[5]", "sigma[6]", "sigma[7]", "sigma[8]",
-            "sigma[9]")
-            
-            
-            
-#for (param in params) {
-#  rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
-#  row <- tibble("Parameter" = param, 
-#                "Chain 1" = rhats[1], 
-#                "Chain 2" = rhats[2], 
-#                "Chain 3" = rhats[3], 
-#                "Chain 4" = rhats[4])
-#  rhat.df <- rbind(rhat.df, row)
-#}
-#
-#rhat.df
-
-``` 
