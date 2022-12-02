@@ -774,7 +774,7 @@ ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 
 
 ## LOO (Model comparison)
-```{r, eval = FALSE, warnings = FALSE}
+```{r, eval = FALSE, warning = FALSE}
 
 separate.loo <- separate.fit$loo()
 
@@ -799,8 +799,18 @@ pareto_k_table(hierarchical.fit$loo())
 
 ``` 
 
+```{r, eval = FALSE, warning=FALSE}
 
-Based on $\hat{K}$ the predictions ara ... too optimistic/reliable?
+plot(separate.fit$loo(), main = "Separate model PSIS diagnostics")
+  
+plot(pooled.fit$loo(), main = "Pooled model PSIS diagnostics")
+
+plot(hierarchical.fit$loo(), main = "Hierarchical model PSIS diagnostics")
+
+``` 
+
+Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
+- Why pooled model looks like that - overfitting or something?
 
 
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
