@@ -202,7 +202,6 @@ especially if they were not clearly correlated with the dependent variable and w
 form a believable hypothesis for the mechanism through which that variable affected income after
 college.
 
-
 The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), 
 MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), 
 COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
@@ -237,24 +236,28 @@ ggplot(melted, aes(x = value, y = MD_EARN_WNE_P10)) +
 ```
 ## Categorical variables
 
-The categorical variables were observed with box plots to see if there were 
-differences between the categories and the dependent variable. Based on an 
-analysis on the variable LOCALE, a new binary variable URBAN was generated
-which represents, where value 1 represents city-like area which includes
-categories Large City, Mid-Size City, Urban Fringe of a Large City and Urban 
-Fringe of a Mid-Size City of the LOCALE variable from the dataset.
+The categorical variables were visualized with box plots to see if income after
+college differed among the categories. Based on an analysis on the variable LOCALE
+(whether college located in metropolis, city, suburb, town, or rural area) a new 
+binary variable URBAN was generated, where value 1 represents any area that is not
+categorized as rural.
 
 The categorical variable CCBASIC which represented the Carnegie Classification
 was divided into two binary MASTER and DOCTORL. These variables represent
 if the college is classified as Master's college and university or Doctoral's
 college and university. If a college does not belong to either of those,
 it is a Bachelor's college and university. Other special focus colleges
-and universities were discarded from the dataset to keep the model more simple.
+and universities were discarded from the dataset to keep the model more simple
+and avoid unnecessary outliers due to unconventional nature of some very specialized 
+colleges. Our model does not attempt to provide accurate predictions for
+specialized colleges.
 
-The categorical variable CONTROL, which had three classes Public, Private
-and Private, Nonprofit and Proprietary was modified into binary variable
-Private representing if the school is private or public school. There
-were only few Proprietary observations, so those were discarded.
+## Tähän jäi vielä tarkennettavaa. Poistettiinko siis non-profitit ja onko ne sama kuin proprietary?
+
+The categorical variable CONTROL had three classes: public, for-profit private
+and nonprofit private. CONTROL was modified into a binary variable PRIVATE representing 
+if the school is private or public school. There were only few Proprietary observations, 
+so those were discarded.
 
 The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
 
@@ -302,12 +305,11 @@ ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 ```
 
 
-## Phase 3 - Feature selection with Stepwise regression
+## Phase 3 - Feature selection with stepwise regression
 
-In the third phase, the remaining variables were used with Stepwise
-regression, to test which subset of features perform the best, and
-whether the received coefficients are reasonable, and if there are signs
-of overfitting.
+In the third phase, the remaining variables were used with stepwise regression,
+to test which subset of features perform the best, whether the received 
+coefficients are reasonable, and if there are signs of overfitting.
 
 The Stepwise regression suggested using all of the variables, except CITY
 and DOCTORAL. The stepwise regression can be seen in appendix 1.
@@ -506,9 +508,7 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           PRIVATE = data.joined.stan$PRIVATE)
 
 
-pooled_fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
-
-pooled.fit <- pooled_fit
+pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
 
 pooled.fit
 
@@ -703,7 +703,7 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
 
 ## K hat
-```{r, eval = FALSE, warning=FALSE}
+```{r, eval = FALSE}
 
 pareto_k_table(separate.fit$loo())
 
@@ -711,19 +711,6 @@ pareto_k_table(hierarchical.fit$loo())
 
 pareto_k_table(pooled.fit$loo())
 
-``` 
-
-
-## Posterior predictive checking for pooled
-```{r, warning=FALSE}
-
-pooled.extract <- pooled.fit$draws(variables = 'y_rep')
-
-y <- data.joined.stan$MD_EARN_WNE_P10
-
-y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
-
-ppc_dens_overlay(y, y_rep)
 ``` 
 
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
