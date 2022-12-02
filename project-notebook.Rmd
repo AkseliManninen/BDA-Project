@@ -376,20 +376,21 @@ Add LaTeX!
 
 # 4. Informative or weakly informative priors, and justification of their choices.
 
-The selected priors are mostly weakly informative, as we do not posses enough
-information about the dependency between the independent variables and the
-dependent variable. When selecting the priors, proper distribution type
-was considered for each variable. What comes to the standard deviations, they
-were selected based on the magnitude of absolute values of the variables,
-and considering what kind of impact they could have for income, with 
-somewhat exaggerated estimates to avoid limiting the values too much.
+We use weakly informative priors, as we do not posses enough information about the 
+dependency between the independent variables and the dependent variable. 
+When selecting the priors, proper distribution type was considered for each variable. 
+The prior standard deviations were selected based on the magnitude of absolute values 
+of the variables and what kind of impact they could have for income, with loose enough
+estimates to avoid limiting the values too much. Alternative approach could have been 
+to normalize all variables, which would have reduced the need to think about magnitudes
+of absolute values.
 
 SAT_ALL ~ Normal(43, 500)
 
-Justification: Weakly informative prior as we don't posses enough information
-on the dependency, although it would be intuitive that success in the SAT exam
-would be associated with higher income. For that reason, the standard deviation
-is set to be high, and the variable is not limited to be greater than one.
+Justification: We agreed that it was somewhat reasonable to expect scores in the SAT 
+exam to be associated with higher income. Due to our approach of using weakly informative 
+priors, we set a high standard deviation, but set a positive mean due to expected positive
+association.
 
 The mean is calculated with the following formula: Median individual income
 in the United States / Average SAT Score (math and writing).
@@ -398,41 +399,45 @@ The median individual income in the US was approximately 31 000 in 2020
 (Data Commons, 2020). The average SAT score in the US in 2020 were 523 in Math
 and 582 in Evidence-Based Reading and Writing (Number2, 2020).
 
-mu = 31 000 / (523 + 528/2) = 43.2...
+mu = 31 000 / (523 + 528/2) = 43.2
 
 MD_FAMINIC ~ Normal(0, 100)
 
-Justification: Weakly informative prior, is selected as we don't posses enough 
+Justification: Weakly informative prior is again selected as we don't posses enough 
 information on the dependency. The absolute values are in general high, 
 (for example compared to AGE_OF_ENTRY) and thus the standard deviation is set 
-lower for this variable.However, there could be cases where MD_FAMINIC is low, 
+lower for this variable. However, there could be cases where MD_FAMINIC is low, 
 due to for example unemployment, so the standard deviation is still set 
-considerably high.
+considerably high. 
+## Ehdotus
+This is a variable we will try to transform to logarithmic scale as impact of say, 
+10 000$ more income can be far greater for a low-income family than for a high-income family.
 
 AGE_ENTRY ~ Normal(0, 2500)
 
-Justification: Weakly informative prior, is selected as we don't posses enough 
-information on the dependency. As the age of entry could be somewhere in the 
-range of 15 - 50 without considering outliers, a few dozen years difference
-could have dramatic changes in income either way, the standard deviation is set 
-high.
+Justification: We don't have a strong expectation of direction or magnitude of effect on income. 
+As the age of entry could be somewhere in the range of 15 - 50 without considering outliers, 
+a few dozen years difference could have dramatic changes in income either way, the standard
+deviation is set high.
 
 
 COSTT4_A ~ Normal(0, 500)
 
-Justification: Weakly informative prior, is selected as we don't posses enough 
-information on the dependency. The average cost entry per academic year is
-most likely lower than median family income, but higher than average age of
-entry and thus the standard deviation is set between the standard deviations
-of those.
+Justification: Weakly informative prior is selected as we don't posses enough 
+information on the dependency. The average cost per academic year is likely to take lower
+values than median family income, but higher values than average age of entry and thus 
+the standard deviation is set between the standard deviations of those.
 
 POVERTY_RATE ~ Normal(0, 2500)
 
-Justification: Weakly informative prior, is selected as we don't posses enough 
-information on the dependency. The possible values are between 0 and 100.
-There could be situations were poverty rate in an area is really low,
-for instance 0.5%. For that reason, the standard deviation in the prior
-is set high to enable possibly high weight for a small value.
+## Tää ei oikein täsmää. Jos tää sais ison painon pienillä arvoilla niin se tarkottais että kun liikutaan
+## esim 2% köyhyydestä 3% köyhyyteen niin on tosi isot vaikutukset tuloihin. Todellisuudessa
+## alueet on varmaan aika samanlaisia hyvinvoivia alueita. Nollaköyhyys on intercept-arvo josta sitten
+## lähetään askeleittain kattomaan että miten tulot muuttuu kun alueen köyhyys lisääntyy.
+## RATKAISUEHDOTUS: Lasketaan sd:tä. Ei tarvii olla yhtä dramaattinen kuin binäärisillä muutujilla.
+Justification: The possible values are between 0 and 100. There could be situations were 
+poverty rate in an area is really low, for instance 0.5%. For that reason, the standard 
+deviation in the prior is set high to enable possibly high weight for a small value.
 
 MASTER ~ Normal(0, 2500)
 
