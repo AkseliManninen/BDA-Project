@@ -67,6 +67,9 @@ was arguably rather slow and burdensome to find the most relevant variables to u
 It was somewhat surprising how fast the observation count started to shrink in data cleaning process, 
 so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
 
+After investigating the dataset, the most intriguing analysis problem was to
+study how college related factors affect the median earnings 10 years after entry.
+
 ```{r}
 # read in data sets
 data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", 
@@ -730,34 +733,7 @@ hierarchical.fit$cmdstan_diagnose()
 
 ``` 
 
-# 8. Posterior predictive checks and what was done to improve the model. This should be reported for all models.
-
-
-## LOO (Model comparison)
-```{r, eval = FALSE, warnings = FALSE}
-
-separate.loo <- separate.fit$loo()
-
-pooled.loo <- pooled.fit$loo()
-
-hierarchical.loo <- hierarchical.fit$loo()
-
-loo_compare(separate.loo, pooled.loo, hierarchical.loo)
-
-``` 
-
-
-## K hat
-```{r, eval = FALSE}
-
-pareto_k_table(separate.fit$loo())
-
-pareto_k_table(pooled.fit$loo())
-
-pareto_k_table(hierarchical.fit$loo())
-
-``` 
-
+# 8. Posterior predictive checks and model comparison
 
 ## Posterior predictive checking
 ```{r, eval = FALSE}
@@ -797,11 +773,43 @@ ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 ```
 
 
+## LOO (Model comparison)
+```{r, eval = FALSE, warnings = FALSE}
+
+separate.loo <- separate.fit$loo()
+
+pooled.loo <- pooled.fit$loo()
+
+hierarchical.loo <- hierarchical.fit$loo()
+
+loo_compare(separate.loo, pooled.loo, hierarchical.loo)
+
+``` 
+
+Based on LOO we should select... as it has the highest score
+
+## K hat
+```{r, eval = FALSE}
+
+pareto_k_table(separate.fit$loo())
+
+pareto_k_table(pooled.fit$loo())
+
+pareto_k_table(hierarchical.fit$loo())
+
+``` 
+
+
+Based on $\hat{K}$ the predictions ara ... too optimistic/reliable?
+
+
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
 of practical usefulness of the accuracy. This should be reported for all models as well.
 
 # 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior 
 is changed). This should be reported for all models.
+
+Uniform priors were used for each model for sensitivity testing.
 
 # 11. Discussion of issues and potential improvements.
 
