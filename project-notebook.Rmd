@@ -499,7 +499,9 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           PRIVATE = data.joined.stan$PRIVATE)
 
 
-pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
+pooled_fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
+
+pooled.fit <- pooled_fit
 
 pooled.fit
 
@@ -694,7 +696,7 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
 
 ## K hat
-```{r, eval = FALSE}
+```{r, eval = FALSE, warning=FALSE}
 
 pareto_k_table(separate.fit$loo())
 
@@ -702,6 +704,19 @@ pareto_k_table(hierarchical.fit$loo())
 
 pareto_k_table(pooled.fit$loo())
 
+``` 
+
+
+## Posterior predictive checking for pooled
+```{r, warning=FALSE}
+
+pooled.extract <- pooled.fit$draws(variables = 'y_rep')
+
+y <- data.joined.stan$MD_EARN_WNE_P10
+
+y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
+
+ppc_dens_overlay(y, y_rep)
 ``` 
 
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
