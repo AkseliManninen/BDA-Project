@@ -31,23 +31,27 @@ set_cmdstan_path('/coursedata/cmdstan')
 # 1. Project Description and Motivation
 
 Studying the relationship between income and education has been the focus on many studies. The studies have 
-concluded that there is a strong correlation between higher education and income (Card, 1999). In general, 
+concluded that a strong connection exists between higher education and income (Card, 1999). In general, 
 individuals with stronger education are more likely to be employed and earn a big salary compared to less 
 educated people (Card, 1999). For that reason, education is described as an investment in human capital 
 (Wolla & Sullivan, 2017). 
 
 This study examines this phenomenon from the perspective of people that have acquired their education
-from colleges of the United States. As the connection between education and income has been
+from colleges in the United States. As the connection between education and income has been
 shown in the existing literature, this study strives to examine the associations between college related
 features and income level years after graduation. This project is not limited to only 
 considering educational aspects but expands it to family backgrounds.
 
 In this study, a Bayesian approach is taken to observe the bond between the educational and family related 
-features and earnings. It is in our interest to find out, how accurately the selected features can predict future 
-income for the students. Furthermore, finding a well-predictive features among the vast number of
-variables is pursed and evaluating the predictive performance of selected statistical models. As this study is conducted 
-in a university environment by university students, the possible insight would be especially meaningful for the 
-members of the group and peers.
+features and earnings. It is in our interest to find out how accurately the selected features can predict future 
+income for the students.
+
+## Mitä seuraava lause yrittää sanoa?
+Furthermore, finding well-predictive features among the vast number of variables is pursed and evaluating the 
+predictive performance of selected statistical models. 
+
+As this study is conducted in a university environment by university students and presented mainly to other students and faculty, 
+the findings of this study could be especially meaningful for the members of the group and peers on the course.
 
 # 2. Data and the analysis problem
 
@@ -57,10 +61,10 @@ institutional characteristics, enrollment, student aid, costs and student outcom
 The dataset has over 6000 observations on more than 3000 variables.
 
 We chose to use this dataset because we could use the data to answer interesting education-related questions in our project, 
-and also because the dataset has a large number of observations and also a large number of variables. 
-The large amount of variables means we would have a lot of flexibility when it came to modelling our data and there would be 
-enough data to possibly make valid inferences due to many observations. Of course, the large amount of variables also 
-posed challenges, as it was arguably slower and more burdensome to find the most relevant variables to use in our analysis. 
+and also because the dataset has a large number of observations and a large number of variables. 
+The large amount of variables will allow for a lot of flexibility when it comes to modelling our data and it's important to have 
+enough data in order to be able to make valid inferences. During the project, the large amount of variables also 
+posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
 We were somewhat surprised by how fast the observation count started to shrink when we began cleaning the data, 
 so in hindsight we should have maybe paid more attention to cleanliness, as this dataset had for example a lot of missing values
 
@@ -74,8 +78,8 @@ data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep =
 
 ## Phase 1 - Feature selection based on literature and domain knowledge
 
-The initial data set had almost 3000 features and in that regards, the number
-of observations is relatively small. There are also a lot of missing values
+The initial data set had more than 3000 features and in that regards, the number
+of observations is relatively small (a relatively wide dataset). There are also a lot of missing values
 in the data set and some features are missing. For these reasons, there was
 a need to prune features.
 
@@ -84,7 +88,7 @@ a subset of features was select based on the features used in the existing
 literature and using domain knowledge. From the potential features, only those
 having enough data were included in the subset and others were discarded.
 
-The selected features were: 
+The selected features in the first phase were: 
 
 $$
 \begin{array} {c|c|c|c|c|c|c|c} & Name & Type & Description \\ 
@@ -191,14 +195,17 @@ math and critical thinking SAT scores. SAT scores were included
 because the correlation was high with the dependent variable.
 
 For the rest of the numerical variables, if the correlation between a feature
-and the dependent variable was low and there was not observable dependency 
-between the two in the scatter plot, the feature was excluded. Also, if multiple
-independent variables were highly correlated, for the sake of simplicity only
-one of them was selected to the model, based on the highest correlation and 
-dependency with the dependent variable.
+and the dependent variable was low and there was no observable dependency 
+between the two in the scatter plot, the feature was excluded. To avoid multicollinearity,
+we removed independent variables that were highly correlated with other independent variables,
+especially if they were not clearly correlated with the dependent variable and we couldn't
+form a believable hypothesis for the mechanism through which that variable affected income after
+college.
 
-The selected numerical variables were: SAT_ALL, MD_FAMINIC, AGE_ENTRY, 
-COSTT4_A, and POVERTY_RATE.
+
+The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), 
+MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), 
+COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
 
 ## Visualizing correlations and data points with the dependent variable.
 ```{r, warning = FALSE}
