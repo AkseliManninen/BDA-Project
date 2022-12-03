@@ -217,6 +217,7 @@ COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area th
 ## Visualizing correlations and data points with the dependent variable.
 
 ```{r, warning = FALSE}
+
 # PRELIMINARY ANALYSIS ----
 
 # make variable type specific data frames for plots etc.
@@ -235,6 +236,10 @@ ggcorrplot(cor(numerical.vars.data),
           tl.cex = 8,
           )
 
+```
+
+```{r, fig.height=12, fig.width=12}
+
 melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 
 melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
@@ -244,8 +249,8 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
   ggtitle("Median earnings after 10 years and the independent variables") +
   xlab("Feature value") + ylab("Median earnings")
 
-
 ```
+
 
 ## Categorical variables
 
