@@ -91,34 +91,37 @@ having enough data were included in the subset and others were discarded.
 The selected independent variables in the first phase were
 
 $$
-\begin{array} {c|c|c|c|c|c|c|c} & Name & Type & Description \\ 
+\begin{tabular} {l|c|c|c} 
+& Name & Data type & Description \\ 
 \hline
-1 & SATVRMID & numerical & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(critical\:reading) \\
-2 & SATMTMID & numerical & Midpoint\:of SAT scores at the institution (math) \\
-3 & SATWRMID & numerical & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(writing) \\
-4 & MD\_FAMINC & numerical & Median\:family\:income \\
-5 & AGE\_ENTRY & numerical & Average\:age\:of\:entry \\
-6 & FEMALE & numerical & Share\:of\:female\:students \\
-7 & FIRST\_GEN & numerical & Share\:of\:first-generation students \\
-8 & PCT\_WHITE & numerical & Percent\:of\:the\:population\:from\:students'\:zip\:codes\:that\:is\:White \\
-9 & DEBT\_MDN\_SUPP & numerical & Median\:debt,\:suppressed\:for\:n=30 \\
-10 & C150\_4 & numerical & Completion\:rate\:for\:first-time,\:full-tim\:students \\
-11 & COSTT4\_A & numerical & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
-12 & POVERTY\_RATE & numerical & Poverty\:rate \\
-13 & UNEMP\_RATE & numerical & Unemployment\:rate \\
-14 & MARRIED & numerical & Share\:of\:married students \\
-15 & VETERAN & numerical & Share\:of\:veteran students \\
-16 & LOCALE & categorical & Locale\:of\:institution \\
-17 & CCBASIC & categorical & Carnegie\:Classification -- basic \\
-18 & CONTROL & categorical & Control\:of\:institution \\
-\end{array}
+1 & SATVRMID & integer & Midpoint of SAT scores at the institution (critical reading) \\
+2 & SATMTMID & integer & Midpoint of SAT scores at the institution (math) \\
+3 & SATWRMID & integer & Midpoint of SAT scores at the institution (writing) \\
+4 & MD\_FAMINC & double & Median family income \\
+5 & AGE\_ENTRY & double & Average age of entry \\
+6 & FEMALE & double & Share of female students \\
+7 & FIRST\_GEN & double & Share of first-generation students \\
+8 & PCT\_WHITE & double & Percent of the population from students' zip codes that is White \\
+9 & DEBT\_MDN\_SUPP & integer & Median debt, suppressed for n=30 \\
+10 & C150\_4 & double & Completion rate for first-time, full-tim students \\
+11 & COSTT4\_A & integer & Average cost of attendance (academic year institutions) \\
+12 & POVERTY\_RATE & double & Poverty rate \\
+13 & UNEMP\_RATE & double & Unemployment rate \\
+14 & MARRIED & double & Share of married students \\
+15 & VETERAN & double & Share of veteran students \\
+16 & LOCALE & categorical & Locale of institution \\
+17 & CCBASIC & categorical & Carnegie Classification -- basic \\
+18 & CONTROL & categorical & Control of institution
+\end{tabular}
 $$
 
 Dependent variable:
 $$
-\begin{array} {c} & Name & Data\:type & Description \\ 
- & MD\_EARN\_WNE\_P10 & numeric & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
-\end{array}
+\begin{tabular} {ccc} 
+Name & Data type & Description \\
+\hline
+MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
+\end{tabular}
 $$
 
 ## Code for extracting the feature subset
