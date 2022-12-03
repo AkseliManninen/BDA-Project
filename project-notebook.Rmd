@@ -515,6 +515,7 @@ high.
 # 5. Stan, rstanarm or brms code.
 
 ## Separate model
+
 ```{r, results = "hide", eval=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
@@ -528,7 +529,6 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                             COSTT4_A = data.joined.stan$COSTT4_A,
                             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                            MASTER = data.joined.stan$MASTER,
                             PRIVATE = data.joined.stan$PRIVATE,
                             y = data.joined.stan$MD_EARN_WNE_P10,
                             
@@ -544,8 +544,6 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             ps_COSTT4_A = 500,
                             pm_POVERTY_RATE = 0,
                             ps_POVERTY_RATE = 2500,
-                            pm_MASTER = 0,
-                            ps_MASTER = 2500,
                             pm_PRIVATE = 0,
                             ps_PRIVATE = 2500,
                             pm_sigma = 10000,
@@ -562,19 +560,39 @@ separate.fit
 
 
 ## Pooled model
+
 ```{r, results = "hide", eval=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
 pooled.model.data <- list(N = nrow(data.joined.stan),
-                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          
                           SAT_ALL = data.joined.stan$SAT_ALL,
                           MD_FAMINIC = data.joined.stan$MD_FAMINC,
                           AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                           COSTT4_A = data.joined.stan$COSTT4_A,
                           POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                          MASTER = data.joined.stan$MASTER,
-                          PRIVATE = data.joined.stan$PRIVATE)
+                          PRIVATE = data.joined.stan$PRIVATE,
+                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          
+                          pm_alpha = 0,
+                          ps_alpha = 10000,
+                          pm_SAT_ALL = 50,
+                          ps_SAT_ALL = 500,
+                          pm_MD_FAMINC = 0,
+                          ps_MD_FAMINC = 100,
+                          pm_AGE_ENTRY = 0,
+                          ps_AGE_ENTRY = 2500,
+                          pm_COSTT4_A = 0,
+                          ps_COSTT4_A = 500,
+                          pm_POVERTY_RATE = 0,
+                          ps_POVERTY_RATE = 2500,
+                          pm_PRIVATE = 0,
+                          ps_PRIVATE = 2500,
+                          pm_sigma = 10000,
+                          ps_sigma = 10000
+                          
+                          )
 
 
 pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
@@ -583,27 +601,69 @@ pooled.fit
 
 ```
 
-## Hierarchical model fit
+## Hierarchical model
+
 ```{r, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
 
-hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical-akseli.stan")
+hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
 hierarchical.model.data <- list(N = nrow(data.joined.stan),
-             y = data.joined.stan$MD_EARN_WNE_P10,
-             SAT_ALL = data.joined.stan$SAT_ALL,
-             MD_FAMINIC = data.joined.stan$MD_FAMINC,
-             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
-             COSTT4_A = data.joined.stan$COSTT4_A,
-             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-             MASTER = data.joined.stan$MASTER,
-             PRIVATE = data.joined.stan$PRIVATE,
-             K = length(unique(data.joined.stan$REGION)),
-             x = data.joined.stan$REGION)
+                                K = length(unique(data.joined.stan$REGION)),
+                                x = data.joined.stan$REGION,
+                            
+                                SAT_ALL = data.joined.stan$SAT_ALL,
+                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                                COSTT4_A = data.joined.stan$COSTT4_A,
+                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                PRIVATE = data.joined.stan$PRIVATE,
+                                y = data.joined.stan$MD_EARN_WNE_P10,
+                                
+                                pm_alpha = 0,
+                                ps_alpha = 10000,
+                                pm_s_alpha = 100,
+                                ps_s_alpha = 100,
+                                
+                                pm_SAT_ALL = 43,
+                                ps_SAT_ALL = 500,
+                                pm_s_SAT_ALL = 100,
+                                ps_s_SAT_ALL = 100,
+                                
+                                pm_MD_FAMINC = 0,
+                                ps_MD_FAMINC = 100,
+                                pm_s_MD_FAMINC = 10,
+                                ps_s_MD_FAMINC = 100,
+                                
+                                pm_AGE_ENTRY = 0,
+                                ps_AGE_ENTRY = 2500,
+                                pm_s_AGE_ENTRY = 500,
+                                ps_s_AGE_ENTRY = 500,
+                                
+                                pm_COSTT4_A = 0,
+                                ps_COSTT4_A = 500,
+                                pm_s_COSTT4_A = 50,
+                                ps_s_COSTT4_A = 500,
+                                
+                                pm_POVERTY_RATE = 0,
+                                ps_POVERTY_RATE = 2500,
+                                pm_s_POVERTY_RATE = 500,
+                                ps_s_POVERTY_RATE = 500,
+                                
+                                pm_PRIVATE = 0,
+                                ps_PRIVATE = 2500,
+                                pm_s_PRIVATE = 500,
+                                ps_s_PRIVATE = 500,
+                                
+                                pm_sigma = 10000,
+                                ps_sigma = 10000,
+                                pm_s_sigma = 500,
+                                ps_s_sigma = 500)
 
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
 
 hierarchical.fit
+
 ```
 
 
