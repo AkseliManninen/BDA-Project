@@ -23,6 +23,7 @@ library(cmdstanr)
 library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
+library(kableExtra)
 set_cmdstan_path('/coursedata/cmdstan')
 
 ```
@@ -31,27 +32,23 @@ set_cmdstan_path('/coursedata/cmdstan')
 \newpage
 # 1. Project Description and Motivation
 
-Studying the relationship between income and education has been the focus on many studies. The studies have 
-concluded that a strong connection exists between higher education and income (Card, 1999). In general, 
-individuals with stronger education are more likely to be employed and earn a big salary compared to less 
-educated people (Card, 1999). For that reason, education is described as an investment in human capital 
-(Wolla & Sullivan, 2017). 
+**LISÄTTÄVÄ MAIN MODELLING IDEA**
+
+**"ILLUSTRATIVE FIGURE RECOMMENDED" - MIETITTÄVÄ SAADAANKO JOKU JÄRKEVÄ**
+
+Studying the relationship between income and education has been the focus on many studies. The studies have concluded that a strong connection exists between higher education and income (Card, 1999). In general, individuals with stronger education are more likely to be employed and earn a big salary compared to less educated people (Card, 1999). For that reason, education is described as an investment in human capital (Wolla & Sullivan, 2017). 
 
 This study examines this phenomenon from the perspective of people that have acquired their education
 from colleges in the United States. As the connection between education and income has been
-shown in the existing literature, this study strives to further examine the associations between college related
-features and income level years after graduation. This project is not limited to only 
+shown in the existing literature, this study strives to further examine the associations between college related features and income level years after graduation. This project is not limited to only 
 considering educational aspects but expands it to family backgrounds.
 
 In this study, a Bayesian approach is taken to observe the bond between the educational and family related 
-features and earnings. It is in our interest to find out how accurately the selected features can predict future 
-income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating
-predictive performance using these features with a selected statistical models.
+features and earnings. It is in our interest to find out how accurately the selected features can predict future income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating predictive performance using these features with a selected statistical models.
 
-As this study is conducted in a university environment by university students and presented mainly to other students and faculty, 
-the findings of this study could be especially meaningful for the members of the group and peers on the course.
+As this study is conducted in a university environment by university students and presented mainly to other students and faculty, the findings of this study could be especially meaningful for the members of the group and peers on the course.
 
-# 2. Data and the analysis problem
+# 2. Data description
 
 ```{r, include=FALSE}
 
@@ -64,70 +61,10 @@ data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep =
 
 ```
 
-**LAITETTAVA TARKEMPI LÄHDE DATALLE (MISTÄ LÖYTYY)!**
-
-The used dataset is the most recent institutional-level college scorecard data from the US Department of Education. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. 
-The dataset has over 6000 observations on more than 3000 variables.
-
-This dataset was chosen because it seemed to provide information that could answer interesting education-related questions in the project, and also because the dataset has a large number of observations and a large number of variables. The large amount of variables permits for a lot of flexibility when it comes to modelling with the data and also having enough data is important in order to be able to make valid inferences. 
-
-After investigating the dataset, the most intriguing analysis problem was to study how college related factors affect the median earnings 10 years after entry.
-
-## Feature selection
-
-## Phase 1 - Feature selection based on literature and domain knowledge
-
-The initial data set had more than 3000 features and in that regards, the number
-of observations is relatively small (a relatively wide dataset). There are also a lot of missing values
-in the data set and some features are missing. For these reasons, there was
-a need to prune features.
-
-The used process of feature selection consisted of two phases: In the first phase,
-**a subset of features was select based on the features used in the existing 
-literature - LÄHDE?** and using domain knowledge. From the potential features, only those
-having enough data were included in the subset and others were discarded.
-
-The selected independent variables in the first phase were
-
-$$
-\begin{tabular} {l|c|c|c} 
-& Name & Data type & Description \\ 
-\hline
-1 & SATVRMID & integer & Midpoint of SAT scores at the institution (critical reading) \\
-2 & SATMTMID & integer & Midpoint of SAT scores at the institution (math) \\
-3 & SATWRMID & integer & Midpoint of SAT scores at the institution (writing) \\
-4 & MD\_FAMINC & double & Median family income \\
-5 & AGE\_ENTRY & double & Average age of entry \\
-6 & FEMALE & double & Share of female students \\
-7 & FIRST\_GEN & double & Share of first-generation students \\
-8 & PCT\_WHITE & double & Percent of the population from students' zip codes that is White \\
-9 & DEBT\_MDN\_SUPP & integer & Median debt, suppressed for n=30 \\
-10 & C150\_4 & double & Completion rate for first-time, full-tim students \\
-11 & COSTT4\_A & integer & Average cost of attendance (academic year institutions) \\
-12 & POVERTY\_RATE & double & Poverty rate \\
-13 & UNEMP\_RATE & double & Unemployment rate \\
-14 & MARRIED & double & Share of married students \\
-15 & VETERAN & double & Share of veteran students \\
-16 & LOCALE & categorical & Locale of institution \\
-17 & CCBASIC & categorical & Carnegie Classification -- basic \\
-18 & CONTROL & categorical & Control of institution
-\end{tabular}
-$$
-
-Dependent variable:
-
-$$
-\begin{tabular} {ccc} 
-Name & Data type & Description \\
-\hline
-MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
-\end{tabular}
-$$
-
 
 ```{r, include=FALSE}
 
-# DATA MANIPULATION ----
+# DATA MANIPULATION
 
 # list variables
 id.vars <- c("UNITID", "INSTNM", "CITY", "ST_FIPS", "REGION")
@@ -191,35 +128,6 @@ data.joined.dropna <- data.numerical.dropna %>%
 
 ```
 
-## Phase 2 - Feature selection with correlation and visual dependency
-
-In the second phase of feature selection, a subset of features was selected
-from the 18 variables of the first phase. The correlations between the features 
-were examined as well as their associations to the dependent variable.
-
-## Numerical variables
-
-**LAITETTAVA 1-VARIATE SUMMARY TAULUKKO - NIKO KTS. MSA PROJECTISTA MALLIA**
-
-SAT scores were combined as one variable, because they were correlated and
-viewed as one entity. However, writing SAT scores had too few observations,
-due to discontinued tracking, so the variable SAT_ALL was formed by summing the 
-math and critical thinking SAT scores. SAT scores were included
-because the correlation was high with the dependent variable.
-
-For the rest of the numerical variables, if the correlation between a feature
-and the dependent variable was low and there was no observable dependency 
-between the two in the scatter plot, the feature was excluded. To avoid multicollinearity,
-we removed independent variables that were highly correlated with other independent variables,
-especially if they were not clearly correlated with the dependent variable and we couldn't
-form a believable hypothesis for the mechanism through which that variable affected income after
-college.
-
-The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), 
-MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), 
-COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
-
-## Visualizing correlations and data points with the dependent variable.
 
 ```{r, include=FALSE}
 
@@ -231,22 +139,103 @@ categorical.vars.data <- data.joined.dropna %>%
   select(all_of(categorical.vars), MD_EARN_WNE_P10) %>%
   relocate(MD_EARN_WNE_P10, 1)
 
-
 ```
 
 
+**LAITETTAVA TARKEMPI LÄHDE DATALLE (MISTÄ LÖYTYY)!**
+
+The used dataset is the most recent institutional-level college scorecard data from the US Department of Education. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. 
+The dataset has over 6000 observations on more than 3000 variables.
+
+This dataset was chosen because it seemed to provide information that could answer interesting education-related questions in the project, and also because the dataset has a large number of observations and a large number of variables. The large amount of variables permits for a lot of flexibility when it comes to modelling with the data and also having enough data is important in order to be able to make valid inferences. 
+
+After investigating the dataset, the most intriguing analysis problem was to study how college related factors affect the median earnings 10 years after entry.
+
+# Feature selection
+
+The initial data set has almost 3000 features, which is a large number compared to the total number of observations of 6681. Furthermore, there are many missing values in the dataset. For these reasons, there was a need to prune features.
+
+We selected our features in three main phases: in the first phase, a subset of features was select based on the features used in the existing literature and using common sense. In the second phase, we assessed the relationship of the features with our dependent variable, and accounted for any multicollinearity arising from mutually correlated features. In the last phase, we utilized stepwise regression to streamline our model to include only the most significant features.
+
+## Phase 1 - Feature selection based on literature and common sense
+
+**EN TIEDÄ VOIDAANKO PUHUA LITERATURESTA, JOS MEILLÄ EI OO MITÄÄN VIITTAUKSIA AIEMPIIN TUTKIMUKSIIN... VOISIKO TÄSSÄ VIITATA SIIHEN STAN ESIMERKKIIN MITÄ KATSOTTIIN? JOS EI LÖYDETÄ LÄHTEITÄ, NIIN VOIDAAN SANOA ESIM. "FEATURES COMMONLY SEEN IN EARNINGS PREDICTION MODELS"
+
+The initial set of features chosen based on past literature and common sense is outline in the table below: 
+
+
+$$
+\begin{tabular} {l|c|c|c} 
+& Name & Data type & Description \\ 
+\hline
+1 & SATVRMID & integer & Midpoint of SAT scores at the institution (critical reading) \\
+2 & SATMTMID & integer & Midpoint of SAT scores at the institution (math) \\
+3 & SATWRMID & integer & Midpoint of SAT scores at the institution (writing) \\
+4 & MD\_FAMINC & double & Median family income \\
+5 & AGE\_ENTRY & double & Average age of entry \\
+6 & FEMALE & double & Share of female students \\
+7 & FIRST\_GEN & double & Share of first-generation students \\
+8 & PCT\_WHITE & double & Percent of the population from students' zip codes that is White \\
+9 & DEBT\_MDN\_SUPP & integer & Median debt, suppressed for n=30 \\
+10 & C150\_4 & double & Completion rate for first-time, full-tim students \\
+11 & COSTT4\_A & integer & Average cost of attendance (academic year institutions) \\
+12 & POVERTY\_RATE & double & Poverty rate \\
+13 & UNEMP\_RATE & double & Unemployment rate \\
+14 & MARRIED & double & Share of married students \\
+15 & VETERAN & double & Share of veteran students \\
+16 & LOCALE & categorical & Locale of institution \\
+17 & CCBASIC & categorical & Carnegie Classification -- basic \\
+18 & CONTROL & categorical & Control of institution
+\end{tabular}
+$$
+
+The dependent variable is described in the table below:
+
+$$
+\begin{tabular} {ccc} 
+Name & Data type & Description \\
+\hline
+MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
+\end{tabular}
+$$
+
+## Phase 2 - Feature selection with correlation and visual dependency
+
+In the second phase of feature selection, a subset of features was selected
+from the 18 variables of the first phase. The correlations between the features 
+were examined as well as their associations to the dependent variable.
+
+### Numerical variables
+
+- **VOISI MUUTTAA NIIN, ETTÄ PURETAAN TAULUKOT JA KUVAAJAT JA LOPUKSI YHTEENVETO MITÄ VALITTIIN**
+
+#### Descriptive statistics
+
 ```{r, echo=FALSE}
+
+stats <- numerical.vars.data %>% apply(2, summary) %>% t() %>% as.data.frame()
+stats$St.dev <- numerical.vars.data %>% apply(2, sd)
+kable(stats, format = "latex", align = "lrrrrrrr", caption = "Descriptive Statistics of the variables. Variable is the name of the variable, Min is the minimum, 1st Qu. is the 1st quartile, Median is the median, Mean is the arithmetic mean, 3rd Qu. is the 3rd quartile, Max is the maximum and St.dev is the sample standard deviation.", digits = 2, col.names = c("Min", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max", "St.dev")) %>% 
+  row_spec(0, bold = T) %>% 
+  kable_styling(latex_options = "HOLD_position", position = "left")
+
+```
+
+#### Correlation analysis
+
+```{r, echo=FALSE, fig.align='center'}
 
 ggcorrplot(cor(numerical.vars.data),
           lab = TRUE,
           lab_size = 2,
           title = "Correlations",
-          tl.cex = 8
-          )
+          tl.cex = 8)
+
 ```
 
+#### Bivariate plotting
 
-```{r, echo=FALSE, fig.height=12, fig.width=12}
+```{r, echo=FALSE, fig.height=12, fig.width=12, fig.align='center'}
 
 melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 
@@ -259,8 +248,18 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
 
 ```
 
+SAT scores were combined as one variable, because they were correlated and
+viewed as one entity. However, writing SAT scores had too few observations,
+due to discontinued tracking, so the variable SAT_ALL was formed by summing the 
+math and critical thinking SAT scores. SAT scores were included because the correlation was high with the dependent variable.
 
-## Categorical variables
+For the rest of the numerical variables, if the correlation between a feature
+and the dependent variable was low and there was no observable dependency 
+between the two in the scatter plot, the feature was excluded. To avoid multicollinearity, we removed independent variables that were highly correlated with other independent variables, especially if they were not clearly correlated with the dependent variable and we couldn't form a believable hypothesis for the mechanism through which that variable affected income after college.
+
+The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college),  COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
+
+### Categorical variables
 
 The categorical variables were visualized with box plots to see if income after
 college differed among the categories. Based on an analysis on the variable LOCALE
@@ -521,11 +520,13 @@ we don't posses enough information on the dependency with the dependent variable
 Because the values are always either 0 and 1, the standard deviation is set
 high.
 
-# 5. Stan
+# 5. Stan code
 
 We used cmdstanr for our models. Source code for all three models can be found in in the Appendix.
 
 ## Separate model
+
+Summary of model fit for main parameters:
 
 ```{r, echo=FALSE, results = "hide", eval=FALSE}
 
@@ -571,6 +572,8 @@ separate.fit
 
 ## Pooled model
 
+Summary of model fit for main parameters:
+
 ```{r, echo=FALSE, results = "hide", eval=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
@@ -612,6 +615,8 @@ pooled.fit
 ```
 
 ## Hierarchical model
+
+Summary of model fit for main parameters:
 
 ```{r, echo=FALSE, results = "hide", eval = FALSE}
 
@@ -685,9 +690,16 @@ We used the following options:
 2. Chains: 4
 3. Iterations per chain: 2000
 
-# 7. Convergence diagnostics ($\hat{R}$, ESS, divergences) and what was done if the convergence was not good with the first try.
+# 7. Convergence diagnostics (rhat, ESS, divergences) and what was done if the convergence was not good with the first try.
 
-## Separate model Rhat
+## Rhat
+
+We used the rhat() function for all models to get the rhat convergence diagnostic. The function compares the between chain and within chain
+estimates for model parameters and other univariate quantities of interest. If the between chain and within chain estimates agree, it is said
+that the chains have mixed well. This happens when R-hat is less than 1.05 or less than 1.01 depending on the standard. We decided not be strict
+with our multivariate model and chose the less strict threshold of 1.05.
+
+### Separate model
 
 ```{r, echo=FALSE, results='hide', eval = FALSE}
 
@@ -711,14 +723,9 @@ rhat.df
 
 ``` 
 
-## Rhat diagnostics
 
-We used the rhat() function for all models to get the rhat convergence diagnostic. The function compares the between chain and within chain
-estimates for model parameters and other univariate quantities of interest. If the between chain and within chain estimates agree, it is said
-that the chains have mixed well. This happens when R-hat is less than 1.05 or less than 1.01 depending on the standard. We decided not be strict
-with our multivariate model and chose the less strict threshold of 1.05.
 
-## Pooled model Rhat
+### Pooled model
 
 ```{r, eval=FALSE}
 
@@ -738,7 +745,7 @@ rhat.df
 ```
 
 
-## Hierarchical model Rhat
+### Hierarchical model
 
 ```{r, eval = FALSE}
 
@@ -788,7 +795,7 @@ same as for pooled.
 Source:
 https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
 
-## Separate Model Effective sample size (ESS)
+### Separate Model
 
 ```{r, eval = FALSE}
 
@@ -813,7 +820,7 @@ ess.df
 ``` 
 
 
-## Pooled Model Effective sample size (ESS)
+## Pooled Model
 
 ```{r, eval = FALSE}
 
@@ -834,7 +841,7 @@ ess.df
 
 ``` 
 
-## Hierarchical Model Effective sample size (ESS)
+## Hierarchical Model
 
 ```{r, eval = FALSE}
 
@@ -889,7 +896,7 @@ hierarchical.fit$cmdstan_diagnose()
 
 # 8. Posterior predictive checks and model comparison
 
-## Posterior predictive checking
+## Posterior predictive checks
 
 When doing posterior predictive checking we look for systematic discrepancies between the real observations 
 and the data we get from simulating replicated data under the fitted model (Gelman and Hill, 2006). Posterior 
@@ -960,18 +967,6 @@ hierarchical.loo <- hierarchical.fit$loo()
 
 loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
-separate.loo
-
-pooled.loo
-
-hierarchical.loo
-
-``` 
-
-```{r, eval = FALSE, warning = FALSE}
-
-loo_compare(separate.loo, pooled.loo, hierarchical.loo)
-
 ``` 
 
 ## K hat
@@ -1000,9 +995,11 @@ Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
 - Why pooled model looks like that - overfitting or something?
 
 
-# 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation of practical usefulness of the accuracy. This should be reported for all models as well.
+# 9. Predictive performance assessment
 
 ## Root Mean Squared Error (RMSE)
+
+We use RMSE for assessing the predictive ability of our model. The assessment was conducted as follows. First we split the complete data set of 793 observations into a training set of 763 observations and a test set of 30 observations. Second we fit the models to the training set. Then we use the median of the posterior distribution for each parameter in our model to predict the dependent variable based on the values of the independent variables in the test set. Lastly, after obtaining the predicted values, we calculate the RMSE with respect to the actual observed values of the dependent variable in the test set.
 
 ### Pooled model
 
@@ -1033,6 +1030,7 @@ y.hat <- y.hat %>%
 
 ```
 
+Plot of squared errors:
 
 ```{r, eval=FALSE}
 
@@ -1040,6 +1038,7 @@ se %>% plot(type="b", pch=20)
 
 ```
 
+RMSE:
 
 ```{r, eval=FALSE}
 rmse <- sqrt(mean(se))
@@ -1053,41 +1052,25 @@ To test whether our results are sensitive to prior choices, and to see how chang
 
 # 11. Discussion of issues and potential improvements.
 
-During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find
-the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink
-in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example
-a lot of missing values.
+During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
 
-It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. 
-We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also 
-ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values
-and removed variables with too much missing data. For the feature selection, with more time we could have experimented with 
-alternative methods, like the LASSO or Ridge regression.
+It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values and removed variables with too much missing data. For the feature selection, with more time we could have experimented with  alternative methods, like the LASSO or Ridge regression.
 
-As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a
-discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform
-in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female 
-or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
-In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income
-were very low and they would have been dropped from our model no matter what.
+As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
+In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income were very low and they would have been dropped from our model no matter what.
+
+- **VOISI EHKÄ MAINITA JOTAIN PREDICTIVE ASSESSMENTISTA, ESIM. KAIKILLE MALLEILLE JONKUNLAINEN ASSESSMENT TAI MONIPUOLISEMPI**
 
 
 # 12. Conclusion what was learned from the data analysis.
 
 # 13. Self-reflection of what the group learned while making the project.
 
-In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered
-very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - 
-pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned 
-a lot about feature selection, because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination
-of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
+In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection, because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
 
-I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible
-and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making
-the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality.
+I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality. 
 
-Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science
-use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of an efficient routine than an obstacle.
+Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of an efficient routine than an obstacle.
  
 # 14. References
 
