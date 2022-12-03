@@ -137,7 +137,6 @@ SAT.vars <- c("SATVRMID", "SATMTMID")
 
 # filter specific school types
 schooltype.filter <- seq(14,23)
-region.filter <- seq(1,8)
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
@@ -182,11 +181,11 @@ categorical.vars.data <- data.joined.dropna %>%
 
 data.joined <- data.numerical %>%
   inner_join(data.categorical, by = id.vars) %>%
-  filter(CCBASIC %in% schooltype.filter & REGION %in% region.filter)
+  filter(CCBASIC %in% schooltype.filter)
 
 data.joined.dropna <- data.numerical.dropna %>%
   inner_join(data.categorical.dropna, by = id.vars) %>%
-  filter(CCBASIC %in% schooltype.filter & REGION %in% region.filter)
+  filter(CCBASIC %in% schooltype.filter)
 
 ```
 
@@ -516,7 +515,6 @@ high.
 # 5. Stan, rstanarm or brms code.
 
 ## Separate model
-
 ```{r, results = "hide", eval=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
@@ -530,6 +528,7 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                             COSTT4_A = data.joined.stan$COSTT4_A,
                             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            MASTER = data.joined.stan$MASTER,
                             PRIVATE = data.joined.stan$PRIVATE,
                             y = data.joined.stan$MD_EARN_WNE_P10,
                             
@@ -545,6 +544,8 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             ps_COSTT4_A = 500,
                             pm_POVERTY_RATE = 0,
                             ps_POVERTY_RATE = 2500,
+                            pm_MASTER = 0,
+                            ps_MASTER = 2500,
                             pm_PRIVATE = 0,
                             ps_PRIVATE = 2500,
                             pm_sigma = 10000,
@@ -561,39 +562,19 @@ separate.fit
 
 
 ## Pooled model
-
 ```{r, results = "hide", eval=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
 pooled.model.data <- list(N = nrow(data.joined.stan),
-                          
+                          y = data.joined.stan$MD_EARN_WNE_P10,
                           SAT_ALL = data.joined.stan$SAT_ALL,
                           MD_FAMINIC = data.joined.stan$MD_FAMINC,
                           AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                           COSTT4_A = data.joined.stan$COSTT4_A,
                           POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                          PRIVATE = data.joined.stan$PRIVATE,
-                          y = data.joined.stan$MD_EARN_WNE_P10,
-                          
-                          pm_alpha = 0,
-                          ps_alpha = 10000,
-                          pm_SAT_ALL = 50,
-                          ps_SAT_ALL = 500,
-                          pm_MD_FAMINC = 0,
-                          ps_MD_FAMINC = 100,
-                          pm_AGE_ENTRY = 0,
-                          ps_AGE_ENTRY = 2500,
-                          pm_COSTT4_A = 0,
-                          ps_COSTT4_A = 500,
-                          pm_POVERTY_RATE = 0,
-                          ps_POVERTY_RATE = 2500,
-                          pm_PRIVATE = 0,
-                          ps_PRIVATE = 2500,
-                          pm_sigma = 10000,
-                          ps_sigma = 10000
-                          
-                          )
+                          MASTER = data.joined.stan$MASTER,
+                          PRIVATE = data.joined.stan$PRIVATE)
 
 
 pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
@@ -602,69 +583,27 @@ pooled.fit
 
 ```
 
-## Hierarchical model
-
+## Hierarchical model fit
 ```{r, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
 
-hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
+hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical-akseli.stan")
 
 hierarchical.model.data <- list(N = nrow(data.joined.stan),
-                                K = length(unique(data.joined.stan$REGION)),
-                                x = data.joined.stan$REGION,
-                            
-                                SAT_ALL = data.joined.stan$SAT_ALL,
-                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
-                                COSTT4_A = data.joined.stan$COSTT4_A,
-                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                                PRIVATE = data.joined.stan$PRIVATE,
-                                y = data.joined.stan$MD_EARN_WNE_P10,
-                                
-                                pm_alpha = 0,
-                                ps_alpha = 10000,
-                                pm_s_alpha = 100,
-                                ps_s_alpha = 100,
-                                
-                                pm_SAT_ALL = 43,
-                                ps_SAT_ALL = 500,
-                                pm_s_SAT_ALL = 100,
-                                ps_s_SAT_ALL = 100,
-                                
-                                pm_MD_FAMINC = 0,
-                                ps_MD_FAMINC = 100,
-                                pm_s_MD_FAMINC = 10,
-                                ps_s_MD_FAMINC = 100,
-                                
-                                pm_AGE_ENTRY = 0,
-                                ps_AGE_ENTRY = 2500,
-                                pm_s_AGE_ENTRY = 500,
-                                ps_s_AGE_ENTRY = 500,
-                                
-                                pm_COSTT4_A = 0,
-                                ps_COSTT4_A = 500,
-                                pm_s_COSTT4_A = 50,
-                                ps_s_COSTT4_A = 500,
-                                
-                                pm_POVERTY_RATE = 0,
-                                ps_POVERTY_RATE = 2500,
-                                pm_s_POVERTY_RATE = 500,
-                                ps_s_POVERTY_RATE = 500,
-                                
-                                pm_PRIVATE = 0,
-                                ps_PRIVATE = 2500,
-                                pm_s_PRIVATE = 500,
-                                ps_s_PRIVATE = 500,
-                                
-                                pm_sigma = 10000,
-                                ps_sigma = 10000,
-                                pm_s_sigma = 500,
-                                ps_s_sigma = 500)
+             y = data.joined.stan$MD_EARN_WNE_P10,
+             SAT_ALL = data.joined.stan$SAT_ALL,
+             MD_FAMINIC = data.joined.stan$MD_FAMINC,
+             AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+             COSTT4_A = data.joined.stan$COSTT4_A,
+             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+             MASTER = data.joined.stan$MASTER,
+             PRIVATE = data.joined.stan$PRIVATE,
+             K = length(unique(data.joined.stan$REGION)),
+             x = data.joined.stan$REGION)
 
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
 
 hierarchical.fit
-
 ```
 
 
@@ -674,7 +613,6 @@ This is also more clear as combination of textual explanation and the actual cod
 # 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try.
 
 ## Separate model Rhat
-
 ```{r, eval = FALSE}
 
 rhat.df <- tibble()
@@ -697,9 +635,14 @@ rhat.df
 
 ``` 
 
+## Rhat diagnostics
+
+We used the rhat() function for all models to get the rhat convergence diagnostic. The function compares the between chain and within chain
+estimates for model parameters and other univariate quantities of interest. If the between chain and within chain estimates agree, it is said
+that the chains have mixed well. This happens when R-hat is less than 1.05 or less than 1.01 depending on the standard. We decided not be strict
+with our multivariate model and chose the less strict threshold of 1.05.
 
 ## Pooled model Rhat
-
 ```{r, eval=FALSE}
 
 params <- pooled.model$variables()$parameters %>% names()
@@ -719,7 +662,6 @@ rhat.df
 
 
 ## Hierarchical model Rhat
-
 ```{r, eval = FALSE}
 
 rhat.df <- tibble()
@@ -743,7 +685,6 @@ rhat.df
 ``` 
 
 ## Serparate Model Effective sample size (ESS)
-
 ```{r, eval = FALSE}
 
 params <- separate.model$variables()$parameters %>% names()
@@ -768,7 +709,6 @@ ess.df
 
 
 ## Pooled Model Effective sample size (ESS)
-
 ```{r, eval = FALSE}
 
 #pooled.fit$cmdstan_summary()
@@ -789,7 +729,6 @@ ess.df
 ``` 
 
 ## Hierarchical Model Effective sample size (ESS)
-
 ```{r, eval = FALSE}
 
 params <- hierarchical.model$variables()$parameters %>% names()
@@ -813,7 +752,6 @@ ess.df
 ``` 
 
 ## HMC specific convergence diagnostics for all models
-
 ```{r, eval = FALSE}
 
 separate.fit$cmdstan_diagnose()
@@ -827,7 +765,6 @@ hierarchical.fit$cmdstan_diagnose()
 # 8. Posterior predictive checks and model comparison
 
 ## Posterior predictive checking
-
 ```{r, eval = FALSE}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
@@ -866,7 +803,6 @@ ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 
 
 ## LOO (Model comparison)
-
 ```{r, eval = FALSE, warning = FALSE}
 
 separate.loo <- separate.fit$loo()
@@ -882,7 +818,6 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 Based on LOO we should select... as it has the highest score
 
 ## K hat
-
 ```{r, eval = FALSE}
 
 pareto_k_table(separate.fit$loo())
@@ -935,7 +870,8 @@ a lot of missing values.
 It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. 
 We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also 
 ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values
-and removed variables with too much missing data. For the feature selection, with more time we could have experimented with alternative methods, like the LASSO or Ridge regression.
+and removed variables with too much missing data. For the feature selection, with more time we could have experimented with 
+alternative methods, like the LASSO or Ridge regression.
 
 As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a
 discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform
@@ -949,12 +885,18 @@ were very low and they would have been dropped from our model no matter what.
 
 # 13. Self-reflection of what the group learned while making the project.
 
-In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection,
-because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
+In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered
+very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - 
+pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned 
+a lot about feature selection, because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination
+of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
 
-I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality.
+I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible
+and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making
+the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality.
 
-Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of a routine than an obstacle.
+Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science
+use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of an efficient routine than an obstacle.
  
 # 14. References
 
@@ -970,7 +912,6 @@ Retrieved from: https://www.number2.com/average-sat-score/
 # 15. Appendices
 
 ## Appendix 1 - Stepwise regression 
-
 ```{r, warning = FALSE}
 # PRELIMINARY ANALYSIS ----
 # preliminary model with all numerical vars (not yet categorical)
@@ -1009,6 +950,5 @@ step(model, direction = "backward")
 stepwise.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
                        POVERTY_RATE + URBAN + PRIVATE + MASTER, data = data.joined.model)
 summary(stepwise.model)
-
 ```
 
