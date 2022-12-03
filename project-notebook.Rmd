@@ -25,6 +25,7 @@ library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
 set_cmdstan_path('/coursedata/cmdstan')
+
 ```
 
 \newpage
@@ -226,8 +227,6 @@ categorical.vars.data <- data.joined.dropna %>%
   select(all_of(categorical.vars), MD_EARN_WNE_P10) %>%
   relocate(MD_EARN_WNE_P10, 1)
 
-melted <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
-
 # Correlation plot
 ggcorrplot(cor(numerical.vars.data),
           lab = TRUE,
@@ -236,11 +235,15 @@ ggcorrplot(cor(numerical.vars.data),
           tl.cex = 8,
           )
 
-ggplot(melted, aes(x = value, y = MD_EARN_WNE_P10)) + 
-  facet_wrap(~variable, scales = "free") +
-  geom_point(shape=18, color="skyblue") +
+melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
+
+melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
+ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) + 
+  facet_wrap(~variable, scales = "free", ncol = 3) +
+  geom_point(shape=20, color="black") +
   ggtitle("Median earnings after 10 years and the independent variables") +
   xlab("Feature value") + ylab("Median earnings")
+
 
 ```
 
