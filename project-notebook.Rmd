@@ -114,7 +114,7 @@ $$
 \end{array}
 $$
 
-Independent variable:
+Dependent variable:
 $$
 \begin{array} {c} & Name & Data\:type & Description \\ 
  & MD\_EARN\_WNE\_P10 & numeric & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
@@ -306,7 +306,7 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   ) +
   ggtitle("Public vs. Private") +
   xlab("CONTROL") +
-  scale_x_discrete(labels = c("Public","Private, Nonprofit","Proprietary"))
+  scale_x_discrete(labels = c("Public","Private","Non-profit private"))
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
