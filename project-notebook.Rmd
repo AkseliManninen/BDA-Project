@@ -367,6 +367,8 @@ data.joined.model <- data.joined.stan %>%
 
 # 3. Description of the models
 
+MATEMATIIKKA TARKISTETTAVA
+
 ## Description of the separate model
 
 In the separate model, posteriors for the parameters are constructed. In
@@ -375,9 +377,9 @@ from each other, meaning that each region have individual parameters (mu, sigma)
 
 Mathematical description:
 
-$y_{ij}|mu_j, sigma_j ∼ N(mu_j, sigma_j^2)$
+$y_{ij}|\mu_j, \sigma_j \sim \mathcal{N}(\mu_j, \sigma_j^2)$ 
 
-where $mu_j = a_j +\textbf{X}\textbf{B}_j$
+where $\mu_j = \alpha_j+\bf{\beta_j X}$
 
 The parameters of the parameter vector are given in the section 4 with their
 priors.
@@ -390,9 +392,9 @@ all regions share the same distribution and parameter values.
 
 Mathematical description:
 
-$y_{i}|mu, sigma ∼ N(mu, sigma^2)$
+$y_i|\mu, \sigma \sim \mathcal{N}(\mu, \sigma^2)$
 
-where $mu = a +\textbf{X}\textbf{B}$
+where $\mu = \alpha+\bf{\beta X}$
 
 The parameters of the parameter vector are given in the section 4 with their
 priors.
@@ -407,9 +409,9 @@ distributed (sharing the hyperparameters).
 
 Mathematical description:
 
-$y_{ij} |mu_j ∼ N(mu_j, sigma^2)$
+$y_{ij} | \mu_j \sim \mathcal{N}(\mu_j, \sigma^2)$
 
-where $mu_j |mu_P, sigma_P^2 ∼ N(mu_P, sigma_P^2)$
+where $\mu_j|\mu_P, \sigma_P^2 \sim \mathcal{N}(\mu_P, \sigma_P^2)$
 
 The hyperparameters and parameters are given in the section 4 with their priors.
 
