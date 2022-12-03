@@ -20,7 +20,6 @@ library(loo)
 library(bayesplot)
 library(posterior)
 library(cmdstanr)
-library(rstan)
 library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
@@ -110,8 +109,15 @@ $$
 14 & MARRIED & numerical & Share\:of\:married students \\
 15 & VETERAN & numerical & Share\:of\:veteran students \\
 16 & LOCALE & categorical & Locale\:of\:institution \\
-17 & CCBASIC & categoriacal & Carnegie\:Classification -- basic \\
+17 & CCBASIC & categorical & Carnegie\:Classification -- basic \\
 18 & CONTROL & categorical & Control\:of\:institution \\
+\end{array}
+$$
+
+Independent variable:
+$$
+\begin{array} {c} & Name & Data\:type & Description \\ 
+ & MD\_EARN\_WNE\_P10 & numeric & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
