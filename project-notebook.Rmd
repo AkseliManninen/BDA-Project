@@ -63,10 +63,6 @@ interesting education-related questions in the project, and also because the dat
 has a large number of observations and a large number of variables. The large amount 
 of variables permits for a lot of flexibility when it comes to modelling with the data 
 and also having enough data is important in order to be able to make valid inferences. 
-*During the project, the large amount of variables also posed challenges, as it 
-was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
-It was somewhat surprising how fast the observation count started to shrink in data cleaning process, 
-so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.* - DISCUSSIONIIN?
 
 After investigating the dataset, the most intriguing analysis problem was to
 study how college related factors affect the median earnings 10 years after entry.
@@ -93,7 +89,7 @@ The used process of feature selection consisted of two phases: In the first phas
 literature* - LÄHDE? and using domain knowledge. From the potential features, only those
 having enough data were included in the subset and others were discarded.
 
-*The selected features in the first phase were* - DEPENDENT MUUTTUJA EI LIENE FEATURE? VOISI EHKÄ TEHDÄ ERILLISEN KAPPALEEN MISSÄ SELITETÄÄN ETTÄ Y MUUTTUJA ON MEDIAN EARNINGS JA KERROTAAN PERUSTELUT MIKSI JUURI SE. SITTEN SIIRRYTTÄISIIN FEATURES, ELI PREDICTOREIHIN: 
+The selected independent variables in the first phase were
 
 $$
 \begin{array} {c|c|c|c|c|c|c|c} & Name & Type & Description \\ 
@@ -116,7 +112,6 @@ $$
 16 & LOCALE & categorical & Locale\:of\:institution \\
 17 & CCBASIC & categoriacal & Carnegie\:Classification -- basic \\
 18 & CONTROL & categorical & Control\:of\:institution \\
-19 & MD\_EARN\_WNE\_P10 & numerical & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
@@ -343,10 +338,16 @@ $$
 4 & COSTT4\_A & float & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
 5 & POVERTY\_RATE & float & Poverty\:rate \\
 6 & PRIVATE & binary & Carnegie\:Classification -- basic \\
-7 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
+And the dependent variable:
+
+$$
+\begin{array} {c} & Name & Data\:type & Description \\ 
+ & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
+\end{array}
+$$
 
 ## Generating binary features from the categorical features
 
@@ -832,6 +833,11 @@ is changed). This should be reported for all models.
 Uniform priors were used for each model for sensitivity testing.
 
 # 11. Discussion of issues and potential improvements.
+
+During the project, the large amount of variables also posed challenges, as it 
+was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
+It was somewhat surprising how fast the observation count started to shrink in data cleaning process, 
+so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
 
 - Correlation does not mean causality
 - Ethics selecting features
