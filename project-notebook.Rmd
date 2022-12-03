@@ -20,7 +20,6 @@ library(loo)
 library(bayesplot)
 library(posterior)
 library(cmdstanr)
-library(rstan)
 library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
@@ -63,10 +62,6 @@ interesting education-related questions in the project, and also because the dat
 has a large number of observations and a large number of variables. The large amount 
 of variables permits for a lot of flexibility when it comes to modelling with the data 
 and also having enough data is important in order to be able to make valid inferences. 
-*During the project, the large amount of variables also posed challenges, as it 
-was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
-It was somewhat surprising how fast the observation count started to shrink in data cleaning process, 
-so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.* - DISCUSSIONIIN?
 
 After investigating the dataset, the most intriguing analysis problem was to
 study how college related factors affect the median earnings 10 years after entry.
@@ -93,7 +88,7 @@ The used process of feature selection consisted of two phases: In the first phas
 literature* - LÄHDE? and using domain knowledge. From the potential features, only those
 having enough data were included in the subset and others were discarded.
 
-*The selected features in the first phase were* - DEPENDENT MUUTTUJA EI LIENE FEATURE? VOISI EHKÄ TEHDÄ ERILLISEN KAPPALEEN MISSÄ SELITETÄÄN ETTÄ Y MUUTTUJA ON MEDIAN EARNINGS JA KERROTAAN PERUSTELUT MIKSI JUURI SE. SITTEN SIIRRYTTÄISIIN FEATURES, ELI PREDICTOREIHIN: 
+The selected independent variables in the first phase were
 
 $$
 \begin{array} {c|c|c|c|c|c|c|c} & Name & Type & Description \\ 
@@ -114,9 +109,15 @@ $$
 14 & MARRIED & numerical & Share\:of\:married students \\
 15 & VETERAN & numerical & Share\:of\:veteran students \\
 16 & LOCALE & categorical & Locale\:of\:institution \\
-17 & CCBASIC & categoriacal & Carnegie\:Classification -- basic \\
+17 & CCBASIC & categorical & Carnegie\:Classification -- basic \\
 18 & CONTROL & categorical & Control\:of\:institution \\
-19 & MD\_EARN\_WNE\_P10 & numerical & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
+\end{array}
+$$
+
+Dependent variable:
+$$
+\begin{array} {c} & Name & Data\:type & Description \\ 
+ & MD\_EARN\_WNE\_P10 & numeric & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
@@ -271,12 +272,10 @@ and avoid unnecessary outliers due to unconventional nature of some very special
 colleges. Our model does not attempt to provide accurate predictions for
 specialized colleges.
 
-## Tähän jäi vielä tarkennettavaa. Poistettiinko siis non-profitit ja onko ne sama kuin proprietary?
-
-The categorical variable CONTROL had three classes: public, for-profit private
-and nonprofit private. CONTROL was modified into a binary variable PRIVATE representing 
-if the school is private or public school. There were only few Proprietary observations, 
-so those were discarded.
+The categorical variable CONTROL had three classes: public, for-profit private and 
+nonprofit private. CONTROL was modified into a binary variable PRIVATE representing 
+if the school is private or public school. There were only few non-profit private 
+observations, so those were merged together with the private observations.
 
 The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
 
@@ -308,7 +307,7 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   ) +
   ggtitle("Public vs. Private") +
   xlab("CONTROL") +
-  scale_x_discrete(labels = c("Public","Private, Nonprofit","Proprietary"))
+  scale_x_discrete(labels = c("Public","Private","Non-profit private"))
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -330,7 +329,10 @@ to test which subset of features perform the best, whether the received
 coefficients are reasonable, and if there are signs of overfitting.
 
 The Stepwise regression suggested using all of the variables, except CITY
-and DOCTORAL. The stepwise regression can be seen in appendix 1.
+and DOCTORAL. The stepwise regression can be seen in appendix 1. Because stepwise
+regression suggested leaving out DOCTORAL, for the sake of consistency we decided
+to also leave out MASTER as it was a the middle level in our institutional 
+classifications and wouldn't have made much sense on its own.
 
 The final features are listed in the table below:
 
@@ -343,11 +345,16 @@ $$
 4 & COSTT4\_A & float & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
 5 & POVERTY\_RATE & float & Poverty\:rate \\
 6 & PRIVATE & binary & Carnegie\:Classification -- basic \\
-7 & MASTER & binary & Control\:of\:institution \\
-8 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
+And the dependent variable:
+
+$$
+\begin{array} {c} & Name & Data\:type & Description \\ 
+ & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
+\end{array}
+$$
 
 ## Generating binary features from the categorical features
 
@@ -897,26 +904,40 @@ Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
 of practical usefulness of the accuracy. This should be reported for all models as well.
 
-# 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior 
-is changed). This should be reported for all models.
+# 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior is changed). This should be reported for all models.
 
-Uniform priors were used for each model for sensitivity testing.
+To test whether our results are sensitive to prior choices, and to see how changing the priors affects our results, we ran all the models with both wider and narrower priors. The wide priors were obtained by multiplying each standard deviation by three, and the narrow priors were obtained by dividing the original priors by two.
 
 # 11. Discussion of issues and potential improvements.
 
-- Correlation does not mean causality
-- Ethics selecting features
-- Selecting priors properly 
+During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find
+the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink
+in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example
+a lot of missing values.
+
+It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. 
+We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also 
+ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values
+and removed variables with too much missing data. For the feature selection, with more time we could have experimented with alternative methods, like the LASSO or Ridge regression.
+
+As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a
+discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform
+in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female 
+or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
+In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income
+were very low and they would have been dropped from our model no matter what.
+
 
 # 12. Conclusion what was learned from the data analysis.
 
 # 13. Self-reflection of what the group learned while making the project.
 
-- Multivariable regression
-- Feature selection from a massive dataset
-- Feature engineering
-- Data visualization
-- Stan workflow
+In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection,
+because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
+
+I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality.
+
+Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of a routine than an obstacle.
  
 # 14. References
 
