@@ -270,12 +270,10 @@ and avoid unnecessary outliers due to unconventional nature of some very special
 colleges. Our model does not attempt to provide accurate predictions for
 specialized colleges.
 
-## Tähän jäi vielä tarkennettavaa. Poistettiinko siis non-profitit ja onko ne sama kuin proprietary?
-
-The categorical variable CONTROL had three classes: public, for-profit private
-and nonprofit private. CONTROL was modified into a binary variable PRIVATE representing 
-if the school is private or public school. There were only few Proprietary observations, 
-so those were discarded.
+The categorical variable CONTROL had three classes: public, for-profit private and 
+nonprofit private. CONTROL was modified into a binary variable PRIVATE representing 
+if the school is private or public school. There were only few non-profit private 
+observations, so those were merged together with the private observations.
 
 The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
 
@@ -329,7 +327,10 @@ to test which subset of features perform the best, whether the received
 coefficients are reasonable, and if there are signs of overfitting.
 
 The Stepwise regression suggested using all of the variables, except CITY
-and DOCTORAL. The stepwise regression can be seen in appendix 1.
+and DOCTORAL. The stepwise regression can be seen in appendix 1. Because stepwise
+regression suggested leaving out DOCTORAL, for the sake of consistency we decided
+to also leave out MASTER as it was a the middle level in our institutional 
+classifications and wouldn't have made much sense on its own.
 
 The final features are listed in the table below:
 
@@ -342,8 +343,7 @@ $$
 4 & COSTT4\_A & float & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
 5 & POVERTY\_RATE & float & Poverty\:rate \\
 6 & PRIVATE & binary & Carnegie\:Classification -- basic \\
-7 & MASTER & binary & Control\:of\:institution \\
-8 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
+7 & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
