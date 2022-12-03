@@ -27,6 +27,7 @@ set_cmdstan_path('/coursedata/cmdstan')
 
 ```
 
+
 \newpage
 # 1. Project Description and Motivation
 
@@ -52,27 +53,25 @@ the findings of this study could be especially meaningful for the members of the
 
 # 2. Data and the analysis problem
 
-The used dataset is the most recent institutional-level college scorecard data from the US Department of Education. 
-The institutional-level dataset contains aggregate data for each educational institution and includes data on 
-institutional characteristics, enrollment, student aid, costs and student outcomes. 
+```{r, include=FALSE}
+
+# read in data sets
+data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>%
+  as_tibble()
+
+data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",", fileEncoding="UTF-8-BOM") %>%
+  as_tibble()
+
+```
+
+**LAITETTAVA TARKEMPI LÄHDE DATALLE (MISTÄ LÖYTYY)!**
+
+The used dataset is the most recent institutional-level college scorecard data from the US Department of Education. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. 
 The dataset has over 6000 observations on more than 3000 variables.
 
-This dataset was chosen because it seemed to provide information that could answer
-interesting education-related questions in the project, and also because the dataset 
-has a large number of observations and a large number of variables. The large amount 
-of variables permits for a lot of flexibility when it comes to modelling with the data 
-and also having enough data is important in order to be able to make valid inferences. 
+This dataset was chosen because it seemed to provide information that could answer interesting education-related questions in the project, and also because the dataset has a large number of observations and a large number of variables. The large amount of variables permits for a lot of flexibility when it comes to modelling with the data and also having enough data is important in order to be able to make valid inferences. 
 
-After investigating the dataset, the most intriguing analysis problem was to
-study how college related factors affect the median earnings 10 years after entry.
-
-```{r}
-# read in data sets
-data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", 
-                  sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
-data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", 
-                              sep = ",", fileEncoding="UTF-8-BOM") %>% as_tibble()
-```
+After investigating the dataset, the most intriguing analysis problem was to study how college related factors affect the median earnings 10 years after entry.
 
 ## Feature selection
 
@@ -84,8 +83,8 @@ in the data set and some features are missing. For these reasons, there was
 a need to prune features.
 
 The used process of feature selection consisted of two phases: In the first phase,
-*a subset of features was select based on the features used in the existing 
-literature* - LÄHDE? and using domain knowledge. From the potential features, only those
+**a subset of features was select based on the features used in the existing 
+literature - LÄHDE?** and using domain knowledge. From the potential features, only those
 having enough data were included in the subset and others were discarded.
 
 The selected independent variables in the first phase were
@@ -116,6 +115,7 @@ $$
 $$
 
 Dependent variable:
+
 $$
 \begin{tabular} {ccc} 
 Name & Data type & Description \\
@@ -124,9 +124,8 @@ MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
 \end{tabular}
 $$
 
-## Code for extracting the feature subset
 
-```{r, warning = FALSE}
+```{r, include=FALSE}
 
 # DATA MANIPULATION ----
 
@@ -200,6 +199,8 @@ were examined as well as their associations to the dependent variable.
 
 ## Numerical variables
 
+**LAITETTAVA 1-VARIATE SUMMARY TAULUKKO - NIKO KTS. MSA PROJECTISTA MALLIA**
+
 SAT scores were combined as one variable, because they were correlated and
 viewed as one entity. However, writing SAT scores had too few observations,
 due to discontinued tracking, so the variable SAT_ALL was formed by summing the 
@@ -220,7 +221,7 @@ COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area th
 
 ## Visualizing correlations and data points with the dependent variable.
 
-```{r, warning = FALSE}
+```{r, include=FALSE}
 
 # make variable type specific data frames for plots etc.
 numerical.vars.data <- data.joined.dropna %>% select(!c(id.vars, 
@@ -234,7 +235,7 @@ categorical.vars.data <- data.joined.dropna %>%
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 
 ggcorrplot(cor(numerical.vars.data),
           lab = TRUE,
@@ -245,7 +246,7 @@ ggcorrplot(cor(numerical.vars.data),
 ```
 
 
-```{r, fig.height=12, fig.width=12}
+```{r, echo=FALSE, fig.height=12, fig.width=12}
 
 melted.numerical.vars.data <- melt(numerical.vars.data, id.vars = "MD_EARN_WNE_P10")
 
@@ -284,7 +285,7 @@ observations, so those were merged together with the private observations.
 
 The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
 
-```{r, warning = FALSE}
+```{r, echo=FALSE}
 
 # categorical variable box plots
 melted.categorial <- melt(categorical.vars.data, id.vars = "MD_EARN_WNE_P10")
@@ -361,9 +362,9 @@ $$
 \end{array}
 $$
 
-## Generating binary features from the categorical features
 
-```{r, warning = FALSE}
+```{r, include=FALSE}
+
 data.joined.model <- data.joined.dropna %>%
   mutate(URBAN = case_when(LOCALE %in% c(seq(11,13), seq(21,23)) ~ 1,
                            TRUE ~ 0),
@@ -448,6 +449,8 @@ The hyperparameters and parameters are given in the section 4 with their priors.
 
 ## Description of the linear model
 
+**MIKÄ TÄÄ ON?**
+
 # 4. Informative or weakly informative priors, and justification of their choices.
 
 We use weakly informative priors, as we do not posses enough information about the 
@@ -518,11 +521,13 @@ we don't posses enough information on the dependency with the dependent variable
 Because the values are always either 0 and 1, the standard deviation is set
 high.
 
-# 5. Stan, rstanarm or brms code.
+# 5. Stan
+
+We used cmdstanr for our models. Source code for all three models can be found in in the Appendix.
 
 ## Separate model
 
-```{r, results = "hide", eval=FALSE}
+```{r, echo=FALSE, results = "hide", eval=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -564,10 +569,9 @@ separate.fit
 
 ```
 
-
 ## Pooled model
 
-```{r, results = "hide", eval=FALSE}
+```{r, echo=FALSE, results = "hide", eval=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -609,7 +613,7 @@ pooled.fit
 
 ## Hierarchical model
 
-```{r, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
+```{r, echo=FALSE, results = "hide", eval = FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -676,11 +680,16 @@ hierarchical.fit
 # 6. How to the Stan model was run, that is, what options were used. 
 This is also more clear as combination of textual explanation and the actual code line.
 
-# 7. Convergence diagnostics (Rˆ, ESS, divergences) and what was done if the convergence was not good with the first try.
+We used the following options:
+1. Seed: 1234
+2. Chains: 4
+3. Iterations per chain: 2000
+
+# 7. Convergence diagnostics ($\hat{R}$, ESS, divergences) and what was done if the convergence was not good with the first try.
 
 ## Separate model Rhat
 
-```{r, eval = FALSE}
+```{r, echo=FALSE, results='hide', eval = FALSE}
 
 rhat.df <- tibble()
 
@@ -776,10 +785,10 @@ For the hierarchical model the ESS values for parameters are between 266 and
 samples than independent ones. The analysis for the highest values is the
 same as for pooled.
 
-Lähde:
+Source:
 https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
 
-## Serparate Model Effective sample size (ESS)
+## Separate Model Effective sample size (ESS)
 
 ```{r, eval = FALSE}
 
@@ -1093,9 +1102,9 @@ Gelman, Andrew, and Jennifer Hill. Data analysis using regression and multilevel
 Number2. (2020). Average SAT Score [Blog Post].
 Retrieved from: https://www.number2.com/average-sat-score/
 
-# 15. Appendices
+# 15. Appendix
 
-## Appendix 1 - Stepwise regression 
+## Stepwise regression 
 
 ```{r, warning = FALSE}
 # PRELIMINARY ANALYSIS ----
