@@ -350,8 +350,8 @@ $$
 And the dependent variable:
 
 $$
-\begin{array} {c} & Name & Data\:type & Description \\ 
- & MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
+\begin{array} {ccc}Name & Data\:type & Description \\ 
+ MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
 \end{array}
 $$
 
@@ -985,7 +985,7 @@ Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
 
 ### Pooled model
 
-```{r}
+```{r, eval=FALSE}
 
 pooled.fit.coeff.df <- pooled.fit$summary() %>% slice(2:8)
 
@@ -1013,14 +1013,14 @@ y.hat <- y.hat %>%
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 
 se %>% plot(type="b", pch=20)
 
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 rmse <- sqrt(mean(se))
 rmse
 
