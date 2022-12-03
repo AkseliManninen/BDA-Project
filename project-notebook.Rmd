@@ -744,6 +744,32 @@ rhat.df
 
 ``` 
 
+## Effective sample size (ESS)
+
+Effective sample size (ESS) evaluates the uncertainty in estimates that is caused 
+by autocorrelation of the chains. The value of effective sample size represents 
+the number of independent samples that poses the same predictive power as all 
+the autocorrelated samples. In other words, if the number of effective sample 
+size is high, then the number of independent samples is high.
+
+As can be seen on the tables below, for the separate model the values for 
+the first region are range from 54 to 96. In this region, there are the sample
+size N is xxx. This means that...
+
+For the pooled model the ESS values for parameters range from 508 to 954. 
+This means that most of the samples for all parameters are independent, although
+there is also autocorrelation in most cases. According to (Stan) if the
+effective sample size is larger than the number of samples, this can be due
+to antithetic Markov Chains which have negative autocorrelations on odd lags.
+
+For the hierarchical model the ESS values for parameters are between 266 and
+1080. This means that for some parameters there samples are more autocorrelated
+samples than independent ones. The analysis for the highest values is the
+same as for pooled.
+
+Lähde:
+https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
+
 ## Serparate Model Effective sample size (ESS)
 ```{r, eval = FALSE}
 
@@ -812,6 +838,24 @@ ess.df
 ``` 
 
 ## HMC specific convergence diagnostics for all models
+
+Based on the HMC specific convergence diagnostics, the separate model reached the initial
+maximum treedepth of 10 in 100% of the transitions. The diagnostics
+state that this leads to premature termination of trajectories and slow exploration.
+The proposed action of increasing the limit was tested, but it resulted to too
+long running time for the already time consuming fitting of the separate model. 
+The rest of the diagnostics consisting of divergences, E-BMFI, effective sample 
+size and split R-hat satisfactory.
+
+For the pooled model, treedepth, divergences, E-BFMI, effective sample size and 
+split R-hat were satifactory.
+
+For the hierarchical model, onyl 4 out of 4000 hit the maximum treedepth and
+23 out of 4000 transitions did not converge. Due to relatively low numbers
+(0.1% and 0.57%) no actions were taken for the hierarchical model. The rest 
+of the diagnostics were satisfactory.
+
+
 ```{r, eval = FALSE}
 
 separate.fit$cmdstan_diagnose()
@@ -861,8 +905,20 @@ hierarchical.ppctitle <- ggtitle("Hierarchical model",
 ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 ```
 
+## LOO
 
-## LOO (Model comparison)
+The ELPD is the theoretical expected log pointwise predictive density for a new dataset (Eq 1 in VGG2017), which can be estimated, e.g., using cross-validation. elpd_loo is the Bayesian LOO estimate of the expected log pointwise predictive density (Eq 4 in VGG2017) and is a sum of N individual pointwise log predictive densities. Probability densities can be smaller or larger than 1, and thus log predictive densities can be negative or positive. For simplicity the ELPD acronym is used also for expected log pointwise predictive probabilities for discrete models. Probabilities are always equal or less than 1, and thus log predictive probabilities are 0 or negative.
+
+Yläpuolella kopsattu, kirjoita uusiks. Lähde alla
+
+Lähde: https://mc-stan.org/loo/reference/loo-glossary.html
+
+With $elpd_{loo-cv}$ we should select the model with the highest value. From
+the tables below we can see that in this case the suggested model would be
+separate model, the second best hierarchical model and the third best pooled
+model.
+
+## LOO 
 ```{r, eval = FALSE, warning = FALSE}
 
 separate.loo <- separate.fit$loo()
@@ -873,9 +929,19 @@ hierarchical.loo <- hierarchical.fit$loo()
 
 loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
+separate.loo
+
+pooled.loo
+
+hierarchical.loo
+
 ``` 
 
-Based on LOO we should select... as it has the highest score
+```{r, eval = FALSE, warning = FALSE}
+
+loo_compare(separate.loo, pooled.loo, hierarchical.loo)
+
+``` 
 
 ## K hat
 ```{r, eval = FALSE}
