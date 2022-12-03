@@ -876,6 +876,12 @@ hierarchical.fit$cmdstan_diagnose()
 
 ## Posterior predictive checking
 
+When doing posterior predictive checking we look for systematic discrepancies between the real observations 
+and the data we get from simulating replicated data under the fitted model (Gelman and Hill, 2006). Posterior 
+predictive checking is a form of internal validation that is a helpful phase of model building and checking 
+in assessing whether our fitted model makes sense.
+
+
 ```{r, eval = FALSE}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
@@ -1075,6 +1081,8 @@ Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred
 
 Data Commons. (2020). Gross domestic product per capita in United States of America [Graph]. 
 Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
+
+Gelman, Andrew, and Jennifer Hill. Data analysis using regression and multilevel/hierarchical models. Cambridge university press, 2006.
 
 Number2. (2020). Average SAT Score [Blog Post].
 Retrieved from: https://www.number2.com/average-sat-score/
