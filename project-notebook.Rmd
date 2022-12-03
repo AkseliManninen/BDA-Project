@@ -750,24 +750,6 @@ hierarchical.fit$cmdstan_diagnose()
 
 ``` 
 
-Based on the HMC specific convergence diagnostics, the separate model reached the initial
-maximum treedepth of 10 in 100% of the transitions. The diagnostics
-state that this leads to premature termination of trajectories and slow exploration.
-The proposed action of increasing the limit was tested, but it resulted to too
-long running time for the already time consuming fitting of the separate model. 
-The rest of the diagnostics consisting of divergences, E-BMFI, effective sample 
-size and split R-hat satisfactory.
-
-For the pooled model, treedepth, divergences, E-BFMI, effective sample size and 
-split R-hat were satifactory.
-
-For the hierarchical model, onyl 4 out of 4000 hit the maximum treedepth and
-23 out of 4000 transitions did not converge. Due to relatively low numbers
-(0.1% and 0.57%) no actions were taken for the hierarchical model. The rest 
-of the diagnostics were satisfactory.
-
-
-
 # 8. Posterior predictive checks and model comparison
 
 ## Posterior predictive checking
@@ -851,31 +833,40 @@ Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
 # 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
 of practical usefulness of the accuracy. This should be reported for all models as well.
 
-# 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior 
-is changed). This should be reported for all models.
+# 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior is changed). This should be reported for all models.
 
-Uniform priors were used for each model for sensitivity testing.
+To test whether our results are sensitive to prior choices, and to see how changing the priors affects our results, we ran all the models with both wider and narrower priors. The wide priors were obtained by multiplying each standard deviation by three, and the narrow priors were obtained by dividing the original priors by two.
 
 # 11. Discussion of issues and potential improvements.
 
-During the project, the large amount of variables also posed challenges, as it 
-was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. 
-It was somewhat surprising how fast the observation count started to shrink in data cleaning process, 
-so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
+During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find
+the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink
+in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example
+a lot of missing values.
 
-- Correlation does not mean causality
-- Ethics selecting features
-- Selecting priors properly 
+It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. 
+We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also 
+ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values
+and removed variables with too much missing data. For the feature selection, with more time we could have experimented with alternative methods, like the LASSO or Ridge regression.
+
+As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a
+discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform
+in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female 
+or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
+In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income
+were very low and they would have been dropped from our model no matter what.
+
 
 # 12. Conclusion what was learned from the data analysis.
 
 # 13. Self-reflection of what the group learned while making the project.
 
-- Multivariable regression
-- Feature selection from a massive dataset
-- Feature engineering
-- Data visualization
-- Stan workflow
+In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection,
+because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
+
+I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality.
+
+Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of a routine than an obstacle.
  
 # 14. References
 
