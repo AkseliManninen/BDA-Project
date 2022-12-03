@@ -379,6 +379,12 @@ categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 data.joined.stan <- data.joined.model %>%
   select(REGION, numerical.vars.model, categorical.vars.model)
 
+data.joined.stan.test <- data.joined.stan %>% 
+  sample_n(30)
+
+data.joined.stan <- data.joined.stan %>% 
+  setdiff(data.joined.stan.test)
+
 # data for linear regression model in R
 data.joined.model <- data.joined.stan %>%
     select(-REGION)
@@ -901,8 +907,19 @@ Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
 - Why pooled model looks like that - overfitting or something?
 
 
-# 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation 
-of practical usefulness of the accuracy. This should be reported for all models as well.
+# 9. Optional/Bonus: Predictive performance assessment if applicable (e.g. classification accuracy) and evaluation of practical usefulness of the accuracy. This should be reported for all models as well.
+
+## Root Mean Squared Error (RMSE)
+
+### Pooled model
+
+```{r}
+
+coeffs <- pooled.fit$
+
+```
+
+
 
 # 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior is changed). This should be reported for all models.
 
