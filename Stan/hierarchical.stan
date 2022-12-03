@@ -1,15 +1,14 @@
 data {
 
   int<lower=0> N; // number of observations
-  vector[N] SAT_ALL;
-  vector[N] MD_FAMINIC;
-  vector[N] AGE_ENTRY;
-  vector[N] COSTT4_A;
-  vector[N] POVERTY_RATE;
-  vector[N] MASTER;
-  vector[N] PRIVATE;
-  vector[N] y;
-  int<lower=0> K; // number of groups
+  vector[N] SAT_ALL; // SAT score
+  vector[N] MD_FAMINIC; // medain family income
+  vector[N] AGE_ENTRY; // average age of entry
+  vector[N] COSTT4_A; // average cost of education
+  vector[N] POVERTY_RATE; // poverty rate in school area
+  vector[N] PRIVATE; // private university dummy
+  vector[N] y; // median earnings
+  int<lower=0> K; // number of regions
   int<lower=1, upper=K> x[N]; // discrete group indicators
 
 }
