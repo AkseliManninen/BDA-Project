@@ -1051,6 +1051,312 @@ rmse
 
 To test whether our results are sensitive to prior choices, and to see how changing the priors affects our results, we ran all the models with both wider and narrower priors. The wide priors were obtained by multiplying each standard deviation by three, and the narrow priors were obtained by dividing the original priors by two.
 
+Separate model:
+
+```{r, results = "hide", eval=FALSE}
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
+
+scale_param <- 3
+
+separate.model.data <- list(N = nrow(data.joined.stan),
+                            K = length(unique(data.joined.stan$REGION)),
+                            x = data.joined.stan$REGION,
+                            
+                            SAT_ALL = data.joined.stan$SAT_ALL,
+                            MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                            COSTT4_A = data.joined.stan$COSTT4_A,
+                            POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            PRIVATE = data.joined.stan$PRIVATE,
+                            y = data.joined.stan$MD_EARN_WNE_P10,
+                            
+                            pm_alpha = 0,
+                            ps_alpha = 10000 * scale_param,
+                            pm_SAT_ALL = 50,
+                            ps_SAT_ALL = 500 * scale_param,
+                            pm_MD_FAMINC = 0,
+                            ps_MD_FAMINC = 100 * scale_param,
+                            pm_AGE_ENTRY = 0,
+                            ps_AGE_ENTRY = 2500 * scale_param,
+                            pm_COSTT4_A = 0,
+                            ps_COSTT4_A = 500 * scale_param,
+                            pm_POVERTY_RATE = 0,
+                            ps_POVERTY_RATE = 2500 * scale_param,
+                            pm_PRIVATE = 0,
+                            ps_PRIVATE = 2500 * scale_param,
+                            pm_sigma = 10000 * scale_param,
+                            ps_sigma = 10000 * scale_param
+                            
+)
+
+
+separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
+
+separate.fit
+
+```
+
+```{r, results = "hide", eval=FALSE}
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
+
+scale_param <- 0.5
+
+separate.model.data <- list(N = nrow(data.joined.stan),
+                            K = length(unique(data.joined.stan$REGION)),
+                            x = data.joined.stan$REGION,
+                            
+                            SAT_ALL = data.joined.stan$SAT_ALL,
+                            MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                            COSTT4_A = data.joined.stan$COSTT4_A,
+                            POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            PRIVATE = data.joined.stan$PRIVATE,
+                            y = data.joined.stan$MD_EARN_WNE_P10,
+                            
+                            pm_alpha = 0,
+                            ps_alpha = 10000 * scale_param,
+                            pm_SAT_ALL = 50,
+                            ps_SAT_ALL = 500 * scale_param,
+                            pm_MD_FAMINC = 0,
+                            ps_MD_FAMINC = 100 * scale_param,
+                            pm_AGE_ENTRY = 0,
+                            ps_AGE_ENTRY = 2500 * scale_param,
+                            pm_COSTT4_A = 0,
+                            ps_COSTT4_A = 500 * scale_param,
+                            pm_POVERTY_RATE = 0,
+                            ps_POVERTY_RATE = 2500 * scale_param,
+                            pm_PRIVATE = 0,
+                            ps_PRIVATE = 2500 * scale_param,
+                            pm_sigma = 10000 * scale_param,
+                            ps_sigma = 10000 * scale_param
+                            
+)
+
+
+separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
+
+separate.fit
+
+```
+
+Pooled model:
+
+```{r, results = "hide", eval=FALSE}
+pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
+
+scale_param <- 3
+
+pooled.model.data <- list(N = nrow(data.joined.stan),
+                          
+                          SAT_ALL = data.joined.stan$SAT_ALL,
+                          MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                          COSTT4_A = data.joined.stan$COSTT4_A,
+                          POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          PRIVATE = data.joined.stan$PRIVATE,
+                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          
+                          pm_alpha = 0,
+                          ps_alpha = 10000 * scale_param,
+                          pm_SAT_ALL = 50,
+                          ps_SAT_ALL = 500 * scale_param,
+                          pm_MD_FAMINC = 0,
+                          ps_MD_FAMINC = 100 * scale_param,
+                          pm_AGE_ENTRY = 0,
+                          ps_AGE_ENTRY = 2500 * scale_param,
+                          pm_COSTT4_A = 0,
+                          ps_COSTT4_A = 500 * scale_param,
+                          pm_POVERTY_RATE = 0,
+                          ps_POVERTY_RATE = 2500 * scale_param,
+                          pm_PRIVATE = 0,
+                          ps_PRIVATE = 2500 * scale_param,
+                          pm_sigma = 10000 * scale_param,
+                          ps_sigma = 10000 * scale_param
+                          
+                          )
+
+
+pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
+
+pooled.fit
+
+```
+
+```{r, results = "hide", eval=FALSE}
+pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
+
+scale_param <- 0.5
+
+pooled.model.data <- list(N = nrow(data.joined.stan),
+                          
+                          SAT_ALL = data.joined.stan$SAT_ALL,
+                          MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                          COSTT4_A = data.joined.stan$COSTT4_A,
+                          POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          PRIVATE = data.joined.stan$PRIVATE,
+                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          
+                          pm_alpha = 0,
+                          ps_alpha = 10000 * scale_param,
+                          pm_SAT_ALL = 50,
+                          ps_SAT_ALL = 500 * scale_param,
+                          pm_MD_FAMINC = 0,
+                          ps_MD_FAMINC = 100 * scale_param,
+                          pm_AGE_ENTRY = 0,
+                          ps_AGE_ENTRY = 2500 * scale_param,
+                          pm_COSTT4_A = 0,
+                          ps_COSTT4_A = 500 * scale_param,
+                          pm_POVERTY_RATE = 0,
+                          ps_POVERTY_RATE = 2500 * scale_param,
+                          pm_PRIVATE = 0,
+                          ps_PRIVATE = 2500 * scale_param,
+                          pm_sigma = 10000 * scale_param,
+                          ps_sigma = 10000 * scale_param
+                          
+                          )
+
+
+pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
+
+pooled.fit
+
+```
+
+Hierarchical model:
+
+```{r, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
+
+hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
+
+scale_param <- 3
+
+hierarchical.model.data <- list(N = nrow(data.joined.stan),
+                                K = length(unique(data.joined.stan$REGION)),
+                                x = data.joined.stan$REGION,
+                            
+                                SAT_ALL = data.joined.stan$SAT_ALL,
+                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                                COSTT4_A = data.joined.stan$COSTT4_A,
+                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                PRIVATE = data.joined.stan$PRIVATE,
+                                y = data.joined.stan$MD_EARN_WNE_P10,
+                                
+                                pm_alpha = 0,
+                                ps_alpha = 10000  * scale_param,
+                                pm_s_alpha = 100,
+                                ps_s_alpha = 100  * scale_param,
+                                
+                                pm_SAT_ALL = 43,
+                                ps_SAT_ALL = 500  * scale_param,
+                                pm_s_SAT_ALL = 100,
+                                ps_s_SAT_ALL = 100  * scale_param,
+                                
+                                pm_MD_FAMINC = 0,
+                                ps_MD_FAMINC = 100 * scale_param,
+                                pm_s_MD_FAMINC = 10,
+                                ps_s_MD_FAMINC = 100 * scale_param,
+                                
+                                pm_AGE_ENTRY = 0,
+                                ps_AGE_ENTRY = 2500 * scale_param,
+                                pm_s_AGE_ENTRY = 500,
+                                ps_s_AGE_ENTRY = 500 * scale_param,
+                                
+                                pm_COSTT4_A = 0,
+                                ps_COSTT4_A = 500 * scale_param,
+                                pm_s_COSTT4_A = 50,
+                                ps_s_COSTT4_A = 500 * scale_param,
+                                
+                                pm_POVERTY_RATE = 0,
+                                ps_POVERTY_RATE = 2500 * scale_param,
+                                pm_s_POVERTY_RATE = 500,
+                                ps_s_POVERTY_RATE = 500 * scale_param,
+                                
+                                pm_PRIVATE = 0,
+                                ps_PRIVATE = 2500 * scale_param,
+                                pm_s_PRIVATE = 500,
+                                ps_s_PRIVATE = 500 * scale_param,
+                                
+                                pm_sigma = 10000,
+                                ps_sigma = 10000 * scale_param,
+                                pm_s_sigma = 500,
+                                ps_s_sigma = 500) * scale_param
+
+hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
+                                              seed = 1234, refresh = 1e3)
+
+hierarchical.fit
+
+
+```
+
+```{r, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
+
+hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
+
+scale_param <- 0.5
+
+hierarchical.model.data <- list(N = nrow(data.joined.stan),
+                                K = length(unique(data.joined.stan$REGION)),
+                                x = data.joined.stan$REGION,
+                            
+                                SAT_ALL = data.joined.stan$SAT_ALL,
+                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
+                                COSTT4_A = data.joined.stan$COSTT4_A,
+                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                PRIVATE = data.joined.stan$PRIVATE,
+                                y = data.joined.stan$MD_EARN_WNE_P10,
+                                
+                                pm_alpha = 0,
+                                ps_alpha = 10000  * scale_param,
+                                pm_s_alpha = 100,
+                                ps_s_alpha = 100  * scale_param,
+                                
+                                pm_SAT_ALL = 43,
+                                ps_SAT_ALL = 500  * scale_param,
+                                pm_s_SAT_ALL = 100,
+                                ps_s_SAT_ALL = 100  * scale_param,
+                                
+                                pm_MD_FAMINC = 0,
+                                ps_MD_FAMINC = 100 * scale_param,
+                                pm_s_MD_FAMINC = 10,
+                                ps_s_MD_FAMINC = 100 * scale_param,
+                                
+                                pm_AGE_ENTRY = 0,
+                                ps_AGE_ENTRY = 2500 * scale_param,
+                                pm_s_AGE_ENTRY = 500,
+                                ps_s_AGE_ENTRY = 500 * scale_param,
+                                
+                                pm_COSTT4_A = 0,
+                                ps_COSTT4_A = 500 * scale_param,
+                                pm_s_COSTT4_A = 50,
+                                ps_s_COSTT4_A = 500 * scale_param,
+                                
+                                pm_POVERTY_RATE = 0,
+                                ps_POVERTY_RATE = 2500 * scale_param,
+                                pm_s_POVERTY_RATE = 500,
+                                ps_s_POVERTY_RATE = 500 * scale_param,
+                                
+                                pm_PRIVATE = 0,
+                                ps_PRIVATE = 2500 * scale_param,
+                                pm_s_PRIVATE = 500,
+                                ps_s_PRIVATE = 500 * scale_param,
+                                
+                                pm_sigma = 10000,
+                                ps_sigma = 10000 * scale_param,
+                                pm_s_sigma = 500,
+                                ps_s_sigma = 500) * scale_param
+
+hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
+                                              seed = 1234, refresh = 1e3)
+
+hierarchical.fit
+
+
+```
+
 # 11. Discussion of issues and potential improvements.
 
 During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find
