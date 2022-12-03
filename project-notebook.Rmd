@@ -32,19 +32,11 @@ set_cmdstan_path('/coursedata/cmdstan')
 \newpage
 # 1. Project Description and Motivation
 
-**LISÄTTÄVÄ MAIN MODELLING IDEA**
+Studying the relationship between income and education has been the focus of many studies. The studies have concluded that a strong connection exists between higher education and income (Card, 1999). In general, individuals with stronger education are more likely to be employed and earn a big salary compared to less educated people (Card, 1999). For that reason, education is described as an investment in human capital (Wolla & Sullivan, 2017). 
 
-**"ILLUSTRATIVE FIGURE RECOMMENDED" - MIETITTÄVÄ SAADAANKO JOKU JÄRKEVÄ**
+This study examines this phenomenon from the perspective of people that have acquired their education from colleges in the United States. As the connection between education and income has been shown in the existing literature, this study strives to further examine the associations between college related features and income level years after graduation. This project is not limited to only considering educational aspects but expands it to family backgrounds.
 
-Studying the relationship between income and education has been the focus on many studies. The studies have concluded that a strong connection exists between higher education and income (Card, 1999). In general, individuals with stronger education are more likely to be employed and earn a big salary compared to less educated people (Card, 1999). For that reason, education is described as an investment in human capital (Wolla & Sullivan, 2017). 
-
-This study examines this phenomenon from the perspective of people that have acquired their education
-from colleges in the United States. As the connection between education and income has been
-shown in the existing literature, this study strives to further examine the associations between college related features and income level years after graduation. This project is not limited to only 
-considering educational aspects but expands it to family backgrounds.
-
-In this study, a Bayesian approach is taken to observe the bond between the educational and family related 
-features and earnings. It is in our interest to find out how accurately the selected features can predict future income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating predictive performance using these features with a selected statistical models.
+In this study, a Bayesian approach is taken to observe the bond between the educational and family related features and earnings in a multivariate linear regression setting. It is in our interest to find out how accurately the selected features can predict future income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating predictive performance using these features with selected statistical models.
 
 As this study is conducted in a university environment by university students and presented mainly to other students and faculty, the findings of this study could be especially meaningful for the members of the group and peers on the course.
 
@@ -132,8 +124,9 @@ data.joined.dropna <- data.numerical.dropna %>%
 ```{r, include=FALSE}
 
 # make variable type specific data frames for plots etc.
-numerical.vars.data <- data.joined.dropna %>% select(!c(id.vars, 
-  categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
+numerical.vars.data <- data.joined.dropna %>% 
+  select(!c(id.vars, SAT.vars, categorical.vars)) %>%
+  relocate(MD_EARN_WNE_P10, 1)
 
 categorical.vars.data <- data.joined.dropna %>%
   select(all_of(categorical.vars), MD_EARN_WNE_P10) %>%
@@ -144,25 +137,32 @@ categorical.vars.data <- data.joined.dropna %>%
 
 **LAITETTAVA TARKEMPI LÄHDE DATALLE (MISTÄ LÖYTYY)!**
 
-The used dataset is the most recent institutional-level college scorecard data from the US Department of Education. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. 
-The dataset has over 6000 observations on more than 3000 variables.
+The used dataset is the most recent institutional-level college scorecard data from the US Department of Education^[Available at: https://collegescorecard.ed.gov/data]. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. The dataset has 6681 observations on 2989 variables.
 
 This dataset was chosen because it seemed to provide information that could answer interesting education-related questions in the project, and also because the dataset has a large number of observations and a large number of variables. The large amount of variables permits for a lot of flexibility when it comes to modelling with the data and also having enough data is important in order to be able to make valid inferences. 
 
-After investigating the dataset, the most intriguing analysis problem was to study how college related factors affect the median earnings 10 years after entry.
+After investigating the dataset, the most intriguing analysis problem was to study how college related factors affec
+t the median earnings of alumni 10 years after entry, which is our dependent variable:
+
+$$
+\begin{tabular} {ccc} 
+Name & Data type & Description \\
+\hline
+MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
+\end{tabular}
+$$
+
+In the next section, we outline how features were selected 
 
 # Feature selection
 
-The initial data set has almost 3000 features, which is a large number compared to the total number of observations of 6681. Furthermore, there are many missing values in the dataset. For these reasons, there was a need to prune features.
+The initial data set has almost 3000 features, which is a large number compared to the total number of observations of 6681. Moreover, there are many missing values for certain variables in the dataset and not all variables are interesting when trying to predict future earnings. For these reasons, there was a clear need to prune down features.
 
-We selected our features in three main phases: in the first phase, a subset of features was select based on the features used in the existing literature and using common sense. In the second phase, we assessed the relationship of the features with our dependent variable, and accounted for any multicollinearity arising from mutually correlated features. In the last phase, we utilized stepwise regression to streamline our model to include only the most significant features.
+We conducted feature selection in three phases: in the first phase, a subset of features was selected based on features commonly used in previous studies that have examined the relationship between educational factors and earnings. Moreover, we used common sense when trying to come up with additional interesting features that could predict future earnings. In the second phase, we assessed the relationship of the features with our dependent variable, and accounted for any multicollinearity arising from mutually correlated features. Furthermore, we visualized categorical variables and engineered new features to be added to the model. In the last phase, we utilized stepwise regression in streamlining our model to include only the most significant features in terms of the Akaike Information Criterion (AIC).
 
 ## Phase 1 - Feature selection based on literature and common sense
 
-**EN TIEDÄ VOIDAANKO PUHUA LITERATURESTA, JOS MEILLÄ EI OO MITÄÄN VIITTAUKSIA AIEMPIIN TUTKIMUKSIIN... VOISIKO TÄSSÄ VIITATA SIIHEN STAN ESIMERKKIIN MITÄ KATSOTTIIN? JOS EI LÖYDETÄ LÄHTEITÄ, NIIN VOIDAAN SANOA ESIM. "FEATURES COMMONLY SEEN IN EARNINGS PREDICTION MODELS"
-
-The initial set of features chosen based on past literature and common sense is outline in the table below: 
-
+The initial set of features chosen based on past literature and common sense is outlined in the table below: 
 
 $$
 \begin{tabular} {l|c|c|c} 
@@ -189,39 +189,28 @@ $$
 \end{tabular}
 $$
 
-The dependent variable is described in the table below:
-
-$$
-\begin{tabular} {ccc} 
-Name & Data type & Description \\
-\hline
-MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
-\end{tabular}
-$$
-
-## Phase 2 - Feature selection with correlation and visual dependency
-
-In the second phase of feature selection, a subset of features was selected
-from the 18 variables of the first phase. The correlations between the features 
-were examined as well as their associations to the dependent variable.
-
-### Numerical variables
-
-- **VOISI MUUTTAA NIIN, ETTÄ PURETAAN TAULUKOT JA KUVAAJAT JA LOPUKSI YHTEENVETO MITÄ VALITTIIN**
-
-#### Descriptive statistics
+Descriptive statistics for the numerical variables:
 
 ```{r, echo=FALSE}
 
-stats <- numerical.vars.data %>% apply(2, summary) %>% t() %>% as.data.frame()
-stats$St.dev <- numerical.vars.data %>% apply(2, sd)
+stats.data <- numerical.vars.data
+
+stats <- stats.data %>% apply(2, summary) %>% t() %>% as.data.frame()
+stats$St.dev <- stats.data %>% apply(2, sd)
 kable(stats, format = "latex", align = "lrrrrrrr", caption = "Descriptive Statistics of the variables. Variable is the name of the variable, Min is the minimum, 1st Qu. is the 1st quartile, Median is the median, Mean is the arithmetic mean, 3rd Qu. is the 3rd quartile, Max is the maximum and St.dev is the sample standard deviation.", digits = 2, col.names = c("Min", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max", "St.dev")) %>% 
   row_spec(0, bold = T) %>% 
   kable_styling(latex_options = "HOLD_position", position = "left")
 
 ```
 
-#### Correlation analysis
+
+## Phase 2 - Feature selection with correlation and linear associativity
+
+In the second phase of feature selection, a subset of features was selected from the 18 variables resulting from the first phase. We examined the correlations between the dependent variable and the features as well as between-features correlations. Moreover, we examined whether there were any linear relationships between the features and the dependent variable. Lastly, we visually examined categorical variables and engineered new features that we believed to have predictive ability over future earnings.
+
+- **VOISI MUUTTAA NIIN, ETTÄ PURETAAN TAULUKOT JA KUVAAJAT JA LOPUKSI YHTEENVETO MITÄ VALITTIIN**
+
+### Correlation analysis
 
 ```{r, echo=FALSE, fig.align='center'}
 
@@ -233,7 +222,7 @@ ggcorrplot(cor(numerical.vars.data),
 
 ```
 
-#### Bivariate plotting
+### Bivariate plotting
 
 ```{r, echo=FALSE, fig.height=12, fig.width=12, fig.align='center'}
 
@@ -248,43 +237,17 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
 
 ```
 
-SAT scores were combined as one variable, because they were correlated and
-viewed as one entity. However, writing SAT scores had too few observations,
-due to discontinued tracking, so the variable SAT_ALL was formed by summing the 
-math and critical thinking SAT scores. SAT scores were included because the correlation was high with the dependent variable.
+SAT scores were combined as one variable, because they were correlated and viewed as one entity. However, writing SAT scores had too few observations,
+due to discontinued tracking, so the variable SAT_ALL was formed by summing the math and critical thinking SAT scores. SAT scores were included because the correlation was high with the dependent variable.
 
-For the rest of the numerical variables, if the correlation between a feature
-and the dependent variable was low and there was no observable dependency 
+For the rest of the numerical variables, if the correlation between a feature and the dependent variable was low and there was no observable dependency 
 between the two in the scatter plot, the feature was excluded. To avoid multicollinearity, we removed independent variables that were highly correlated with other independent variables, especially if they were not clearly correlated with the dependent variable and we couldn't form a believable hypothesis for the mechanism through which that variable affected income after college.
 
-The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college),  COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
+The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
 
 ### Categorical variables
 
-The categorical variables were visualized with box plots to see if income after
-college differed among the categories. Based on an analysis on the variable LOCALE
-(whether college located in metropolis, city, suburb, town, or rural area) a new 
-binary variable URBAN was generated, where value 1 represents any area that is not
-categorized as rural.
-
-The categorical variable CCBASIC which represented the Carnegie Classification
-was divided into two binary MASTER and DOCTORL. These variables represent
-if the college is classified as Master's college and university or Doctoral's
-college and university. If a college does not belong to either of those,
-it is a Bachelor's college and university. Other special focus colleges
-and universities were discarded from the dataset to keep the model more simple
-and avoid unnecessary outliers due to unconventional nature of some very specialized 
-colleges. Our model does not attempt to provide accurate predictions for
-specialized colleges.
-
-The categorical variable CONTROL had three classes: public, for-profit private and 
-nonprofit private. CONTROL was modified into a binary variable PRIVATE representing 
-if the school is private or public school. There were only few non-profit private 
-observations, so those were merged together with the private observations.
-
-The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
-
-```{r, echo=FALSE}
+```{r, include=FALSE}
 
 # categorical variable box plots
 melted.categorial <- melt(categorical.vars.data, id.vars = "MD_EARN_WNE_P10")
@@ -292,6 +255,15 @@ melted.categorial.ccbasic <- melted.categorial %>% as_tibble() %>% filter(variab
 melted.categorial.control <- melted.categorial %>% as_tibble() %>% filter(variable=="CONTROL")
 melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variable=="LOCALE")
 
+```
+
+The categorical variable CCBASIC which represented the Carnegie Classification was divided into two binary MASTER and DOCTORAL. These variables represent
+if the college is classified as Master's college and university or Doctoral's college and university. If a college does not belong to either of those,
+it is a Bachelor's college and university. Other special focus colleges and universities were discarded from the dataset to keep the model more simple
+and avoid unnecessary outliers due to unconventional nature of some very specialized colleges. Our model does not attempt to provide accurate predictions for
+specialized colleges.
+
+```{r}
 ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
@@ -303,16 +275,11 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   xlab("CCBASIC") +
   labs(caption = "Doctoral (15-17), Master's (18-20), Bachelor's (21-23)")
 
-ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
-  geom_boxplot() +
-  geom_jitter(color="black", size=0.4, alpha=0.9) +
-  theme(
-    legend.position="none",
-    plot.title = element_text(size=11)
-  ) +
-  ggtitle("Public vs. Private") +
-  xlab("CONTROL") +
-  scale_x_discrete(labels = c("Public","Private","Non-profit private"))
+```
+
+The categorical variables were visualized with box plots to see if income after college differed among the categories. Based on an analysis on the variable LOCALE (whether college located in metropolis, city, suburb, town, or rural area) a new binary variable URBAN was generated, where value 1 represents any area that is not categorized as rural.
+
+```{r}
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -327,17 +294,30 @@ ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 
 ```
 
+The categorical variable CONTROL had three classes: public, for-profit private and nonprofit private. CONTROL was modified into a binary variable PRIVATE representing if the school is private or public school. There were only few non-profit private observations, so those were merged together with the private observations.
+
+```{r}
+
+ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
+  geom_boxplot() +
+  geom_jitter(color="black", size=0.4, alpha=0.9) +
+  theme(
+    legend.position="none",
+    plot.title = element_text(size=11)
+  ) +
+  ggtitle("Public vs. Private") +
+  xlab("CONTROL") +
+  scale_x_discrete(labels = c("Public","Private","Non-profit private"))
+
+```
+
+The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
+
 ## Phase 3 - Feature selection with stepwise regression
 
-In the third phase, the remaining variables were used with stepwise regression,
-to test which subset of features perform the best, whether the received 
-coefficients are reasonable, and if there are signs of overfitting.
+In the third and final phase, all remaining variables were used with stepwise regression to test which subset of features perform the best, whether the received coefficients are reasonable, and if there are signs of overfitting.
 
-The Stepwise regression suggested using all of the variables, except CITY
-and DOCTORAL. The stepwise regression can be seen in appendix 1. Because stepwise
-regression suggested leaving out DOCTORAL, for the sake of consistency we decided
-to also leave out MASTER as it was a the middle level in our institutional 
-classifications and wouldn't have made much sense on its own.
+The stepwise regression suggested using all of the variables, except CITY and DOCTORAL. The output of the stepwise regression can be found in the Appendix. Because stepwise regression suggested leaving out DOCTORAL, for the sake of consistency we decided to also leave out MASTER as it was a the middle level in our institutional classifications and wouldn't have made much sense on its own.
 
 The final features are listed in the table below:
 
@@ -352,49 +332,6 @@ $$
 6 & PRIVATE & binary & Carnegie\:Classification -- basic \\
 \end{array}
 $$
-
-And the dependent variable:
-
-$$
-\begin{array} {ccc}Name & Data\:type & Description \\ 
- MD\_EARN\_WNE\_P10 & float & Median\:earnings\:of\:students\:10\:years\:after\:entry\\
-\end{array}
-$$
-
-
-```{r, include=FALSE}
-
-data.joined.model <- data.joined.dropna %>%
-  mutate(URBAN = case_when(LOCALE %in% c(seq(11,13), seq(21,23)) ~ 1,
-                           TRUE ~ 0),
-         PRIVATE = case_when(CONTROL %in% c(2,3) ~ 1,
-                             TRUE ~ 0),
-         DOCTORAL = case_when(CCBASIC %in% seq(15,17) ~ 1,
-                              TRUE ~ 0),
-         MASTER = case_when(CCBASIC %in% seq(18,20) ~ 1,
-                            TRUE ~ 0)
-  )
-
-
-numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", 
-                          "COSTT4_A", "POVERTY_RATE")
-categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
-
-# data with REGION identifier for STAN
-data.joined.stan <- data.joined.model %>%
-  select(REGION, numerical.vars.model, categorical.vars.model)
-
-data.joined.stan.test <- data.joined.stan %>% 
-  sample_n(30)
-
-data.joined.stan <- data.joined.stan %>% 
-  setdiff(data.joined.stan.test)
-
-# data for linear regression model in R
-data.joined.model <- data.joined.stan %>%
-    select(-REGION)
-
-```
 
 # 3. Description of the models
 
@@ -522,13 +459,49 @@ high.
 
 # 5. Stan code
 
+TÄHÄN JOTAIN TRAIN TEST SPLITISTÄ?
+
+```{r, include=FALSE}
+
+data.joined.model <- data.joined.dropna %>%
+  mutate(URBAN = case_when(LOCALE %in% c(seq(11,13), seq(21,23)) ~ 1,
+                           TRUE ~ 0),
+         PRIVATE = case_when(CONTROL %in% c(2,3) ~ 1,
+                             TRUE ~ 0),
+         DOCTORAL = case_when(CCBASIC %in% seq(15,17) ~ 1,
+                              TRUE ~ 0),
+         MASTER = case_when(CCBASIC %in% seq(18,20) ~ 1,
+                            TRUE ~ 0)
+  )
+
+
+numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", 
+                          "COSTT4_A", "POVERTY_RATE")
+categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
+
+# data with REGION identifier for STAN
+data.joined.stan <- data.joined.model %>%
+  select(REGION, numerical.vars.model, categorical.vars.model)
+
+data.joined.stan.test <- data.joined.stan %>% 
+  sample_n(30)
+
+data.joined.stan <- data.joined.stan %>% 
+  setdiff(data.joined.stan.test)
+
+# data for linear regression model in R
+data.joined.model <- data.joined.stan %>%
+    select(-REGION)
+
+```
+
 We used cmdstanr for our models. Source code for all three models can be found in in the Appendix.
 
 ## Separate model
 
 Summary of model fit for main parameters:
 
-```{r, echo=FALSE, results = "hide", eval=FALSE}
+```{r, include=FALSE, results = "hide", eval=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -574,7 +547,7 @@ separate.fit
 
 Summary of model fit for main parameters:
 
-```{r, echo=FALSE, results = "hide", eval=FALSE}
+```{r, include=FALSE, results = "hide", eval=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -686,8 +659,11 @@ hierarchical.fit
 This is also more clear as combination of textual explanation and the actual code line.
 
 We used the following options:
+
 1. Seed: 1234
+
 2. Chains: 4
+
 3. Iterations per chain: 2000
 
 # 7. Convergence diagnostics (rhat, ESS, divergences) and what was done if the convergence was not good with the first try.
