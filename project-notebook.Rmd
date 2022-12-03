@@ -32,7 +32,7 @@ set_cmdstan_path('/coursedata/cmdstan')
 \newpage
 # 1. Project Description and Motivation
 
-Studying the relationship between income and education has been the focus of many studies. The studies have concluded that a strong connection exists between higher education and income (Card, 1999). In general, individuals with stronger education are more likely to be employed and earn a big salary compared to less educated people (Card, 1999). For that reason, education is described as an investment in human capital (Wolla & Sullivan, 2017). 
+Studying the relationship between income and education has been the focus of many studies. The studies have concluded that a strong connection exists between higher education and income (Card, 1999). In general, individuals with stronger education are more likely to be employed and earn a big salary compared to less educated people (Card, 1999). For that reason, education is described as an investment in human capital (Wolla & Sullivan, 2017).
 
 This study examines this phenomenon from the perspective of people that have acquired their education from colleges in the United States. As the connection between education and income has been shown in the existing literature, this study strives to further examine the associations between college related features and income level years after graduation. This project is not limited to only considering educational aspects but expands it to family backgrounds.
 
@@ -40,7 +40,7 @@ In this study, a Bayesian approach is taken to observe the bond between the educ
 
 As this study is conducted in a university environment by university students and presented mainly to other students and faculty, the findings of this study could be especially meaningful for the members of the group and peers on the course.
 
-# 2. Data description
+# 2. Data Description
 
 ```{r, include=FALSE}
 
@@ -151,7 +151,7 @@ $$
 
 In the next section, we outline how features were selected 
 
-# Feature selection
+# 3. Feature Selection
 
 The initial data set has almost 3000 features, which is a large number compared to the total number of observations of 6681. Moreover, there are many missing values for certain variables in the dataset and not all variables are interesting when trying to predict future earnings. For these reasons, there was a clear need to prune down features.
 
@@ -186,7 +186,9 @@ $$
 \end{tabular}
 $$
 
-Descriptive statistics for the numerical variables:
+SAT scores were combined as one variable, because they were highly correlated and could easily be viewed as one entity. However, writing SAT scores had too few observations due to discontinued tracking. Therefore, a variable SAT_ALL was formed by summing the math and critical thinking SAT scores. After this, we have a total of 793 observations for these features. 
+
+Descriptive statistics for the resulting numerical variables can be found from the table below. Min is the minimum, 1st Qu. is the 1st quartile, Median is the median, Mean is the arithmetic mean, 3rd Qu. is the 3rd quartile, Max is the maximum and St.dev is the sample standard deviation.
 
 ```{r, echo=FALSE}
 
@@ -194,20 +196,23 @@ stats.data <- numerical.vars.data
 
 stats <- stats.data %>% apply(2, summary) %>% t() %>% as.data.frame()
 stats$St.dev <- stats.data %>% apply(2, sd)
-kable(stats, format = "latex", align = "lrrrrrrr", caption = "Descriptive Statistics of the variables. Variable is the name of the variable, Min is the minimum, 1st Qu. is the 1st quartile, Median is the median, Mean is the arithmetic mean, 3rd Qu. is the 3rd quartile, Max is the maximum and St.dev is the sample standard deviation.", digits = 2, col.names = c("Min", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max", "St.dev")) %>% 
+kable(stats, format = "latex", align = "lrrrrrrr", digits = 2, col.names = c("Min", "1st Qu.", "Median", "Mean", "3rd Qu.", "Max", "St.dev")) %>% 
   row_spec(0, bold = T) %>% 
   kable_styling(latex_options = "HOLD_position", position = "left")
 
 ```
 
+The table shows that our dependent variable - median earnings 10 years after entry - range from \$24.2k to \$103.2k. Overall one can see that there is great variation in almost all features as well. For example, age of entry varies from 19.6 to 33.8,  average composite SAT scores range from 395 to 760, and cost of attendance varies from \$11.7k to \$79.8k, to name a few interesting details. 
 
-## Phase 2 - Feature selection with correlation and linear associativity
+## Phase 2 - Feature Selection with Correlation and Linear Association
 
 In the second phase of feature selection, a subset of features was selected from the 18 variables resulting from the first phase. We examined the correlations between the dependent variable and the features as well as between-features correlations. Moreover, we examined whether there were any linear relationships between the features and the dependent variable. Lastly, we visually examined categorical variables and engineered new features that we believed to have predictive ability over future earnings.
 
-- **VOISI MUUTTAA NIIN, ETTÄ PURETAAN TAULUKOT JA KUVAAJAT JA LOPUKSI YHTEENVETO MITÄ VALITTIIN**
+### Numerical Variables
 
-### Correlation analysis
+#### Correlation Analysis
+
+The figure below shows the (Pearson's) correlation matrix for the dependent variable and the features.
 
 ```{r, echo=FALSE, fig.align='center'}
 
@@ -219,7 +224,11 @@ ggcorrplot(cor(numerical.vars.data),
 
 ```
 
-### Bivariate plotting
+The correlation matrix shows on the bottom row that SAT scores, cost of attendance, and family income are the most positively correlated features with our dependent variable. The respective correlations are 0.76, 0.75, and 0.52. Most negatively correlated features are the percentage of first generation students, poverty rate, and average age of entry with respective correlations of -0.45, -0.4, and -0.31. These are interesting observations and make intuitive sense.
+
+#### Bivariate plotting
+
+The panel of figures below show scatter plots between the dependent variable and all numerical features.
 
 ```{r, echo=FALSE, fig.height=12, fig.width=12, fig.align='center'}
 
@@ -234,15 +243,19 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
 
 ```
 
-SAT scores were combined as one variable, because they were correlated and viewed as one entity. However, writing SAT scores had too few observations,
-due to discontinued tracking, so the variable SAT_ALL was formed by summing the math and critical thinking SAT scores. SAT scores were included because the correlation was high with the dependent variable.
+The figures show that many of the features exhibit a linear like relationship with the dependent variable. Especially, SAT scores (SAT_ALL) show a clear linear association. Other features that show a linear trend are e.g., family income (MD_FAMINC), completion rate (C140_4), and the percentage of first generation students (FIRST_GEN). There are hints of some non-linear relationships as well, e.g., poverty rate appears to have a convex non linear relationship with the dependent variable. Cost of attendance (COSTT4_A), on the other hand, suggests that there could be two groups, perhaps cheaper public school and private school.
 
-For the rest of the numerical variables, if the correlation between a feature and the dependent variable was low and there was no observable dependency 
-between the two in the scatter plot, the feature was excluded. To avoid multicollinearity, we removed independent variables that were highly correlated with other independent variables, especially if they were not clearly correlated with the dependent variable and we couldn't form a believable hypothesis for the mechanism through which that variable affected income after college.
+#### Concluding remarks
 
-The selected numerical variables were: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
+Based on the analysis presented thus far, we selected the following numerical variables: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
+
+After including the obvious features, such as SAT scores, we included features with the following reasoning: if the correlation between a feature and the dependent variable was low and there was no observable dependency between the two in the scatter plot, the feature was excluded. Furthermore, to avoid multicollinearity, we removed features that were highly correlated with other independent variables, especially if they were not clearly correlated with the dependent variable and we couldn't form a believable hypothesis for the mechanism through which that variable affected income after college.
 
 ### Categorical variables
+
+#### Box Plots
+
+The categorical variables were visualized with box plots to see if income after college differed among the categories.
 
 ```{r, include=FALSE}
 
@@ -254,11 +267,7 @@ melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variabl
 
 ```
 
-The categorical variable CCBASIC which represented the Carnegie Classification was divided into two binary MASTER and DOCTORAL. These variables represent
-if the college is classified as Master's college and university or Doctoral's college and university. If a college does not belong to either of those,
-it is a Bachelor's college and university. Other special focus colleges and universities were discarded from the dataset to keep the model more simple
-and avoid unnecessary outliers due to unconventional nature of some very specialized colleges. Our model does not attempt to provide accurate predictions for
-specialized colleges.
+The categorical variable CCBASIC which represented the Carnegie Classification was divided into two binary MASTER and DOCTORAL. These variables represent if the college is classified as Master's college and university or Doctoral's college and university. If a college does not belong to either of those, it is a Bachelor's college and university. Other special focus colleges and universities were discarded from the dataset to keep the model more simple and avoid unnecessary outliers due to unconventional nature of some very specialized colleges. Our model does not attempt to provide accurate predictions for specialized colleges.
 
 ```{r}
 ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
@@ -274,7 +283,7 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 
 ```
 
-The categorical variables were visualized with box plots to see if income after college differed among the categories. Based on an analysis on the variable LOCALE (whether college located in metropolis, city, suburb, town, or rural area) a new binary variable URBAN was generated, where value 1 represents any area that is not categorized as rural.
+Based on an analysis on the variable LOCALE (whether college located in metropolis, city, suburb, town, or rural area) a new binary variable URBAN was generated, where value 1 represents any area that is not categorized as rural.
 
 ```{r}
 
@@ -308,9 +317,11 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 
 ```
 
-The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
+**The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.** - TARKISTETTAVA
 
 ## Phase 3 - Feature selection with stepwise regression
+
+**TARKISTETTAVA PITÄÄKÖ ALLAOLEVA TEKSTI PAIKKANSA**
 
 In the third and final phase, all remaining variables were used with stepwise regression to test which subset of features perform the best, whether the received coefficients are reasonable, and if there are signs of overfitting.
 
