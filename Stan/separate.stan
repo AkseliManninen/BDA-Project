@@ -18,7 +18,7 @@ data {
   vector[N] PRIVATE; // private institution dummy
   vector[N] y; // dependent variable (median earnings 10 years post-graduation)
 
-  // prior parameters
+  // prior distribution parameters
   real pm_alpha; // prior mean of intercept term
   real ps_alpha; // prior sd of intercept term
   real pm_SAT_ALL;
@@ -63,6 +63,7 @@ model {
     beta_COSTT4_A[j] ~ normal(pm_COSTT4_A, ps_COSTT4_A);
     beta_POVERTY_RATE[j] ~ normal(pm_POVERTY_RATE, ps_POVERTY_RATE);
     beta_PRIVATE[j] ~ normal(pm_PRIVATE, ps_PRIVATE);
+    sigma[j] ~ normal(pm_sigma, ps_sigma);
   }
 
 
