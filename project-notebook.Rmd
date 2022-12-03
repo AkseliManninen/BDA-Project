@@ -222,8 +222,6 @@ COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area th
 
 ```{r, warning = FALSE}
 
-# PRELIMINARY ANALYSIS ----
-
 # make variable type specific data frames for plots etc.
 numerical.vars.data <- data.joined.dropna %>% select(!c(id.vars, 
   categorical.vars, SAT.vars)) %>% relocate(MD_EARN_WNE_P10, 1)
@@ -232,15 +230,20 @@ categorical.vars.data <- data.joined.dropna %>%
   select(all_of(categorical.vars), MD_EARN_WNE_P10) %>%
   relocate(MD_EARN_WNE_P10, 1)
 
-# Correlation plot
+
+```
+
+
+```{r}
+
 ggcorrplot(cor(numerical.vars.data),
           lab = TRUE,
           lab_size = 2,
           title = "Correlations",
-          tl.cex = 8,
+          tl.cex = 8
           )
-
 ```
+
 
 ```{r, fig.height=12, fig.width=12}
 
