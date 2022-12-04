@@ -403,10 +403,6 @@ where $\mu_j|\mu_P, \sigma_P^2 \sim \mathcal{N}(\mu_P, \sigma_P^2)$
 
 The hyperparameters and parameters are given in the section 4 with their priors.
 
-## Description of the linear model
-
-**MIKÄ TÄÄ ON? JOS JÄÄMÄSSÄ, NIIN TÄYDENNETTÄVÄ**
-
 # 4. Choice of Priors
 
 We use weakly informative priors, as we do not posses enough information about the 
