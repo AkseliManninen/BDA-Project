@@ -463,6 +463,34 @@ we don't posses enough information on the dependency with the dependent variable
 Because the values are always either 0 and 1, the standard deviation is set
 high.
 
+Alpha ~ Normal(0, 10000)
+Sigma ~ Normal(10000, 10000)
+
+Justification: For Alpha and Sigma, weekly informative priors were selected as
+we did not posses enough information.
+
+Hyperpriors:
+
+$Alpha_p$ ~ Normal(100, 100)
+
+$SAT_p$ ~ Normal(100, 100)
+
+$MD\_FAMINIC$ ~ Normal(10, 100)
+
+$COSTT4\_A_p$ ~ Normal(50, 500)
+                                
+$POVERTY\_RATE_p$ ~ Normal(500, 500)
+                                
+$URBAN_p$ ~ Normal(500, 500)
+
+$PRIVATE_p$ ~ Normal(500, 500)
+
+$Sigma$~ Normal(500, 500)
+
+Justifications for the hyperpriors: When selecting hyperpriors it was considered
+that the constructions would be consistent in a sense that there would not 
+be conflicting levels of informativeness.
+
 # 5. Stan Code
 
 Before fitting the models in Stan, we split our data set of 793 observations into a training set of 763 observations and a test set of 30 observations. The test set is used in assessing the predictive ability of our models in Section 9.
@@ -1295,7 +1323,7 @@ Retrieved from: https://mc-stan.org/docs/2_19/reference-manual/effective-sample-
 
 ## Stepwise regression 
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, eval=FALSE}
 
 # baseline model
 model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
@@ -1316,7 +1344,7 @@ step(model, direction = "backward")
 
 ## Separate model Stan code (separate.stan)
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, eval = FALSE}
 "data {
 
   // number of observations
@@ -1419,7 +1447,7 @@ generated quantities {
 
 ## Pooled model Stan code (pooled.stan)
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, eval = FALSE}
 "data {
 
   int<lower=0> N; // number of observations
@@ -1504,9 +1532,10 @@ generated quantities {
 
 ## Hierarchical model Stan code (hierarchical.stan)
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, eval = FALSE}
 
-"data {
+"
+data {
 
   int<lower=0> N; // number of observations
   int<lower=0> K; // number of regions
@@ -1663,7 +1692,8 @@ generated quantities {
  }
 
 
-}"
+}
+"
 
 ```
 
