@@ -162,7 +162,7 @@ We conducted feature selection in three phases: in the first phase, a subset of 
 
 ## Phase 1 - Feature selection based on literature and common sense
 
-The initial set of features chosen based on past literature and common sense is outlined in the table below: 
+The initial set of features chosen based on past literature and common sense is outlined in the table below. (Dominic et. Al, 1996), (David, Krueger, 1996) 
 
 $$
 \begin{tabular} {r|l|l|l} 
@@ -495,7 +495,7 @@ be conflicting levels of informativeness.
 
 Before fitting the models in Stan, we split our data set of 793 observations into a training set of 763 observations and a test set of 30 observations. The test set is used in assessing the predictive ability of our models in Section 9.
 
-```{r, include=FALSE}
+```{r, echo=FALSE, results = "hide", warning=FALSE}
 
 data.joined.model <- data.joined.dropna %>%
   mutate(URBAN = case_when(LOCALE %in% c(seq(11,13), seq(21,23)) ~ 1,
@@ -534,7 +534,7 @@ We used cmdstanr for our models. Source code for all three models can be found i
 
 Summary of model fit for main parameters:
 
-```{r, results = "hide", warning=FALSE}
+```{r, results = "hide", warning=FALSE, echo=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -580,7 +580,7 @@ separate.fit$summary()
 
 Summary of model fit for main parameters:
 
-```{r, results = "hide", warning=FALSE}
+```{r, results = "hide", warning=FALSE, echo=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -624,7 +624,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters:
 
-```{r, echo=FALSE, results = "hide", warning=FALSE}
+```{r, echo=FALSE, results = "hide", warning=FALSE, echo=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -1316,6 +1316,10 @@ Working with Stan is something none of us had done before this course. Stan is c
 Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
 Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
 
+Brewer, Dominic J., Eric R. Eide, and Ronald G. Ehrenberg. "Does it pay to attend an elite private college? Cross cohort evidence on the effects of college quality on earnings." (1996).
+
+Card, David, and Alan B. Krueger. "Does school quality matter? Returns to education and the characteristics of public schools in the United States." Journal of political Economy 100.1 (1992): 1-40.
+
 Data Commons. (2020). Gross domestic product per capita in United States of America [Graph]. 
 Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
 
@@ -1707,6 +1711,165 @@ generated quantities {
 
 }
 "
+
+```
+
+## Model fitting
+
+## Separate model fit
+
+Summary of model fit for main parameters:
+
+```{r, results = "hide", warning=FALSE, eval =FALSE}
+
+separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
+
+separate.model.data <- list(N = nrow(data.joined.stan),
+                            K = length(unique(data.joined.stan$REGION)),
+                            x = data.joined.stan$REGION,
+                            
+                            SAT_ALL = data.joined.stan$SAT_ALL,
+                            MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                            COSTT4_A = data.joined.stan$COSTT4_A,
+                            POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            URBAN = data.joined.stan$URBAN,
+                            PRIVATE = data.joined.stan$PRIVATE,
+                            y = data.joined.stan$MD_EARN_WNE_P10,
+                            
+                            pm_alpha = 0,
+                            ps_alpha = 10000,
+                            pm_SAT_ALL = 50,
+                            ps_SAT_ALL = 500,
+                            pm_MD_FAMINC = 0,
+                            ps_MD_FAMINC = 100,
+                            pm_COSTT4_A = 0,
+                            ps_COSTT4_A = 500,
+                            pm_POVERTY_RATE = 0,
+                            ps_POVERTY_RATE = 2500,
+                            pm_URBAN = 0,
+                            ps_URBAN = 2500,
+                            pm_PRIVATE = 0,
+                            ps_PRIVATE = 2500,
+                            pm_sigma = 10000,
+                            ps_sigma = 10000
+                            
+)
+
+
+separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
+
+separate.fit$summary()
+
+```
+
+## Pooled model fit
+
+Summary of model fit for main parameters:
+
+```{r, results = "hide", warning=FALSE, eval =FALSE}
+
+pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
+
+pooled.model.data <- list(N = nrow(data.joined.stan),
+                          
+                          SAT_ALL = data.joined.stan$SAT_ALL,
+                          MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                          COSTT4_A = data.joined.stan$COSTT4_A,
+                          POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          URBAN = data.joined.stan$URBAN,
+                          PRIVATE = data.joined.stan$PRIVATE,
+                          y = data.joined.stan$MD_EARN_WNE_P10,
+                          
+                          pm_alpha = 0,
+                          ps_alpha = 10000,
+                          pm_SAT_ALL = 50,
+                          ps_SAT_ALL = 500,
+                          pm_MD_FAMINC = 0,
+                          ps_MD_FAMINC = 100,
+                          pm_COSTT4_A = 0,
+                          ps_COSTT4_A = 500,
+                          pm_POVERTY_RATE = 0,
+                          ps_POVERTY_RATE = 2500,
+                          pm_URBAN = 0,
+                          ps_URBAN = 2500,
+                          pm_PRIVATE = 0,
+                          ps_PRIVATE = 2500,
+                          pm_sigma = 10000,
+                          ps_sigma = 10000
+                          
+                          )
+
+
+pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
+
+pooled.fit$summary()
+
+```
+
+## Hierarchical model fit
+
+Summary of model fit for main parameters:
+
+```{r, echo=FALSE, results = "hide", warning=FALSE, , eval =FALSE}
+
+hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
+
+hierarchical.model.data <- list(N = nrow(data.joined.stan),
+                                K = length(unique(data.joined.stan$REGION)),
+                                x = data.joined.stan$REGION,
+                            
+                                SAT_ALL = data.joined.stan$SAT_ALL,
+                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
+                                COSTT4_A = data.joined.stan$COSTT4_A,
+                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                URBAN = data.joined.stan$URBAN,
+                                PRIVATE = data.joined.stan$PRIVATE,
+                                y = data.joined.stan$MD_EARN_WNE_P10,
+                                
+                                pm_alpha = 0,
+                                ps_alpha = 10000,
+                                pm_s_alpha = 100,
+                                ps_s_alpha = 100,
+                                
+                                pm_SAT_ALL = 43,
+                                ps_SAT_ALL = 500,
+                                pm_s_SAT_ALL = 100,
+                                ps_s_SAT_ALL = 100,
+                                
+                                pm_MD_FAMINC = 0,
+                                ps_MD_FAMINC = 100,
+                                pm_s_MD_FAMINC = 10,
+                                ps_s_MD_FAMINC = 100,
+                                
+                                pm_COSTT4_A = 0,
+                                ps_COSTT4_A = 500,
+                                pm_s_COSTT4_A = 50,
+                                ps_s_COSTT4_A = 500,
+                                
+                                pm_POVERTY_RATE = 0,
+                                ps_POVERTY_RATE = 2500,
+                                pm_s_POVERTY_RATE = 500,
+                                ps_s_POVERTY_RATE = 500,
+                                
+                                pm_URBAN = 0,
+                                ps_URBAN = 2500,
+                                pm_s_URBAN = 500,
+                                ps_s_URBAN = 500,
+                                
+                                pm_PRIVATE = 0,
+                                ps_PRIVATE = 2500,
+                                pm_s_PRIVATE = 500,
+                                ps_s_PRIVATE = 500,
+                                
+                                pm_sigma = 10000,
+                                ps_sigma = 10000,
+                                pm_s_sigma = 500,
+                                ps_s_sigma = 500)
+
+hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
+                                              seed = 1234, refresh = 1e3)
+
+hierarchical.fit$summary()
 
 ```
 
