@@ -1002,7 +1002,7 @@ y.hat <- y.hat %>%
 
 Plot of squared errors:
 
-```{r, eval=FALSE}
+```{r}
 
 se %>% plot(type="b", pch=20)
 
@@ -1010,7 +1010,7 @@ se %>% plot(type="b", pch=20)
 
 RMSE:
 
-```{r, eval=FALSE}
+```{r}
 rmse <- sqrt(mean(se))
 rmse
 
@@ -1020,18 +1020,14 @@ rmse
 
 To test whether our results are sensitive to prior choices, and to see how changing the priors affects our results, we ran all the models with both wider and narrower priors. The wide priors were obtained by multiplying each standard deviation by three, and the narrow priors were obtained by dividing the original priors by two.
 
-For the separate model...
+For the pooled model, when scaling sigma values with 3, there were only minor changes in beta values. Also, when scaling sigma values with 0.5 the results stayed about the same except for beta_PRIVATE whose mean increased from around -7000 to around -5000. Based on these results it seems that pooled model is not that sensitive for prior changes that are this magnitude. 
 
-
-For the pooled model, when scaling sigma values with 3, there were only minor changes in the beta values. When scaling sigma values with 0.5 the results stayed also about the same, except for beta_PRIVATE whose mean increased from around -7000 to around -5000. Based on these results, it seems that pooled model is not that sensitive for prior changes of this magnitude. 
-
-For the hierarchical model, when scaling sigma values with3, there were bigger differences compared to the pooled model. As an example alpha mean values for decreased in some regions a lot, and at the extreme over 3 times the original value. When scaling sigma values with 0.5, the narrower distribution brought the values closer to the mean values. Although some beta mean and standard deviation values for some regions stayed approximately the same, the change in the priors was clear. For that reason, the hierarchical model is sensitive for prior changes of this magnitude, and more sensitive compared to the pooled model.
-
-In conclusion, the separate and the hierarchical models had a lot of sensitivity for changes in priors compared to the pooled model. The robustness of the pooled model could be explained by the fact that regions are considered in this model as one entity and there are more samples for this one entity compared to separate regions.
+In conclusion, separate and hierarchical models are more sensitive for changes in priors compared to pooled model. This robustness could be explained by the fact that in pooled model the regions are considered as one and for that reason, there are more observations for that one entity compared to individual regions.
 
 As the codes of the sensitivity analysis are long, they are included in the appendix.
 
-## Separate model
+
+## Separate model sensitivity analysis
 
 Summary of model fit for main parameters with wide priors:
 
@@ -1078,11 +1074,6 @@ separate.fit$summary()
 
 ```
 
-```{r, echo=FALSE,results = "hide", eval=FALSE}
-
-separate.fit$summary()
-
-```
 
 Summary of model fit for main parameters with narrow priors:
 
