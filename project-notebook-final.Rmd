@@ -465,9 +465,7 @@ high.
 
 # 5. Stan Code
 
-The full length Stan codes are given in the appendix.
-
-**TÄHÄN JOTAIN TRAIN TEST SPLITISTÄ?**
+Before fitting the models in Stan, we split our data set of 793 observations into a training set of 763 observations and a test set of 30 observations. The test set is used in assessing the predictive ability of our models in Section 9.
 
 ```{r, include=FALSE}
 
@@ -969,11 +967,7 @@ plot(hierarchical.fit$loo(), main = "Hierarchical model PSIS diagnostics")
 
 ## Root Mean Squared Error (RMSE)
 
-We use RMSE for assessing the predictive ability of our model. The assessment was conducted as follows. First we split the complete data set of 793 observations into a training set of 763 observations and a test set of 30 observations. Second we fit the models to the training set. Then we use the median of the posterior distribution for each parameter in our model to predict the dependent variable based on the values of the independent variables in the test set. Lastly, after obtaining the predicted values, we calculate the RMSE with respect to the actual observed values of the dependent variable in the test set.
-
-### Pooled model
-
-```{r}
+```{r, echo=FALSE}
 
 pooled.fit.coeff.df <- pooled.fit$summary() %>% slice(2:8)
 
@@ -995,26 +989,28 @@ for (i in 1:N) {
   
 }
 
-y.hat <- y.hat %>% 
-  as.matrix()
-
-```
-
-Plot of squared errors:
-
-```{r}
-
-se %>% plot(type="b", pch=20)
-
-```
-
-RMSE:
-
-```{r}
 rmse <- sqrt(mean(se))
-rmse
 
 ```
+
+We use RMSE for assessing the predictive ability of our model. The assessment was conducted as follows: we used the median of the posterior distribution for each parameter in our model fitted with the training set to predict the dependent variable based on the values of the independent variables in the test set. Lastly, after obtaining the predicted values, we calculated the RMSE with respect to the actual observed values of the dependent variable in the test set. The complete test set and the RMSE generating code can be found in the Appendix.
+
+Due to limited space, we assess only the pooled model. The pooled model is the simplest model and provides a straightforward way to get a general feel of the predictive ability of our linear model.
+
+### Pooled model
+
+The plot below shows the computed squared prediction errors for all 30 observations in the test set.
+
+```{r, fig.width=10}
+
+barplot(se, names.arg = seq(30), cex.names = .75, 
+        main = "Squared prediction errors by observation index", 
+        xlab = "Observation index", 
+        ylab = "Squared prediction error")
+
+```
+
+The resulting RMSE is 12805.23, which means that on average, our prediction for the median earnings 10 years post entry of the alumni from 30 universities in the test set was off by \$12.8k. To get some feel for how good the accuracy is, we can look at the standard deviation of the dependent variable in the training set, which is \$11.5k. This means that we were on average about one standard deviation off in our predictions. We consider this accuracy satisfactory. After all, our model is quite simple and there are several other variables, which affect earnings and which we were unable to include in the model.  
 
 # 10. Prior Sensitivity Analysis
 
@@ -1025,7 +1021,6 @@ For the pooled model, when scaling sigma values with 3, there were only minor ch
 In conclusion, separate and hierarchical models are more sensitive for changes in priors compared to pooled model. This robustness could be explained by the fact that in pooled model the regions are considered as one and for that reason, there are more observations for that one entity compared to individual regions.
 
 As the codes of the sensitivity analysis are long, they are included in the appendix.
-
 
 ## Separate model sensitivity analysis
 
@@ -1356,7 +1351,7 @@ It was a shame we couldn't use a larger testing dataset because all data used fo
 As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
 In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income were very low and they would have been dropped from our model no matter what.
 
-**VOISI EHKÄ MAINITA JOTAIN PREDICTIVE ASSESSMENTISTA, ESIM. KAIKILLE MALLEILLE JONKUNLAINEN ASSESSMENT TAI MONIPUOLISEMPI**
+Another clear improvement would be to do more extensive predictive assessment of the models. We only assessed the pooled model, so both the separate model and hierarchical model could be assessed if we had more time and space. Furthermore, we only computed a simple RMSE metric. Perhaps it would be interesting to look at the probabilistic certainty of the predictions by plotting confidence regions, for example. The test set could also have been a bit bigger, as it is under 5% of the total number of available observations.
 
 
 # 12. Conclusions
@@ -1778,7 +1773,7 @@ hierarchical.fit$cmdstan_diagnose()
 
 ``` 
 
-# K hat
+## K hat
 
 ```{r}
 
@@ -1789,3 +1784,40 @@ pareto_k_table(pooled.fit$loo())
 pareto_k_table(hierarchical.fit$loo())
 
 ``` 
+
+## RMSE
+
+```{r, eval=FALSE}
+
+pooled.fit.coeff.df <- pooled.fit$summary() %>% slice(2:8)
+
+alpha.hat <- pooled.fit.coeff.df %>% head(1) %>% select(median)
+beta.hat <- pooled.fit.coeff.df %>% tail(-1) %>% select(median) %>% as.matrix()
+
+test.X <- data.joined.stan.test %>% 
+  select(SAT_ALL, MD_FAMINC, AGE_ENTRY, COSTT4_A, POVERTY_RATE, PRIVATE) %>% 
+  as.matrix()
+
+N <- nrow(data.joined.stan.test)
+y.hat <- numeric(N)
+y <- data.joined.stan.test$MD_EARN_WNE_P10
+se <- numeric(N)
+for (i in 1:N) {
+  
+  y.hat[i] <- alpha.hat+beta.hat%*%test.X[i,]
+  se[i] <- (y.hat[[i]]-y[i])^2
+  
+}
+
+rmse <- sqrt(mean(se))
+
+```
+
+## Test set
+
+```{r}
+
+data.joined.stan.test 
+  
+```
+
