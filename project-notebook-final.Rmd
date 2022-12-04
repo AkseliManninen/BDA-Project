@@ -1778,7 +1778,7 @@ hierarchical.fit$summary()
 
 ```
 
-### Separate model Rhat
+## Separate model Rhat
 
 ```{r, eval = FALSE}
 
@@ -1802,7 +1802,7 @@ rhat.df
 ``` 
 
 
-### Pooled model Rhat
+## Pooled model Rhat
 
 ```{r, eval = FALSE}
 
@@ -1822,7 +1822,7 @@ rhat.df
 ```
 
 
-### Hierarchical model Rhat
+## Hierarchical model Rhat
 
 ```{r, eval = FALSE}
 
