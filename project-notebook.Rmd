@@ -332,7 +332,7 @@ Based on the figure, CONTROL was modified into a dummy variable PRIVATE, which t
 
 In the third and final phase, all remaining variables were used with stepwise regression to test which subset of features perform the best, whether the received coefficients are reasonable, and if there are signs of overfitting.
 
-The stepwise regression suggested using all of the variables, except DOCTORAL. The output of the stepwise regression can be found in the Appendix. Because stepwise regression suggested leaving out DOCTORAL, for the sake of consistency we decided to also leave out MASTER as it was a the middle level in our institutional classifications and wouldn't have made much sense on its own. The stewpise regression was run again after removing MASTER and DOCTORAL and all the rest variables were suggested.
+The stepwise regression suggested using all of the variables, except AGE ENTRY and DOCTORAL. The output of the stepwise regression can be found in the Appendix. Because stepwise regression suggested leaving out DOCTORAL, for the sake of consistency we decided to also leave out MASTER as it was a the middle level in our institutional classifications and wouldn't have made much sense on its own. To test whether AGE ENTRY would be included by stepwise after removing MASTER and DOCTORAL, stepwise was ran again. Even then, AGE ENTRY was discarded from the model and the other variables remained the same.
 
 The final features are listed in the table below:
 
@@ -343,11 +343,10 @@ $$
 \hline
 1 & SAT\_ALL & float & Midpoint of SAT scores at the institution (critical reading ,math) \\
 2 & MD\_FAMINC & float & Median family income \\
-3 & AGE\_ENTRY & float & Average age of entry \\
-4 & COSTT4\_A & float & Average cost of attendance (academic year institutions) \\
-5 & POVERTY\_RATE & float & Poverty rate \\
-6 & URBAN & binary & Urban or rural area \\
-7 & PRIVATE & binary & Private or public school \\
+3 & COSTT4\_A & float & Average cost of attendance (academic year institutions) \\
+4 & POVERTY\_RATE & float & Poverty rate \\
+5 & URBAN & binary & Urban or rural area \\
+6 & PRIVATE & binary & Private or public school \\
 \end{tabular}
 $$
 MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
@@ -520,7 +519,7 @@ We used cmdstanr for our models. Source code for all three models can be found i
 
 Summary of model fit for main parameters:
 
-```{r, include=FALSE, results = "hide", eval=FALSE}
+```{r, include=FALSE, results = "hide", warning=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -566,7 +565,7 @@ separate.fit
 
 Summary of model fit for main parameters:
 
-```{r, include=FALSE, eval=FALSE}
+```{r, include=FALSE, results = "hide", warning=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -610,7 +609,7 @@ pooled.fit
 
 Summary of model fit for main parameters:
 
-```{r, echo=FALSE, results = "hide", eval = FALSE}
+```{r, echo=FALSE, results = "hide", warning=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -695,13 +694,12 @@ with our multivariate model and chose the less strict threshold of 1.05.
 
 ### Separate model
 
-```{r, echo=FALSE, results='hide', eval = FALSE}
+```{r}
 
 rhat.df <- tibble()
 
-params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
-            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
-            "beta_MASTER[1]", "beta_PRIVATE[1]")
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", "beta_COSTT4_A[1]", 
+            "beta_POVERTY_RATE[1]", "beta_URBAN[1]", "beta_PRIVATE[1]")
 
 for (param in params) {
   rhats <- extract_variable_matrix(separate.fit$draws(), variable = param) %>% apply(2, rhat)
@@ -720,7 +718,7 @@ rhat.df
 
 ### Pooled model
 
-```{r, eval=FALSE}
+```{r}
 
 params <- pooled.model$variables()$parameters %>% names()
 rhat.df <- tibble()
@@ -740,13 +738,12 @@ rhat.df
 
 ### Hierarchical model
 
-```{r, eval = FALSE}
+```{r}
 
 rhat.df <- tibble()
 
-params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
-            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
-            "beta_MASTER[1]", "beta_PRIVATE[1]")
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", "beta_COSTT4_A[1]", 
+            "beta_POVERTY_RATE[1]", "beta_URBAN[1]", "beta_PRIVATE[1]")
 
 for (param in params) {
   rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
@@ -768,7 +765,7 @@ Effective sample size (ESS) evaluates the uncertainty in estimates that is cause
 by autocorrelation of the chains. The value of effective sample size represents 
 the number of independent samples that poses the same predictive power as all 
 the autocorrelated samples. In other words, if the number of effective sample 
-size is high, then the number of independent samples is high.
+size is high, then the number of independent samples is high. (Stan Reference Manual, n.d).
 
 As can be seen on the tables below, for the separate model the values for 
 the first region are range from 54 to 96. In this region, there are the sample
@@ -785,19 +782,15 @@ For the hierarchical model the ESS values for parameters are between 266 and
 samples than independent ones. The analysis for the highest values is the
 same as for pooled.
 
-Source:
-https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
-
 ### Separate Model
 
-```{r, eval = FALSE}
+```{r}
 
 params <- separate.model$variables()$parameters %>% names()
 ess.df <- tibble()
 
-params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
-            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
-            "beta_MASTER[1]", "beta_PRIVATE[1]")
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", "beta_COSTT4_A[1]", 
+            "beta_POVERTY_RATE[1]", "beta_URBAN[1]", "beta_PRIVATE[1]")
 
 for (param in params) {
   ess <- extract_variable_matrix(separate.fit$draws(), variable = param) %>% apply(2, ess_basic)
@@ -815,7 +808,7 @@ ess.df
 
 ## Pooled Model
 
-```{r, eval = FALSE}
+```{r}
 
 params <- pooled.model$variables()$parameters %>% names()
 ess.df <- tibble()
@@ -834,14 +827,13 @@ ess.df
 
 ## Hierarchical Model
 
-```{r, eval = FALSE}
+```{r}
 
 params <- hierarchical.model$variables()$parameters %>% names()
 ess.df <- tibble()
 
-params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", 
-            "beta_AGE_ENTRY[1]", "beta_COSTT4_A[1]", "beta_POVERTY_RATE[1]", 
-            "beta_MASTER[1]", "beta_PRIVATE[1]")
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", "beta_COSTT4_A[1]", 
+            "beta_POVERTY_RATE[1]", "beta_URBAN[1]", "beta_PRIVATE[1]")
 
 for (param in params) {
   ess <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, ess_basic)
@@ -869,13 +861,13 @@ size and split R-hat satisfactory.
 For the pooled model, treedepth, divergences, E-BFMI, effective sample size and 
 split R-hat were satifactory.
 
-For the hierarchical model, onyl 4 out of 4000 hit the maximum treedepth and
+For the hierarchical model, only 4 out of 4000 hit the maximum treedepth and
 23 out of 4000 transitions did not converge. Due to relatively low numbers
 (0.1% and 0.57%) no actions were taken for the hierarchical model. The rest 
 of the diagnostics were satisfactory.
 
 
-```{r, eval = FALSE}
+```{r}
 
 separate.fit$cmdstan_diagnose()
 
@@ -895,7 +887,7 @@ predictive checking is a form of internal validation that is a helpful phase of 
 in assessing whether our fitted model makes sense.
 
 
-```{r, eval = FALSE}
+```{r}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
 
@@ -932,24 +924,21 @@ ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 
 ```
 
-## LOO
 
-The ELPD is the theoretical expected log pointwise predictive density for a new dataset (Eq 1 in VGG2017), which can be estimated, e.g., using cross-validation. elpd_loo is the Bayesian LOO estimate of the expected log pointwise predictive density (Eq 4 in VGG2017) and is a sum of N individual pointwise log predictive densities. Probability densities can be smaller or larger than 1, and thus log predictive densities can be negative or positive. For simplicity the ELPD acronym is used also for expected log pointwise predictive probabilities for discrete models. Probabilities are always equal or less than 1, and thus log predictive probabilities are 0 or negative.
-
-
+ 
 ## LOO (Model comparison)
 
-**Yläpuolella kopsattu, kirjoita uusiks. Lähde alla**
+LOO elpd_loo is an estimate of the expected log pointwise pridictive dentisty (ELPD).
+elpd_loo sums individual pointwise log predictive densities (Stan Reference Manual, n.d).
 
-Lähde: https://mc-stan.org/loo/reference/loo-glossary.html
+Based on elpd_loo the model with the highest value should be selected (highest
+ELPD). From the tables below we can observe that separate model has the highest
+elpd_loo value, hierarchical model the second highest value, and the pooled the
+lowest value. For that reason, separate model is suggested by elpd_loo although
+the value of hierachical model comes quite close.
 
-With $elpd_{loo-cv}$ we should select the model with the highest value. From
-the tables below we can see that in this case the suggested model would be
-separate model, the second best hierarchical model and the third best pooled
-model.
 
-
-```{r, eval = FALSE, warning = FALSE}
+```{r, warning = FALSE}
 
 separate.loo <- separate.fit$loo()
 
@@ -963,7 +952,7 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
 ## K hat
 
-```{r, eval = FALSE}
+```{r}
 
 pareto_k_table(separate.fit$loo())
 
@@ -973,7 +962,7 @@ pareto_k_table(hierarchical.fit$loo())
 
 ``` 
 
-```{r, eval = FALSE, warning=FALSE}
+```{r, warning=FALSE}
 
 plot(separate.fit$loo(), main = "Separate model PSIS diagnostics")
   
@@ -995,7 +984,7 @@ We use RMSE for assessing the predictive ability of our model. The assessment wa
 
 ### Pooled model
 
-```{r, eval=FALSE}
+```{r}
 
 pooled.fit.coeff.df <- pooled.fit$summary() %>% slice(2:8)
 
@@ -1394,6 +1383,12 @@ Gelman, Andrew, and Jennifer Hill. Data analysis using regression and multilevel
 
 Number2. (2020). Average SAT Score [Blog Post].
 Retrieved from: https://www.number2.com/average-sat-score/
+
+Stan. (n.d) LOO package glossary [Website].
+Retrieved from: ttps://mc-stan.org/loo/reference/loo-glossary.html
+
+Stan. (n.d) Effective Sample Size [Website].
+Retrieved from: https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
 
 # 15. Appendix
 
