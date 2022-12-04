@@ -470,7 +470,7 @@ categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 
 # data with REGION identifier for STAN
 data.joined.stan <- data.joined.model %>%
-  select(REGION, numerical.vars.model, categorical.vars.model)
+  select(REGION, all_of(numerical.vars.model), categorical.vars.model)
 
 data.joined.stan.test <- data.joined.stan %>% 
   sample_n(30)
@@ -490,7 +490,7 @@ We used cmdstanr for our models. Source code for all three models can be found i
 
 Summary of model fit for main parameters:
 
-```{r, results = "hide", warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -536,7 +536,7 @@ separate.fit$summary()
 
 Summary of model fit for main parameters:
 
-```{r, results = "hide", warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -580,7 +580,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters:
 
-```{r, echo=FALSE, results = "hide", warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -761,7 +761,7 @@ of the parameters.
 
 ### Separate Model ESS
 
-```{r}
+```{r, echo=FALSE}
 
 params <- separate.model$variables()$parameters %>% names()
 ess.df <- tibble()
@@ -785,7 +785,7 @@ ess.df
 
 ## Pooled Model ESS
 
-```{r}
+```{r, echo=FALSE}
 
 params <- pooled.model$variables()$parameters %>% names()
 ess.df <- tibble()
@@ -804,7 +804,7 @@ ess.df
 
 ## Hierarchical Model ESS
 
-```{r}
+```{r, echo=FALSE}
 
 params <- hierarchical.model$variables()$parameters %>% names()
 ess.df <- tibble()
@@ -860,7 +860,7 @@ somewhat more on right (higher estimates for earnings). There are also intervals
 where y is suddenly changing direction, which are not visible in y_rep values.
 
 
-```{r, out.width = "70%"}
+```{r, echo=FALSE, out.width = "70%"}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
 
@@ -910,7 +910,7 @@ lowest value. For that reason, separate model is suggested by elpd_loo although
 the value of hierachical model comes quite close.
 
 
-```{r, warning = FALSE}
+```{r, echo=FALSE, warning = FALSE}
 
 separate.loo <- separate.fit$loo()
 
@@ -938,7 +938,7 @@ that this model may be biased and the estimates might not be reliable.
 
 The more precise diagnostics for $\hat{k}$ are available in appendix.
 
-```{r, warning=FALSE, out.width = "70%"}
+```{r, echo=FALSE, warning=FALSE, out.width = "70%"}
 
 plot(separate.fit$loo(), main = "Separate model PSIS diagnostics")
   
@@ -986,7 +986,7 @@ Due to limited space, we assess only the pooled model. The pooled model is the s
 
 The plot below shows the computed squared prediction errors for all 30 observations in the test set.
 
-```{r, fig.width=10}
+```{r, echo=FALSE, fig.width=10}
 
 barplot(se, names.arg = seq(30), cex.names = .75, 
         main = "Squared prediction errors by observation index", 
