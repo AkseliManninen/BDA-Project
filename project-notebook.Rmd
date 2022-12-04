@@ -332,7 +332,7 @@ Based on the figure, CONTROL was modified into a dummy variable PRIVATE, which t
 
 In the third and final phase, all remaining variables were used with stepwise regression to test which subset of features perform the best, whether the received coefficients are reasonable, and if there are signs of overfitting.
 
-The stepwise regression suggested using all of the variables, except CITY and DOCTORAL. The output of the stepwise regression can be found in the Appendix. Because stepwise regression suggested leaving out DOCTORAL, for the sake of consistency we decided to also leave out MASTER as it was a the middle level in our institutional classifications and wouldn't have made much sense on its own.
+The stepwise regression suggested using all of the variables, except DOCTORAL. The output of the stepwise regression can be found in the Appendix. Because stepwise regression suggested leaving out DOCTORAL, for the sake of consistency we decided to also leave out MASTER as it was a the middle level in our institutional classifications and wouldn't have made much sense on its own. The stewpise regression was run again after removing MASTER and DOCTORAL and all the rest variables were suggested.
 
 The final features are listed in the table below:
 
@@ -346,9 +346,12 @@ $$
 3 & AGE\_ENTRY & float & Average age of entry \\
 4 & COSTT4\_A & float & Average cost of attendance (academic year institutions) \\
 5 & POVERTY\_RATE & float & Poverty rate \\
-6 & PRIVATE & binary & Carnegie Classification -- basic \\
+6 & URBAN & binary & Urban or rural area \\
+7 & PRIVATE & binary & Private or public school \\
 \end{tabular}
 $$
+MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
+    POVERTY_RATE + URBAN + PRIVATE + MASTER
 
 # 3. Model Descriptions
 
@@ -465,7 +468,7 @@ POVERTY_RATE ~ Normal(0, 2500)
 
 Justification: The possible values are between 0 and 100. There could be situations were poverty rate in an area is really low, for instance 0.5%. For that reason, the standard deviation in the prior is set high to enable possibly high weight for a small value.
 
-MASTER ~ Normal(0, 2500)
+URBAN ~ Normal(0, 2500)
 
 PRIVATE ~ Normal(0, 2500)
 
@@ -490,7 +493,6 @@ data.joined.model <- data.joined.dropna %>%
          MASTER = case_when(CCBASIC %in% seq(18,20) ~ 1,
                             TRUE ~ 0)
   )
-
 
 numerical.vars.model <- c("MD_EARN_WNE_P10", "SAT_ALL", "MD_FAMINC", "AGE_ENTRY", 
                           "COSTT4_A", "POVERTY_RATE")
@@ -528,9 +530,9 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             
                             SAT_ALL = data.joined.stan$SAT_ALL,
                             MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                             COSTT4_A = data.joined.stan$COSTT4_A,
                             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            URBAN = data.joined.stan$URBAN,
                             PRIVATE = data.joined.stan$PRIVATE,
                             y = data.joined.stan$MD_EARN_WNE_P10,
                             
@@ -540,12 +542,12 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             ps_SAT_ALL = 500,
                             pm_MD_FAMINC = 0,
                             ps_MD_FAMINC = 100,
-                            pm_AGE_ENTRY = 0,
-                            ps_AGE_ENTRY = 2500,
                             pm_COSTT4_A = 0,
                             ps_COSTT4_A = 500,
                             pm_POVERTY_RATE = 0,
                             ps_POVERTY_RATE = 2500,
+                            pm_URBAN = 0,
+                            ps_URBAN = 2500,
                             pm_PRIVATE = 0,
                             ps_PRIVATE = 2500,
                             pm_sigma = 10000,
@@ -564,7 +566,7 @@ separate.fit
 
 Summary of model fit for main parameters:
 
-```{r, include=FALSE, results = "hide", eval=FALSE}
+```{r, include=FALSE, eval=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -572,9 +574,9 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           
                           SAT_ALL = data.joined.stan$SAT_ALL,
                           MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                           COSTT4_A = data.joined.stan$COSTT4_A,
                           POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          URBAN = data.joined.stan$URBAN,
                           PRIVATE = data.joined.stan$PRIVATE,
                           y = data.joined.stan$MD_EARN_WNE_P10,
                           
@@ -584,12 +586,12 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           ps_SAT_ALL = 500,
                           pm_MD_FAMINC = 0,
                           ps_MD_FAMINC = 100,
-                          pm_AGE_ENTRY = 0,
-                          ps_AGE_ENTRY = 2500,
                           pm_COSTT4_A = 0,
                           ps_COSTT4_A = 500,
                           pm_POVERTY_RATE = 0,
                           ps_POVERTY_RATE = 2500,
+                          pm_URBAN = 0,
+                          ps_URBAN = 2500,
                           pm_PRIVATE = 0,
                           ps_PRIVATE = 2500,
                           pm_sigma = 10000,
@@ -618,9 +620,9 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                             
                                 SAT_ALL = data.joined.stan$SAT_ALL,
                                 MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                                 COSTT4_A = data.joined.stan$COSTT4_A,
                                 POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                URBAN = data.joined.stan$URBAN,
                                 PRIVATE = data.joined.stan$PRIVATE,
                                 y = data.joined.stan$MD_EARN_WNE_P10,
                                 
@@ -639,11 +641,6 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 pm_s_MD_FAMINC = 10,
                                 ps_s_MD_FAMINC = 100,
                                 
-                                pm_AGE_ENTRY = 0,
-                                ps_AGE_ENTRY = 2500,
-                                pm_s_AGE_ENTRY = 500,
-                                ps_s_AGE_ENTRY = 500,
-                                
                                 pm_COSTT4_A = 0,
                                 ps_COSTT4_A = 500,
                                 pm_s_COSTT4_A = 50,
@@ -653,6 +650,11 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 ps_POVERTY_RATE = 2500,
                                 pm_s_POVERTY_RATE = 500,
                                 ps_s_POVERTY_RATE = 500,
+                                
+                                pm_URBAN = 0,
+                                ps_URBAN = 2500,
+                                pm_s_URBAN = 500,
+                                ps_s_URBAN = 500,
                                 
                                 pm_PRIVATE = 0,
                                 ps_PRIVATE = 2500,
@@ -1055,9 +1057,9 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             
                             SAT_ALL = data.joined.stan$SAT_ALL,
                             MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                             COSTT4_A = data.joined.stan$COSTT4_A,
                             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            URBAN = data.joined.stan$URBAN,
                             PRIVATE = data.joined.stan$PRIVATE,
                             y = data.joined.stan$MD_EARN_WNE_P10,
                             
@@ -1067,12 +1069,12 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             ps_SAT_ALL = 500 * scale_param,
                             pm_MD_FAMINC = 0,
                             ps_MD_FAMINC = 100 * scale_param,
-                            pm_AGE_ENTRY = 0,
-                            ps_AGE_ENTRY = 2500 * scale_param,
                             pm_COSTT4_A = 0,
                             ps_COSTT4_A = 500 * scale_param,
                             pm_POVERTY_RATE = 0,
                             ps_POVERTY_RATE = 2500 * scale_param,
+                            pm_URBAN = 0,
+                            ps_URBAN = 2500 * scale_param,
                             pm_PRIVATE = 0,
                             ps_PRIVATE = 2500 * scale_param,
                             pm_sigma = 10000 * scale_param,
@@ -1100,9 +1102,9 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             
                             SAT_ALL = data.joined.stan$SAT_ALL,
                             MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                            AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                             COSTT4_A = data.joined.stan$COSTT4_A,
                             POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                            URBAN = data.joined.stan$URBAN,
                             PRIVATE = data.joined.stan$PRIVATE,
                             y = data.joined.stan$MD_EARN_WNE_P10,
                             
@@ -1112,12 +1114,12 @@ separate.model.data <- list(N = nrow(data.joined.stan),
                             ps_SAT_ALL = 500 * scale_param,
                             pm_MD_FAMINC = 0,
                             ps_MD_FAMINC = 100 * scale_param,
-                            pm_AGE_ENTRY = 0,
-                            ps_AGE_ENTRY = 2500 * scale_param,
                             pm_COSTT4_A = 0,
                             ps_COSTT4_A = 500 * scale_param,
                             pm_POVERTY_RATE = 0,
                             ps_POVERTY_RATE = 2500 * scale_param,
+                            pm_URBAN = 0,
+                            ps_URBAN = 2500 * scale_param,
                             pm_PRIVATE = 0,
                             ps_PRIVATE = 2500 * scale_param,
                             pm_sigma = 10000 * scale_param,
@@ -1145,9 +1147,9 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           
                           SAT_ALL = data.joined.stan$SAT_ALL,
                           MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                           COSTT4_A = data.joined.stan$COSTT4_A,
                           POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          URBAN = data.joined.stan$URBAN,
                           PRIVATE = data.joined.stan$PRIVATE,
                           y = data.joined.stan$MD_EARN_WNE_P10,
                           
@@ -1157,12 +1159,12 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           ps_SAT_ALL = 500 * scale_param,
                           pm_MD_FAMINC = 0,
                           ps_MD_FAMINC = 100 * scale_param,
-                          pm_AGE_ENTRY = 0,
-                          ps_AGE_ENTRY = 2500 * scale_param,
                           pm_COSTT4_A = 0,
                           ps_COSTT4_A = 500 * scale_param,
                           pm_POVERTY_RATE = 0,
                           ps_POVERTY_RATE = 2500 * scale_param,
+                          pm_URBAN = 0,
+                          ps_URBAN = 2500,
                           pm_PRIVATE = 0,
                           ps_PRIVATE = 2500 * scale_param,
                           pm_sigma = 10000 * scale_param,
@@ -1188,9 +1190,9 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           
                           SAT_ALL = data.joined.stan$SAT_ALL,
                           MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                          AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                           COSTT4_A = data.joined.stan$COSTT4_A,
                           POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                          URBAN = data.joined.stan$URBAN,
                           PRIVATE = data.joined.stan$PRIVATE,
                           y = data.joined.stan$MD_EARN_WNE_P10,
                           
@@ -1200,12 +1202,12 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
                           ps_SAT_ALL = 500 * scale_param,
                           pm_MD_FAMINC = 0,
                           ps_MD_FAMINC = 100 * scale_param,
-                          pm_AGE_ENTRY = 0,
-                          ps_AGE_ENTRY = 2500 * scale_param,
                           pm_COSTT4_A = 0,
                           ps_COSTT4_A = 500 * scale_param,
                           pm_POVERTY_RATE = 0,
                           ps_POVERTY_RATE = 2500 * scale_param,
+                          pm_URBAN = 0,
+                          ps_URBAN = 2500,
                           pm_PRIVATE = 0,
                           ps_PRIVATE = 2500 * scale_param,
                           pm_sigma = 10000 * scale_param,
@@ -1236,31 +1238,26 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                             
                                 SAT_ALL = data.joined.stan$SAT_ALL,
                                 MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                                 COSTT4_A = data.joined.stan$COSTT4_A,
                                 POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                URBAN = data.joined.stan$URBAN,
                                 PRIVATE = data.joined.stan$PRIVATE,
                                 y = data.joined.stan$MD_EARN_WNE_P10,
                                 
                                 pm_alpha = 0,
-                                ps_alpha = 10000  * scale_param,
+                                ps_alpha = 10000 * scale_param,
                                 pm_s_alpha = 100,
-                                ps_s_alpha = 100  * scale_param,
+                                ps_s_alpha = 100 * scale_param,
                                 
                                 pm_SAT_ALL = 43,
-                                ps_SAT_ALL = 500  * scale_param,
+                                ps_SAT_ALL = 500 * scale_param,
                                 pm_s_SAT_ALL = 100,
-                                ps_s_SAT_ALL = 100  * scale_param,
+                                ps_s_SAT_ALL = 100 * scale_param,
                                 
                                 pm_MD_FAMINC = 0,
                                 ps_MD_FAMINC = 100 * scale_param,
                                 pm_s_MD_FAMINC = 10,
                                 ps_s_MD_FAMINC = 100 * scale_param,
-                                
-                                pm_AGE_ENTRY = 0,
-                                ps_AGE_ENTRY = 2500 * scale_param,
-                                pm_s_AGE_ENTRY = 500,
-                                ps_s_AGE_ENTRY = 500 * scale_param,
                                 
                                 pm_COSTT4_A = 0,
                                 ps_COSTT4_A = 500 * scale_param,
@@ -1272,6 +1269,11 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 pm_s_POVERTY_RATE = 500,
                                 ps_s_POVERTY_RATE = 500 * scale_param,
                                 
+                                pm_URBAN = 0,
+                                ps_URBAN = 2500 * scale_param,
+                                pm_s_URBAN = 500,
+                                ps_s_URBAN = 500 * scale_param,
+                                
                                 pm_PRIVATE = 0,
                                 ps_PRIVATE = 2500 * scale_param,
                                 pm_s_PRIVATE = 500,
@@ -1280,7 +1282,7 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 pm_sigma = 10000,
                                 ps_sigma = 10000 * scale_param,
                                 pm_s_sigma = 500,
-                                ps_s_sigma = 500) * scale_param
+                                ps_s_sigma = 500 * scale_param)
 
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
@@ -1304,31 +1306,26 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                             
                                 SAT_ALL = data.joined.stan$SAT_ALL,
                                 MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                                AGE_ENTRY = data.joined.stan$AGE_ENTRY,
                                 COSTT4_A = data.joined.stan$COSTT4_A,
                                 POVERTY_RATE = data.joined.stan$POVERTY_RATE,
+                                URBAN = data.joined.stan$URBAN,
                                 PRIVATE = data.joined.stan$PRIVATE,
                                 y = data.joined.stan$MD_EARN_WNE_P10,
                                 
                                 pm_alpha = 0,
-                                ps_alpha = 10000  * scale_param,
+                                ps_alpha = 10000 * scale_param,
                                 pm_s_alpha = 100,
-                                ps_s_alpha = 100  * scale_param,
+                                ps_s_alpha = 100 * scale_param,
                                 
                                 pm_SAT_ALL = 43,
-                                ps_SAT_ALL = 500  * scale_param,
+                                ps_SAT_ALL = 500 * scale_param,
                                 pm_s_SAT_ALL = 100,
-                                ps_s_SAT_ALL = 100  * scale_param,
+                                ps_s_SAT_ALL = 100 * scale_param,
                                 
                                 pm_MD_FAMINC = 0,
                                 ps_MD_FAMINC = 100 * scale_param,
                                 pm_s_MD_FAMINC = 10,
                                 ps_s_MD_FAMINC = 100 * scale_param,
-                                
-                                pm_AGE_ENTRY = 0,
-                                ps_AGE_ENTRY = 2500 * scale_param,
-                                pm_s_AGE_ENTRY = 500,
-                                ps_s_AGE_ENTRY = 500 * scale_param,
                                 
                                 pm_COSTT4_A = 0,
                                 ps_COSTT4_A = 500 * scale_param,
@@ -1340,6 +1337,11 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 pm_s_POVERTY_RATE = 500,
                                 ps_s_POVERTY_RATE = 500 * scale_param,
                                 
+                                pm_URBAN = 0,
+                                ps_URBAN = 2500 * scale_param,
+                                pm_s_URBAN = 500,
+                                ps_s_URBAN = 500 * scale_param,
+                                
                                 pm_PRIVATE = 0,
                                 ps_PRIVATE = 2500 * scale_param,
                                 pm_s_PRIVATE = 500,
@@ -1348,7 +1350,7 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 pm_sigma = 10000,
                                 ps_sigma = 10000 * scale_param,
                                 pm_s_sigma = 500,
-                                ps_s_sigma = 500) * scale_param
+                                ps_s_sigma = 500 * scale_param)
 
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
@@ -1405,4 +1407,14 @@ model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
 # step wise regression implied "best" model in terms of AIC
 step(model, direction = "backward")
 
+# step wise second iteration without MASTER and DOCTORAL
+
+data.stepwise <- select(data.joined.model, -c(MASTER, DOCTORAL))
+
+model <- lm(MD_EARN_WNE_P10 ~ ., data = data.stepwise)
+
+# step wise regression implied "best" model in terms of AIC
+step(model, direction = "backward")
+
 ```
+

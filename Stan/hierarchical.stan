@@ -7,9 +7,9 @@ data {
   // data vectors
   vector[N] SAT_ALL; // SAT score
   vector[N] MD_FAMINIC; // medain family income
-  vector[N] AGE_ENTRY; // average age of entry
   vector[N] COSTT4_A; // average cost of education
   vector[N] POVERTY_RATE; // poverty rate in school area
+  vector[N] URBAN; // urban dummy
   vector[N] PRIVATE; // private innstitution dummy
   vector[N] y; // median earnings
 
@@ -29,11 +29,6 @@ data {
   real pm_s_MD_FAMINC;
   real ps_s_MD_FAMINC;
 
-  real pm_AGE_ENTRY;
-  real ps_AGE_ENTRY;
-  real pm_s_AGE_ENTRY;
-  real ps_s_AGE_ENTRY;
-
   real pm_COSTT4_A;
   real ps_COSTT4_A;
   real pm_s_COSTT4_A;
@@ -43,6 +38,11 @@ data {
   real ps_POVERTY_RATE;
   real pm_s_POVERTY_RATE;
   real ps_s_POVERTY_RATE;
+  
+  real pm_URBAN;
+  real ps_URBAN;
+  real pm_s_URBAN;
+  real ps_s_URBAN;
 
   real pm_PRIVATE;
   real ps_PRIVATE;
@@ -61,9 +61,9 @@ parameters {
   vector[K] alpha;
   vector[K] beta_SAT_ALL;
   vector[K] beta_MD_FAMINIC;
-  vector[K] beta_AGE_ENTRY;
   vector[K] beta_COSTT4_A;
   vector[K] beta_POVERTY_RATE;
+  vector[K] beta_URBAN;
   vector[K] beta_PRIVATE;
   real<lower=0> sigma; // common standard deviation
 
@@ -76,14 +76,14 @@ parameters {
   real mu_MD_FAMINIC;
   real<lower=0> sigma_MD_FAMINIC;
 
-  real mu_AGE_ENTRY;
-  real<lower=0> sigma_AGE_ENTRY;
-
   real mu_COSTT4_A;
   real<lower=0> sigma_COSTT4_A;
 
   real mu_POVERTY_RATE;
   real<lower=0> sigma_POVERTY_RATE;
+  
+  real mu_URBAN;
+  real<lower=0> sigma_URBAN;
 
   real mu_PRIVATE;
   real<lower=0> sigma_PRIVATE;
@@ -107,10 +107,6 @@ model {
   sigma_MD_FAMINIC ~ normal(ps_MD_FAMINC, ps_s_MD_FAMINC);
   beta_MD_FAMINIC ~ normal(mu_MD_FAMINIC, sigma_MD_FAMINIC);
 
-  mu_AGE_ENTRY ~  normal(pm_AGE_ENTRY, pm_s_AGE_ENTRY);
-  sigma_AGE_ENTRY ~ normal(ps_AGE_ENTRY, ps_s_AGE_ENTRY);
-  beta_AGE_ENTRY ~ normal(mu_AGE_ENTRY, sigma_AGE_ENTRY);
-
   mu_COSTT4_A ~  normal(pm_COSTT4_A, pm_s_COSTT4_A);
   sigma_COSTT4_A ~ normal(ps_COSTT4_A, ps_s_COSTT4_A);
   beta_COSTT4_A ~  normal(mu_COSTT4_A, sigma_COSTT4_A);
@@ -118,6 +114,10 @@ model {
   mu_POVERTY_RATE ~  normal(pm_POVERTY_RATE, pm_s_POVERTY_RATE);
   sigma_POVERTY_RATE ~ normal(ps_POVERTY_RATE, ps_s_POVERTY_RATE);
   beta_POVERTY_RATE ~ normal(mu_POVERTY_RATE, sigma_POVERTY_RATE);
+  
+  mu_URBAN ~  normal(pm_URBAN, pm_s_URBAN);
+  sigma_URBAN ~ normal(ps_URBAN, ps_s_URBAN);
+  beta_URBAN ~ normal(mu_URBAN, sigma_URBAN);
 
   mu_PRIVATE ~  normal(pm_PRIVATE, pm_s_PRIVATE);
   sigma_PRIVATE ~ normal(ps_PRIVATE, ps_s_PRIVATE);
@@ -130,7 +130,8 @@ model {
 
   // likelihoods
   for (i in 1:N) {
-    y[i] ~ normal(alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL[i] + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] * AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] * POVERTY_RATE[i] + beta_PRIVATE[x[i]] * PRIVATE[i], sigma);
+    y[i] ~ normal(alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL[i] + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i]+ beta_COSTT4_A[x[i]] * COSTT4_A[i] 
+    + beta_POVERTY_RATE[x[i]] * POVERTY_RATE[i] + beta_URBAN[x[i]] * URBAN[i] + beta_PRIVATE[x[i]] * PRIVATE[i], sigma);
   }
 
 }
@@ -143,16 +144,14 @@ generated quantities {
   for (i in 1:N) {
 
     log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]] *
-    SAT_ALL[i] + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] *
-    AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] *
-    POVERTY_RATE[i] + beta_PRIVATE[x[i]] *
-    PRIVATE[i], sigma);
+    SAT_ALL[i] + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] *
+    POVERTY_RATE[i] + beta_URBAN[x[i]] * URBAN[i] +
+    beta_PRIVATE[x[i]] * PRIVATE[i], sigma);
 
     y_rep[i] = normal_rng(alpha[x[i]] + beta_SAT_ALL[x[i]] * SAT_ALL[i]
-    + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i] + beta_AGE_ENTRY[x[i]] *
-    AGE_ENTRY[i] + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] *
-    POVERTY_RATE[i] + beta_PRIVATE[x[i]] *
-    PRIVATE[i], sigma);
+    + beta_MD_FAMINIC[x[i]] * MD_FAMINIC[i]  + beta_COSTT4_A[x[i]] * COSTT4_A[i] + beta_POVERTY_RATE[x[i]] *
+    POVERTY_RATE[i] + beta_URBAN[x[i]] * URBAN[i] + 
+    beta_PRIVATE[x[i]] * PRIVATE[i], sigma);
  }
 
 
