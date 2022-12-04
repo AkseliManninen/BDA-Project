@@ -30,7 +30,7 @@ set_cmdstan_path('/coursedata/cmdstan')
 
 
 \newpage
-# 1. Project Description and Motivation
+# 1. Project Introduction
 
 Studying the relationship between income and education has been the focus of many studies. The studies have concluded that a strong connection exists between higher education and income (Card, 1999). In general, individuals with stronger education are more likely to be employed and earn a big salary compared to less educated people (Card, 1999). For that reason, education is described as an investment in human capital (Wolla & Sullivan, 2017).
 
@@ -39,8 +39,6 @@ This study examines this phenomenon from the perspective of people that have acq
 In this study, a Bayesian approach is taken to observe the bond between the educational and family related features and earnings in a multivariate linear regression setting. It is in our interest to find out how accurately the selected features can predict future income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating predictive performance using these features with selected statistical models.
 
 As this study is conducted in a university environment by university students and presented mainly to other students and faculty, the findings of this study could be especially meaningful for the members of the group and peers on the course.
-
-# 2. Data Description
 
 ```{r, include=FALSE}
 
@@ -134,12 +132,14 @@ categorical.vars.data <- data.joined.dropna %>%
 
 ```
 
+# 2. Data Description and analysis problem
+
+
 The used dataset is the most recent institutional-level college scorecard data from the US Department of Education^[Available at: https://collegescorecard.ed.gov/data]. The institutional-level dataset contains aggregate data for each educational institution and includes data on institutional characteristics, enrollment, student aid, costs and student outcomes. The dataset has 6681 observations on 2989 variables.
 
 This dataset was chosen because it seemed to provide information that could answer interesting education-related questions in the project, and also because the dataset has a large number of observations and a large number of variables. The large amount of variables permits for a lot of flexibility when it comes to modelling with the data and also having enough data is important in order to be able to make valid inferences. 
 
-After investigating the dataset, the most intriguing analysis problem was to study how college related factors affect
-t the median earnings of alumni 10 years after entry, which is our dependent variable:
+After investigating the dataset, the most intriguing analysis problem was to study how college related factors affect the median earnings of alumni 10 years after entry, which is our dependent variable:
 
 $$
 \begin{tabular} {lll} 
@@ -148,6 +148,9 @@ Name & Data type & Description \\
 MD\_EARN\_WNE\_P10 & double & Median earnings of students 10 years after entry
 \end{tabular}
 $$
+To answer the analysis problem, a subset of college related factors is extracted
+and generated from the dataset and after that weigths for each factor are calculated
+based on three models that are introduced later in this document.
 
 In the next section, we outline how features were selected 
 
