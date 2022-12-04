@@ -226,7 +226,7 @@ ggcorrplot(cor(numerical.vars.data),
 
 The correlation matrix shows on the bottom row that SAT scores, cost of attendance, and family income are the most positively correlated features with our dependent variable. The respective correlations are 0.76, 0.75, and 0.52. Most negatively correlated features are the percentage of first generation students, poverty rate, and average age of entry with respective correlations of -0.45, -0.4, and -0.31. These are interesting observations and make intuitive sense.
 
-#### Bivariate plotting
+#### Bivariate Plotting
 
 The panel of figures below show scatter plots between the dependent variable and all numerical features.
 
@@ -245,17 +245,18 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
 
 The figures show that many of the features exhibit a linear like relationship with the dependent variable. Especially, SAT scores (SAT_ALL) show a clear linear association. Other features that show a linear trend are e.g., family income (MD_FAMINC), completion rate (C140_4), and the percentage of first generation students (FIRST_GEN). There are hints of some non-linear relationships as well, e.g., poverty rate appears to have a convex non linear relationship with the dependent variable. Cost of attendance (COSTT4_A), on the other hand, suggests that there could be two groups, perhaps cheaper public school and private school.
 
-#### Concluding remarks
+#### Concluding Remarks
 
 Based on the analysis presented thus far, we selected the following numerical variables: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
 
 After including the obvious features, such as SAT scores, we included features with the following reasoning: if the correlation between a feature and the dependent variable was low and there was no observable dependency between the two in the scatter plot, the feature was excluded. Furthermore, to avoid multicollinearity, we removed features that were highly correlated with other independent variables, especially if they were not clearly correlated with the dependent variable and we couldn't form a believable hypothesis for the mechanism through which that variable affected income after college.
 
-### Categorical variables
+### Categorical Variables
 
 #### Box Plots
 
-The categorical variables were visualized with box plots to see if income after college differed among the categories.
+The categorical variables were visualized with box plots to assess if income after college differs among the categories.
+
 
 ```{r, include=FALSE}
 
@@ -267,9 +268,9 @@ melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variabl
 
 ```
 
-The categorical variable CCBASIC which represented the Carnegie Classification was divided into two binary MASTER and DOCTORAL. These variables represent if the college is classified as Master's college and university or Doctoral's college and university. If a college does not belong to either of those, it is a Bachelor's college and university. Other special focus colleges and universities were discarded from the dataset to keep the model more simple and avoid unnecessary outliers due to unconventional nature of some very specialized colleges. Our model does not attempt to provide accurate predictions for specialized colleges.
+The figure below shows the median earnings for different university types. CCBASIC stands for the Carnegie Classification for the university.
 
-```{r}
+```{r, echo=FALSE}
 ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
@@ -282,10 +283,12 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   labs(caption = "Doctoral (15-17), Master's (18-20), Bachelor's (21-23)")
 
 ```
+Based on the plot, CCBASIC was divided into two dummy variables: MASTER and DOCTORAL. These variables represent if the college is classified as Master's college and university or Doctoral's college and university. If a college does not belong to either of those, it is a Bachelor's college and university. Other special focus colleges and universities were discarded from the dataset to keep the model simpler and to avoid unnecessary outliers due to unconventional nature of some very specialized colleges. Our model does not attempt to provide accurate predictions for specialized colleges.
 
-Based on an analysis on the variable LOCALE (whether college located in metropolis, city, suburb, town, or rural area) a new binary variable URBAN was generated, where value 1 represents any area that is not categorized as rural.
 
-```{r}
+The figure below shows the median earnings for different university locations. LOCALE specifies whether the unversity locates in a metropolis, city, suburb, town, or a rural area.
+
+```{r, echo=FALSE}
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -300,9 +303,11 @@ ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 
 ```
 
-The categorical variable CONTROL had three classes: public, for-profit private and nonprofit private. CONTROL was modified into a binary variable PRIVATE representing if the school is private or public school. There were only few non-profit private observations, so those were merged together with the private observations.
+Based on figure, we engineered a new dummy variable URBAN, which takes the value 1 if the university LOCALE is not classified as Rural.
 
-```{r}
+The categorical variable CONTROL had three classes: public, for-profit private and nonprofit private. The figure below shows the median earnings depending on the control status.
+
+```{r, echo=FALSE}
 
 ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -317,11 +322,13 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 
 ```
 
-**The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.** - TARKISTETTAVA
+Based on the figure, CONTROL was modified into a dummy variable PRIVATE, which takes the value 1 if the school is privately controlled (either for profit or non profit).
+
+**TARKISTETTAVA: The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.**
 
 ## Phase 3 - Feature selection with stepwise regression
 
-**TARKISTETTAVA PITÄÄKÖ ALLAOLEVA TEKSTI PAIKKANSA**
+**TARKISTETTAVA PITÄÄKÖ ALLAOLEVA TEKSTI PAIKKANSA, ETENKIN KUN TAITAA TULLA MUUTOKSIA MALLEIHIN VIELÄ**
 
 In the third and final phase, all remaining variables were used with stepwise regression to test which subset of features perform the best, whether the received coefficients are reasonable, and if there are signs of overfitting.
 
@@ -329,21 +336,23 @@ The stepwise regression suggested using all of the variables, except CITY and DO
 
 The final features are listed in the table below:
 
+
 $$
-\begin{array} {c|c|c|c|c|c|c|c} & Name & Data\:type & Description \\ 
+\begin{tabular} {rlll} 
+& Name & Data type & Description \\
 \hline
-1 & SAT\_ALL & float & Midpoint\:of\:SAT\:scores\:at\:the\:institution\:(critical\:reading\:,math) \\
-2 & MD\_FAMINC & float & Median\:family\:income \\
-3 & AGE\_ENTRY & float & Average\:age\:of\:entry \\
-4 & COSTT4\_A & float & Average\:cost\:of\:attendance\:(academic\:year\:institutions) \\
-5 & POVERTY\_RATE & float & Poverty\:rate \\
-6 & PRIVATE & binary & Carnegie\:Classification -- basic \\
-\end{array}
+1 & SAT\_ALL & float & Midpoint of SAT scores at the institution (critical reading ,math) \\
+2 & MD\_FAMINC & float & Median family income \\
+3 & AGE\_ENTRY & float & Average age of entry \\
+4 & COSTT4\_A & float & Average cost of attendance (academic year institutions) \\
+5 & POVERTY\_RATE & float & Poverty rate \\
+6 & PRIVATE & binary & Carnegie Classification -- basic \\
+\end{tabular}
 $$
 
-# 3. Description of the models
+# 3. Model Descriptions
 
-MATEMATIIKKA TARKISTETTAVA
+**MATEMATIIKKA TARKISTETTAVA**
 
 ## Description of the separate model
 
@@ -393,9 +402,9 @@ The hyperparameters and parameters are given in the section 4 with their priors.
 
 ## Description of the linear model
 
-**MIKÄ TÄÄ ON?**
+**MIKÄ TÄÄ ON? JOS JÄÄMÄSSÄ, NIIN TÄYDENNETTÄVÄ**
 
-# 4. Informative or weakly informative priors, and justification of their choices.
+# 4. Choice of Priors
 
 We use weakly informative priors, as we do not posses enough information about the 
 dependency between the independent variables and the dependent variable. 
@@ -452,7 +461,7 @@ the standard deviation is set between the standard deviations of those.
 
 POVERTY_RATE ~ Normal(0, 2500)
 
-## Tää ei oikein täsmää. Jos tää sais ison painon pienillä arvoilla niin se tarkottais että kun liikutaan esim 2% köyhyydestä 3% köyhyyteen niin on tosi isot vaikutukset tuloihin. Todellisuudessa alueet on varmaan aika samanlaisia hyvinvoivia alueita. Nollaköyhyys on intercept-arvo josta sitten lähetään askeleittain kattomaan että miten tulot muuttuu kun alueen köyhyys lisääntyy. RATKAISUEHDOTUS: Lasketaan sd:tä. Ei tarvii olla yhtä dramaattinen kuin binäärisillä muutujilla.
+**Tää ei oikein täsmää. Jos tää sais ison painon pienillä arvoilla niin se tarkottais että kun liikutaan esim 2% köyhyydestä 3% köyhyyteen niin on tosi isot vaikutukset tuloihin. Todellisuudessa alueet on varmaan aika samanlaisia hyvinvoivia alueita. Nollaköyhyys on intercept-arvo josta sitten lähetään askeleittain kattomaan että miten tulot muuttuu kun alueen köyhyys lisääntyy. RATKAISUEHDOTUS: Lasketaan sd:tä. Ei tarvii olla yhtä dramaattinen kuin binäärisillä muutujilla.**
 
 Justification: The possible values are between 0 and 100. There could be situations were poverty rate in an area is really low, for instance 0.5%. For that reason, the standard deviation in the prior is set high to enable possibly high weight for a small value.
 
@@ -465,9 +474,9 @@ we don't posses enough information on the dependency with the dependent variable
 Because the values are always either 0 and 1, the standard deviation is set
 high.
 
-# 5. Stan code
+# 5. Stan Code
 
-TÄHÄN JOTAIN TRAIN TEST SPLITISTÄ?
+**TÄHÄN JOTAIN TRAIN TEST SPLITISTÄ?**
 
 ```{r, include=FALSE}
 
@@ -663,18 +672,17 @@ hierarchical.fit
 ```
 
 
-# 6. How to the Stan model was run, that is, what options were used. 
-This is also more clear as combination of textual explanation and the actual code line.
+# 6. Stan Specifications
 
-We used the following options:
+We used the following Stan options:
 
-1. Seed: 1234
+- Seed: 1234
 
-2. Chains: 4
+- Chains: 4
 
-3. Iterations per chain: 2000
+- Iterations per chain: 2000
 
-# 7. Convergence diagnostics (rhat, ESS, divergences) and what was done if the convergence was not good with the first try.
+# 7. Convergence Diagnostics (rhat, ESS, divergences) and what was done if the convergence was not good with the first try.
 
 ## Rhat
 
@@ -706,7 +714,6 @@ for (param in params) {
 rhat.df
 
 ``` 
-
 
 
 ### Pooled model
@@ -876,9 +883,9 @@ hierarchical.fit$cmdstan_diagnose()
 
 ``` 
 
-# 8. Posterior predictive checks and model comparison
+# 8. Posterior Predictive Checks and Model Comparison
 
-## Posterior predictive checks
+## Posterior Predictive Checks
 
 When doing posterior predictive checking we look for systematic discrepancies between the real observations 
 and the data we get from simulating replicated data under the fitted model (Gelman and Hill, 2006). Posterior 
@@ -930,7 +937,7 @@ The ELPD is the theoretical expected log pointwise predictive density for a new 
 
 ## LOO (Model comparison)
 
-Yläpuolella kopsattu, kirjoita uusiks. Lähde alla
+**Yläpuolella kopsattu, kirjoita uusiks. Lähde alla**
 
 Lähde: https://mc-stan.org/loo/reference/loo-glossary.html
 
@@ -974,11 +981,11 @@ plot(hierarchical.fit$loo(), main = "Hierarchical model PSIS diagnostics")
 
 ``` 
 
-Based on $\hat{K}$ the predictions are ... too optimistic/reliable?
-- Why pooled model looks like that - overfitting or something?
+**Based on $\hat{K}$ the predictions are ... too optimistic/reliable?**
+- **Why pooled model looks like that - overfitting or something?**
 
 
-# 9. Predictive performance assessment
+# 9. Predictive Performance Assessment
 
 ## Root Mean Squared Error (RMSE)
 
@@ -1029,7 +1036,7 @@ rmse
 
 ```
 
-# 10. Sensitivity analysis with respect to prior choices (i.e. checking whether the result changes a lot if prior is changed). This should be reported for all models.
+# 10. Prior Sensitivity Analysis
 
 To test whether our results are sensitive to prior choices, and to see how changing the priors affects our results, we ran all the models with both wider and narrower priors. The wide priors were obtained by multiplying each standard deviation by three, and the narrow priors were obtained by dividing the original priors by two.
 
@@ -1351,7 +1358,7 @@ hierarchical.fit
 
 ```
 
-# 11. Discussion of issues and potential improvements.
+# 11. Discussion of Issues and Potential Improvements.
 
 During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
 
@@ -1360,12 +1367,12 @@ It was a shame we couldn't use a larger testing dataset because all data used fo
 As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
 In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income were very low and they would have been dropped from our model no matter what.
 
-- **VOISI EHKÄ MAINITA JOTAIN PREDICTIVE ASSESSMENTISTA, ESIM. KAIKILLE MALLEILLE JONKUNLAINEN ASSESSMENT TAI MONIPUOLISEMPI**
+**VOISI EHKÄ MAINITA JOTAIN PREDICTIVE ASSESSMENTISTA, ESIM. KAIKILLE MALLEILLE JONKUNLAINEN ASSESSMENT TAI MONIPUOLISEMPI**
 
 
-# 12. Conclusion what was learned from the data analysis.
+# 12. Conclusions
 
-# 13. Self-reflection of what the group learned while making the project.
+# 13. Self-reflection
 
 In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection, because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
 
