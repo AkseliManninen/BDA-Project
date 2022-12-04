@@ -545,7 +545,7 @@ separate.model.data <- list(N = nrow(data.joined.stan),
 
 separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
 
-separate.fit
+separate.fit$summary()
 
 ```
 
@@ -553,7 +553,7 @@ separate.fit
 
 Summary of model fit for main parameters:
 
-```{r, include=FALSE, results = "hide", warning=FALSE}
+```{r, results = "hide", warning=FALSE}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -589,7 +589,7 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
 
 pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
 
-pooled.fit
+pooled.fit$summary()
 
 ```
 
@@ -656,7 +656,7 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
 
-hierarchical.fit
+hierarchical.fit$summary()
 
 ```
 
@@ -1015,6 +1015,15 @@ rmse
 
 To test whether our results are sensitive to prior choices, and to see how changing the priors affects our results, we ran all the models with both wider and narrower priors. The wide priors were obtained by multiplying each standard deviation by three, and the narrow priors were obtained by dividing the original priors by two.
 
+For the separate model...
+
+
+For the pooled model, when scaling sigma values with 3, there were only minor changes in the beta values. When scaling sigma values with 0.5 the results stayed also about the same, except for beta_PRIVATE whose mean increased from around -7000 to around -5000. Based on these results, it seems that pooled model is not that sensitive for prior changes of this magnitude. 
+
+For the hierarchical model, when scaling sigma values with3, there were bigger differences compared to the pooled model. As an example alpha mean values for decreased in some regions a lot, and at the extreme over 3 times the original value. When scaling sigma values with 0.5, the narrower distribution brought the values closer to the mean values. Although some beta mean and standard deviation values for some regions stayed approximately the same, the change in the priors was clear. For that reason, the hierarchical model is sensitive for prior changes of this magnitude, and more sensitive compared to the pooled model.
+
+In conclusion, the separate and the hierarchical models had a lot of sensitivity for changes in priors compared to the pooled model. The robustness of the pooled model could be explained by the fact that regions are considered in this model as one entity and there are more samples for this one entity compared to separate regions.
+
 ## Separate model
 
 Summary of model fit for main parameters with wide priors:
@@ -1058,7 +1067,7 @@ separate.model.data <- list(N = nrow(data.joined.stan),
 
 separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
 
-separate.fit
+separate.fit$summary()
 
 ```
 
@@ -1103,7 +1112,7 @@ separate.model.data <- list(N = nrow(data.joined.stan),
 
 separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
 
-separate.fit
+separate.fit$summary()
 
 ```
 
@@ -1148,7 +1157,7 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
 
 pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
 
-pooled.fit
+pooled.fit$summary()
 
 ```
 
@@ -1191,7 +1200,7 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
 
 pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
 
-pooled.fit
+pooled.fit$summary()
 
 ```
 
@@ -1260,10 +1269,11 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
 
-hierarchical.fit
+hierarchical.fit$summary()
 
 
 ```
+
 
 Summary of model fit for main parameters with narrow priors:
 
@@ -1328,7 +1338,7 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
 
-hierarchical.fit
+hierarchical.fit$summary()
 
 
 ```
