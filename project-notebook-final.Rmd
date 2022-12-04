@@ -1,6 +1,6 @@
 ---
 title: "BDA Project"
-author: "Niko Miller, Akseli Manninen and Santeri Löppönen"
+author: "Anonymous"
 output:
   pdf_document:
     toc: yes
@@ -954,12 +954,17 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
 In general, if $\hat{k}$ values are greater than 0.7 the PSIS-LOO estimates
 might be too optimistic (biased), and on the contrary, if the $\hat{k}$ values
-are smaller than 0.7 the estimated can be considered reliable.
+are smaller than 0.7 the estimated can be considered reliable. (Gabry, Gelman, Vehtari, 2016)
 
+As can be observed from the graphs "Separate mode PSIS diagnostics",
+"Pooled model PSIS diagnostics" and "Hierarchical model PSIS diagnostics"
+for separate model all $\hat{k}$ values are smaller than 0.7, for hierarchical
+only one value $\hat{k}$ is greater than 0.7. This means that PSIS-LOO estimates
+for these models can be considered reliable. However, for pooled model there
+are many $\hat{k}$ values that are a lot greater than 0.7. This indicates
+that this model may be biased and the estimates might not be reliable.
 
-source: https://link.springer.com/article/10.1007/s11222-016-9696-4
-
-```{r}
+```{r, include=FALSE}
 
 pareto_k_table(separate.fit$loo())
 
@@ -978,10 +983,6 @@ plot(pooled.fit$loo(), main = "Pooled model PSIS diagnostics")
 plot(hierarchical.fit$loo(), main = "Hierarchical model PSIS diagnostics")
 
 ``` 
-
-**Based on $\hat{K}$ the predictions are ... too optimistic/reliable?**
-- **Why pooled model looks like that - overfitting or something?**
-
 
 # 9. Predictive Performance Assessment
 
@@ -1387,6 +1388,8 @@ Data Commons. (2020). Gross domestic product per capita in United States of Amer
 Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
 
 Gelman, Andrew, and Jennifer Hill. Data analysis using regression and multilevel/hierarchical models. Cambridge university press, 2006.
+
+Gabry, Gelman, Vehtari. (2016) Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC.
 
 Number2. (2020). Average SAT Score [Blog Post].
 Retrieved from: https://www.number2.com/average-sat-score/
