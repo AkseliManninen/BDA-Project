@@ -510,7 +510,7 @@ We used cmdstanr for our models. Source code for all three models can be found i
 
 Summary of model fit for main parameters:
 
-```{r, include=FALSE, results = "hide", warning=FALSE}
+```{r, results = "hide", warning=FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -683,7 +683,7 @@ estimates for model parameters and other univariate quantities of interest. If t
 that the chains have mixed well. This happens when R-hat is less than 1.05 or less than 1.01 depending on the standard. We decided not be strict
 with our multivariate model and chose the less strict threshold of 1.05.
 
-### Separate model
+### Separate model Rhat
 
 ```{r}
 
@@ -707,7 +707,7 @@ rhat.df
 ``` 
 
 
-### Pooled model
+### Pooled model Rhat
 
 ```{r}
 
@@ -727,7 +727,7 @@ rhat.df
 ```
 
 
-### Hierarchical model
+### Hierarchical model Rhat
 
 ```{r}
 
@@ -773,7 +773,7 @@ For the hierarchical model the ESS values for parameters are between 266 and
 samples than independent ones. The analysis for the highest values is the
 same as for pooled.
 
-### Separate Model
+### Separate Model ESS
 
 ```{r}
 
@@ -797,7 +797,7 @@ ess.df
 ``` 
 
 
-## Pooled Model
+## Pooled Model ESS
 
 ```{r}
 
@@ -816,7 +816,7 @@ ess.df
 
 ``` 
 
-## Hierarchical Model
+## Hierarchical Model ESS
 
 ```{r}
 
@@ -839,21 +839,21 @@ ess.df
 
 ``` 
 
-## HMC specific convergence diagnostics for all models
+## HMC specific convergence diagnostics for all models (divergences, tree depth)
 
 HMC specific convergence diagnostics were analysed for all models. The R code
 and output for diagnostics can be found from the appendix. Based on the HMC specific 
-convergence diagnostics, the separate model reached the initial maximum treedepth of 10 
+convergence diagnostics, the separate model reached the initial maximum tree depth of 10 
 in 100% of the transitions. The diagnostics state that this leads to premature 
 termination of trajectories and slow exploration. The proposed action of increasing the 
 limit was tested, but it resulted to too long running time for the already time 
 consuming fitting of the separate model. The rest of the diagnostics consisting 
-of divergences, E-BMFI, effective samplesize and split R-hat satisfactory.
+of divergences, E-BMFI, effective sample size and split R-hat satisfactory.
 
-For the pooled model, treedepth, divergences, E-BFMI, effective sample size and 
-split R-hat were satifactory.
+For the pooled model, tree depth, divergences, E-BFMI, effective sample size and 
+split R-hat were satisfactory.
 
-For the hierarchical model, only 4 out of 4000 hit the maximum treedepth and
+For the hierarchical model, only 4 out of 4000 hit the maximum tree depth and
 23 out of 4000 transitions did not converge. Due to relatively low numbers
 (0.1% and 0.57%) no actions were taken for the hierarchical model. The rest 
 of the diagnostics were satisfactory.
@@ -913,7 +913,7 @@ ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 
 
  
-## LOO (Model comparison)
+## Model comparison (LOO, K hat)
 
 LOO elpd_loo is an estimate of the expected log pointwise pridictive dentisty (ELPD).
 elpd_loo sums individual pointwise log predictive densities (Stan Reference Manual, n.d).
@@ -1027,6 +1027,8 @@ For the hierarchical model, when scaling sigma values with3, there were bigger d
 
 In conclusion, the separate and the hierarchical models had a lot of sensitivity for changes in priors compared to the pooled model. The robustness of the pooled model could be explained by the fact that regions are considered in this model as one entity and there are more samples for this one entity compared to separate regions.
 
+As the codes of the sensitivity analysis are long, they are included in the appendix.
+
 ## Separate model
 
 Summary of model fit for main parameters with wide priors:
@@ -1069,6 +1071,12 @@ separate.model.data <- list(N = nrow(data.joined.stan),
 
 
 separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
+
+separate.fit$summary()
+
+```
+
+```{r, echo=FALSE,results = "hide", eval=FALSE}
 
 separate.fit$summary()
 
