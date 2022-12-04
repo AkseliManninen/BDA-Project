@@ -448,10 +448,12 @@ Justification: The possible values are between 0 and 100. There could be situati
 
 URBAN ~ Normal(0, 2500)
 
-Justification: We don't have a strong expectation of direction or magnitude of effect on income. 
-As the age of entry could be somewhere in the range of 15 - 50 without considering outliers, 
-a few dozen years difference could have dramatic changes in income either way, the standard
-deviation is set high.
+Justification: Weakly informative prior was selected for URBAN. Although, urban
+areas could potentially have higher wages on average, in this project, we are considering
+earnings ten years after entry, which means that there might have been a lot of people
+moving from rural areas to urban areas after graduation and vice versa. For that reason,
+the prior is not set to be too informative. Because the values are always either 0 and 1, the standard deviation is set
+high.
 
 
 PRIVATE ~ Normal(0, 2500)
