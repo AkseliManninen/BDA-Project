@@ -36,7 +36,7 @@ Studying the relationship between income and education has been the focus of man
 
 This study examines this phenomenon from the perspective of people that have acquired their education from colleges in the United States. As the connection between education and income has been shown in the existing literature, this study strives to further examine the associations between college related features and income level years after graduation. This project is not limited to only considering educational aspects but expands it to family backgrounds.
 
-In this study, a Bayesian approach is taken to observe the bond between the educational and family related features and earnings in a multivariate linear regression setting. It is in our interest to find out how accurately the selected features can predict future income for the students. Furthermore, finding well-predictive features among the vast number of variables is pursed, and then evaluating predictive performance using these features with selected statistical models.
+In this study, a Bayesian approach is taken to observe the bond between the educational and family related features and earnings in a multivariate linear regression setting. It is in our interest to find out how accurately the selected features can predict future income for the students. Aim of our project is to find a way to predict average income after studying at a university for any non-specialized university in the United States. We build three different multivariate models – separate, pooled and hierarchical – to predict income after school.
 
 As this study is conducted in a university environment by university students and presented mainly to other students and faculty, the findings of this study could be especially meaningful for the members of the group and peers on the course.
 
@@ -248,7 +248,7 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
 
 The figures show that many of the features exhibit a linear like relationship with the dependent variable. Especially, SAT scores (SAT_ALL) show a clear linear association. Other features that show a linear trend are e.g., family income (MD_FAMINC), completion rate (C140_4), and the percentage of first generation students (FIRST_GEN). There are hints of some non-linear relationships as well, e.g., poverty rate appears to have a convex non linear relationship with the dependent variable. Cost of attendance (COSTT4_A), on the other hand, suggests that there could be two groups, perhaps cheaper public school and private school.
 
-#### Concluding Remarks
+#### Remarks on the Feature Selection Process thus Far
 
 Based on the analysis presented thus far, we selected the following numerical variables: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
 
@@ -355,9 +355,7 @@ MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A +
 
 ## Description of the separate model
 
-In the separate model, posteriors for the parameters are constructed. In
-the context of the project, the separate model considers all regions independent
-from each other, meaning that each region have individual parameters (mu, sigma).
+In the separate model, posteriors for the parameters are constructed. In the context of the project, the separate model considers all regions independent from each other, meaning that each region have individual parameters (mu, sigma).
 
 Mathematical description:
 
@@ -370,9 +368,7 @@ priors.
 
 ## Description of the pooled model
 
-As in the separate model, the pooled model constructs posteriors for the 
-parameters. However, the regions are considered as one entity meaning that
-all regions share the same distribution and parameter values.
+As in the separate model, the pooled model constructs posteriors for the parameters. However, the regions are considered as one entity meaning that all regions share the same distribution and parameter values.
 
 Mathematical description:
 
@@ -380,16 +376,11 @@ $y_i|\mu, \sigma \sim \mathcal{N}(\mu, \sigma^2)$
 
 where $\mu = \alpha+\bf{\beta X}$
 
-The parameters of the parameter vector are given in the section 4 with their
-priors.
+The parameters of the parameter vector are given in the section 4 with their priors.
 
 ## Description of the hierarchical model
 
-Contrary to the other two models, in the hierarchical model posteriors
-are constructed for the prior parameters. With the hierarchical model,
-the regions are considered as individual but similar. In the context of the
-project, the regions share same sigma and the parameters forming mu are similarly
-distributed (sharing the hyperparameters).
+Contrary to the other two models, in the hierarchical model posteriors are constructed for the prior parameters. With the hierarchical model, the regions are considered as individual but similar. In the context of the project, the regions share same sigma and the parameters forming mu are similarly distributed (sharing the hyperparameters).
 
 Mathematical description:
 
@@ -401,46 +392,26 @@ The hyperparameters and parameters are given in the section 4 with their priors.
 
 # 4. Choice of Priors
 
-We use weakly informative priors, as we do not posses enough information about the 
-dependency between the independent variables and the dependent variable. 
-When selecting the priors, proper distribution type was considered for each variable. 
-The prior standard deviations were selected based on the magnitude of absolute values 
-of the variables and what kind of impact they could have for income, with loose enough
-estimates to avoid limiting the values too much. Alternative approach could have been 
-to standardize all variables, which would have reduced the need to think about magnitudes
-of absolute values.
+We use weakly informative priors, as we do not posses enough information about the dependency between the independent variables and the dependent variable. When selecting the priors, proper distribution type was considered for each variable. The prior standard deviations were selected based on the magnitude of absolute values of the variables and what kind of impact they could have for income, with loose enough estimates to avoid limiting the values too much. Alternative approach could have been to standardize all variables, which would have reduced the need to think about magnitudes of absolute values.
 
 SAT_ALL ~ Normal(43, 500)
 
-Justification: We agreed that it was somewhat reasonable to expect scores in the SAT 
-exam to be associated with higher income. Due to our approach of using weakly informative 
-priors, we set a high standard deviation, but set a positive mean due to expected positive
-association.
+Justification: We agreed that it was somewhat reasonable to expect scores in the SAT exam to be associated with higher income. Due to our approach of using weakly informative priors, we set a high standard deviation, but set a positive mean due to expected positive association.
 
-The mean is calculated with the following formula: Median individual income
-in the United States / Average SAT Score (math and writing).
+The mean is calculated with the following formula: Median individual income in the United States / Average SAT Score (math and writing).
 
-The median individual income in the US was approximately 31 000 in 2020 
-(Data Commons, 2020). The average SAT score in the US in 2020 were 523 in Math
+The median individual income in the US was approximately 31 000 in 2020 (Data Commons, 2020). The average SAT score in the US in 2020 were 523 in Math
 and 582 in Evidence-Based Reading and Writing (Number2, 2020).
 
 mu = 31 000 / (523 + 528/2) = 43.2
 
 MD_FAMINIC ~ Normal(0, 100)
 
-Justification: Weakly informative prior is again selected as we don't posses enough 
-information on the dependency. The absolute values are in general high, 
-(for example compared to AGE_OF_ENTRY) and thus the standard deviation is set 
-lower for this variable. However, there could be cases where MD_FAMINIC is low, 
-due to for example unemployment, so the standard deviation is still set 
-considerably high.
+Justification: Weakly informative prior is again selected as we don't posses enough information on the dependency. The absolute values are in general high, (for example compared to AGE_OF_ENTRY) and thus the standard deviation is set lower for this variable. However, there could be cases where MD_FAMINIC is low, due to for example unemployment, so the standard deviation is still set considerably high.
 
 COSTT4_A ~ Normal(0, 500)
 
-Justification: Weakly informative prior is selected as we don't posses enough 
-information on the dependency. The average cost per academic year is likely to take lower
-values than median family income, but higher values than average age of entry and thus 
-the standard deviation is set between the standard deviations of those.
+Justification: Weakly informative prior is selected as we don't posses enough information on the dependency. The average cost per academic year is likely to take lower values than median family income, but higher values than average age of entry and thus the standard deviation is set between the standard deviations of those.
 
 POVERTY_RATE ~ Normal(0, 2500)
 
@@ -448,26 +419,17 @@ Justification: The possible values are between 0 and 100. There could be situati
 
 URBAN ~ Normal(0, 2500)
 
-Justification: Weakly informative prior was selected for URBAN. Although, urban
-areas could potentially have higher wages on average, in this project, we are considering
-earnings ten years after entry, which means that there might have been a lot of people
-moving from rural areas to urban areas after graduation and vice versa. For that reason,
-the prior is not set to be too informative. Because the values are always either 0 and 1, the standard deviation is set
-high.
+Justification: Weakly informative prior was selected for URBAN. Although, urban areas could potentially have higher wages on average, in this project, we are considering earnings ten years after entry, which means that there might have been a lot of people moving from rural areas to urban areas after graduation and vice versa. For that reason, the prior is not set to be too informative. Because the values are always either 0 and 1, the standard deviation is set high.
 
 
 PRIVATE ~ Normal(0, 2500)
 
-Justification: For MASTER and PRIVATE weakly informative prior, is selected as 
-we don't posses enough information on the dependency with the dependent variable.
-Because the values are always either 0 and 1, the standard deviation is set
-high.
+Justification: For MASTER and PRIVATE weakly informative prior, is selected as we don't posses enough information on the dependency with the dependent variable. Because the values are always either 0 and 1, the standard deviation is set high.
 
 Alpha ~ Normal(0, 10000)
 Sigma ~ Normal(10000, 10000)
 
-Justification: For Alpha and Sigma, weekly informative priors were selected as
-we did not posses enough information.
+Justification: For Alpha and Sigma, weekly informative priors were selected as we did not posses enough information.
 
 Hyperpriors:
 
@@ -487,9 +449,7 @@ $PRIVATE_p$ ~ Normal(500, 500)
 
 $Sigma$~ Normal(500, 500)
 
-Justifications for the hyperpriors: When selecting hyperpriors it was considered
-that the constructions would be consistent in a sense that there would not 
-be conflicting levels of informativeness.
+Justifications for the hyperpriors: When selecting hyperpriors it was considered that the constructions would be consistent in a sense that there would not be conflicting levels of informativeness.
 
 # 5. Stan Code
 
@@ -700,15 +660,13 @@ We used the following Stan options:
 
 # 7. Convergence Diagnostics (rhat, ESS, divergences) and what was done if the convergence was not good with the first try.
 
-In this section, we are performing the diagnostics for the separate and hierarchical model based on the first region (N = 37). This
-region was selected at random, and it is not the region with the lowest or highest number of samples. Although, considering separately all regions would have given a better overall picture, for simplicity reasons, one region is selected. For the project group, this seemed to be more interesting way to do analysis than blending all the regions together with for example averages.
+In this section, we are performing the diagnostics for the separate and hierarchical model based on the first region (N = 37). This region was selected at random, and it is not the region with the lowest or highest number of samples. Although, considering separately all regions would have given a better overall picture, for simplicity reasons, one region is selected. For the project group, this seemed to be more interesting way to do analysis than blending all the regions together with for example averages.
 
 ## Rhat
 
-We used the rhat() function for all models to get the rhat convergence diagnostic. The function compares the between chain and within chain
-estimates for model parameters and other univariate quantities of interest. If the between chain and within chain estimates agree, it is said
-that the chains have mixed well. This happens when R-hat is less than 1.05 or less than 1.01 depending on the standard. We decided not be strict
-with our multivariate model and chose the less strict threshold of 1.05.
+We used the rhat() function for all models to get the rhat convergence diagnostic. The function compares the between chain and within chain estimates for model parameters and other univariate quantities of interest. If the between chain and within chain estimates agree, it is said that the chains have mixed well. This happens when R-hat is less than 1.05 or less than 1.01 depending on the standard. We decided not be strict with our multivariate model and chose the less strict threshold of 1.05.
+
+Rhat statistics revealed that the separate model converged worse than the hierarchical or pooled model, both of which got good rhat convergence values for every beta in every chain. The fact that the separate model has problems with convergence while the pooled model and the hierarchical model converge very well speaks clearly against the separate model while suggesting the other two models perform well on this front.
 
 ### Separate model Rhat
 
@@ -1070,7 +1028,7 @@ Like many previous studies, we found a strong link between education and income 
 
 As our initial dataset had almost 3000 features, feature selection was a very important and influential part of our project.  We conducted feature selection in three phases: 1) We selected a subset of features based on insights from previous studies and also used common sense to come up with additional features that could predict future earnings. 2) We assessed the relationship of the features with our dependent variable and accounted for any multicollinearity arising from mutually correlated features. We also visualized categorical variables and engineered new features to be added to the model. 3) We utilized stepwise regression in streamlining our model to include only the most significant features.
 
-All our priors strived to be weakly informative but not too vague.  We experimented with three different prior specifications: our conservative estimate for a good set of priors as well as two sets of priors set to be either wider or narrower than the conservative estimate. OUR RESULTS TURNED OUT (NOT) TO BE SENSITIVE TO DIFFERENT PRIOR SPECIFICATIONS.
+All our priors strived to be weakly informative but not too vague.  We experimented with three different prior specifications: our conservative estimate for a good set of priors as well as two sets of priors set to be either wider or narrower than the conservative estimate. Separate and hierarchical models are more sensitive to changes in priors compared to pooled model. This robustness could be explained by the fact that in pooled model the regions are considered as one and for that reason, there are more observations for that one entity compared to individual regions.
 
 We diagnosed convergence by calculating rhat, effective sample size and HMC specific convergence diagnostics for all models. None of the models converged perfectly according to all statistics. 
 
@@ -1078,7 +1036,7 @@ Rhat statistics revealed that the separate model converged worse than the hierar
 
 We ran posterior predictive checks to compare our data to simulated results. The visual comparison did not give any reason for concern and our models performed well on these checks. Additionally, we used LOO to perform model comparison. LOO suggested the separate model followed closely by the hierarchical model.
 
-EN TIEDÄ MITÄÄN K-HATISTA
+We got good k hat values for the separate model and the hierarchical model, which means the PSIS-LOO estimates for these models can be considered reliable. However, for pooled model there were many k hat values that were much greater than 0.7 . This indicates that the pooled model may be biased and the estimates might not be reliable.
 
 As we have been building a predictive model, we though it would be important to perform predictive performance assessment. We use RMSE to assess the predictive ability of our model. Our data had been initially split into a training set and a test set. MITÄ TULOKSIA?
 
