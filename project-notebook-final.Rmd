@@ -436,11 +436,7 @@ information on the dependency. The absolute values are in general high,
 (for example compared to AGE_OF_ENTRY) and thus the standard deviation is set 
 lower for this variable. However, there could be cases where MD_FAMINIC is low, 
 due to for example unemployment, so the standard deviation is still set 
-considerably high. 
-
-## Ehdotus
-This is a variable we will try to transform to logarithmic scale as impact of say, 
-10 000$ more income can be far greater for a low-income family than for a high-income family.
+considerably high.
 
 COSTT4_A ~ Normal(0, 500)
 
@@ -450,8 +446,6 @@ values than median family income, but higher values than average age of entry an
 the standard deviation is set between the standard deviations of those.
 
 POVERTY_RATE ~ Normal(0, 2500)
-
-**Tää ei oikein täsmää. Jos tää sais ison painon pienillä arvoilla niin se tarkottais että kun liikutaan esim 2% köyhyydestä 3% köyhyyteen niin on tosi isot vaikutukset tuloihin. Todellisuudessa alueet on varmaan aika samanlaisia hyvinvoivia alueita. Nollaköyhyys on intercept-arvo josta sitten lähetään askeleittain kattomaan että miten tulot muuttuu kun alueen köyhyys lisääntyy. RATKAISUEHDOTUS: Lasketaan sd:tä. Ei tarvii olla yhtä dramaattinen kuin binäärisillä muutujilla.**
 
 Justification: The possible values are between 0 and 100. There could be situations were poverty rate in an area is really low, for instance 0.5%. For that reason, the standard deviation in the prior is set high to enable possibly high weight for a small value.
 
@@ -870,6 +864,12 @@ and the data we get from simulating replicated data under the fitted model (Gelm
 predictive checking is a form of internal validation that is a helpful phase of model building and checking 
 in assessing whether our fitted model makes sense.
 
+When comparing the densities of y (real sample values) and y_rep (Stan normal_rng generated values)
+in the graphs below, it looks like that y and y_rep are aligning quite well,
+with all three models, although it seems that the y_rep values are on average
+somewhat more on right (higher estimates for earnings). There are also intervals
+where y is suddenly changing direction, which are not visible in y_rep values.
+
 
 ```{r, out.width = "70%"}
 
@@ -948,15 +948,7 @@ for these models can be considered reliable. However, for pooled model there
 are many $\hat{k}$ values that are a lot greater than 0.7. This indicates
 that this model may be biased and the estimates might not be reliable.
 
-```{r, include=FALSE}
-
-pareto_k_table(separate.fit$loo())
-
-pareto_k_table(pooled.fit$loo())
-
-pareto_k_table(hierarchical.fit$loo())
-
-``` 
+The more precise diagnostics for $\hat{k}$ are available in appendix.
 
 ```{r, warning=FALSE, out.width = "70%"}
 
@@ -1416,5 +1408,17 @@ separate.fit$cmdstan_diagnose()
 pooled.fit$cmdstan_diagnose()
 
 hierarchical.fit$cmdstan_diagnose()
+
+``` 
+
+# K hat
+
+```{r}
+
+pareto_k_table(separate.fit$loo())
+
+pareto_k_table(pooled.fit$loo())
+
+pareto_k_table(hierarchical.fit$loo())
 
 ``` 
