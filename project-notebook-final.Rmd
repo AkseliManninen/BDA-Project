@@ -288,7 +288,7 @@ Based on the plot, CCBASIC was divided into two dummy variables: MASTER and DOCT
 
 The figure below shows the median earnings for different university locations. LOCALE specifies whether the unversity locates in a metropolis, city, suburb, town, or a rural area.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width = "70%"}
 
 ggplot(melted.categorial.locale, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -307,7 +307,7 @@ Based on figure, we engineered a new dummy variable URBAN, which takes the value
 
 The categorical variable CONTROL had three classes: public, for-profit private and nonprofit private. The figure below shows the median earnings depending on the control status.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width = "70%"}
 
 ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
@@ -324,11 +324,7 @@ ggplot(melted.categorial.control, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
 
 Based on the figure, CONTROL was modified into a dummy variable PRIVATE, which takes the value 1 if the school is privately controlled (either for profit or non profit).
 
-**TARKISTETTAVA: The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.**
-
-## Phase 3 - Feature selection with stepwise regression
-
-**TARKISTETTAVA PITÄÄKÖ ALLAOLEVA TEKSTI PAIKKANSA, ETENKIN KUN TAITAA TULLA MUUTOKSIA MALLEIHIN VIELÄ**
+The selected categorical variables were: URBAN, DOCTORAL, MASTER, PRIVATE.
 
 In the third and final phase, all remaining variables were used with stepwise regression to test which subset of features perform the best, whether the received coefficients are reasonable, and if there are signs of overfitting.
 
@@ -350,7 +346,7 @@ $$
 \end{tabular}
 $$
 MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
-    POVERTY_RATE + URBAN + PRIVATE + MASTER
+    POVERTY_RATE + URBAN + PRIVATE
 
 # 3. Model Descriptions
 
@@ -446,14 +442,6 @@ considerably high.
 This is a variable we will try to transform to logarithmic scale as impact of say, 
 10 000$ more income can be far greater for a low-income family than for a high-income family.
 
-AGE_ENTRY ~ Normal(0, 2500)
-
-Justification: We don't have a strong expectation of direction or magnitude of effect on income. 
-As the age of entry could be somewhere in the range of 15 - 50 without considering outliers, 
-a few dozen years difference could have dramatic changes in income either way, the standard
-deviation is set high.
-
-
 COSTT4_A ~ Normal(0, 500)
 
 Justification: Weakly informative prior is selected as we don't posses enough 
@@ -468,6 +456,12 @@ POVERTY_RATE ~ Normal(0, 2500)
 Justification: The possible values are between 0 and 100. There could be situations were poverty rate in an area is really low, for instance 0.5%. For that reason, the standard deviation in the prior is set high to enable possibly high weight for a small value.
 
 URBAN ~ Normal(0, 2500)
+
+Justification: We don't have a strong expectation of direction or magnitude of effect on income. 
+As the age of entry could be somewhere in the range of 15 - 50 without considering outliers, 
+a few dozen years difference could have dramatic changes in income either way, the standard
+deviation is set high.
+
 
 PRIVATE ~ Normal(0, 2500)
 
@@ -887,7 +881,7 @@ predictive checking is a form of internal validation that is a helpful phase of 
 in assessing whether our fitted model makes sense.
 
 
-```{r}
+```{r, out.width = "70%"}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
 
@@ -974,7 +968,7 @@ pareto_k_table(hierarchical.fit$loo())
 
 ``` 
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, out.width = "70%"}
 
 plot(separate.fit$loo(), main = "Separate model PSIS diagnostics")
   
