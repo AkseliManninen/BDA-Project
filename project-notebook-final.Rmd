@@ -658,7 +658,7 @@ We used the following Stan options:
 
 - Iterations per chain: 2000
 
-# 7. Convergence Diagnostics (rhat, ESS, divergences) and what was done if the convergence was not good with the first try.
+# 7. Convergence Diagnostics
 
 In this section, we are performing the diagnostics for the separate and hierarchical model based on the first region (N = 37). This region was selected at random, and it is not the region with the lowest or highest number of samples. Although, considering separately all regions would have given a better overall picture, for simplicity reasons, one region is selected. For the project group, this seemed to be more interesting way to do analysis than blending all the regions together with for example averages.
 
