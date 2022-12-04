@@ -152,17 +152,17 @@ To answer the analysis problem, a subset of college related factors is extracted
 and generated from the dataset and after that weigths for each factor are calculated
 based on three models that are introduced later in this document.
 
-In the next section, we outline how features were selected 
+In the next section, we outline how the independent variables, hereafter features, were selected 
 
 # 3. Feature Selection
 
 The initial data set has almost 3000 features, which is a large number compared to the total number of observations of 6681. Moreover, there are many missing values for certain variables in the dataset and not all variables are interesting when trying to predict future earnings. For these reasons, there was a clear need to prune down features.
 
-We conducted feature selection in three phases: in the first phase, a subset of features was selected based on features commonly used in previous studies that have examined the relationship between educational factors and earnings. Moreover, we used common sense when trying to come up with additional interesting features that could predict future earnings. In the second phase, we assessed the relationship of the features with our dependent variable, and accounted for any multicollinearity arising from mutually correlated features. Furthermore, we visualized categorical variables and engineered new features to be added to the model. In the last phase, we utilized stepwise regression in streamlining our model to include only the most significant features in terms of the Akaike Information Criterion (AIC).
+We conducted feature selection in three phases: in the first phase, a subset of features was selected based on features commonly used in previous studies that have examined the relationship between educational factors and earnings. In addition, we tried to come up with additional interesting features that could predict future earnings. In the second phase, we assessed the relationship of the features with our dependent variable, and accounted for any multicollinearity arising from mutually correlated features. Furthermore, we visualized categorical variables and engineered new features to be added to the model. In the last phase, we utilized stepwise regression in streamlining our model to include only the most significant features in terms of the Akaike Information Criterion (AIC).
 
-## Phase 1 - Feature selection based on literature and common sense
+## Phase 1 - Feature selection based on literature
 
-The initial set of features chosen based on past literature and common sense is outlined in the table below. (Dominic et. Al, 1996), (David, Krueger, 1996) 
+The initial set of features chosen based on past literature and general intuition is outlined in the table below. (Dominic et. Al, 1996), (David, Krueger, 1996) 
 
 $$
 \begin{tabular} {r|l|l|l} 
@@ -189,7 +189,7 @@ $$
 \end{tabular}
 $$
 
-SAT scores were combined as one variable, because they were highly correlated and could easily be viewed as one entity. However, writing SAT scores had too few observations due to discontinued tracking. Therefore, a variable SAT_ALL was formed by summing the math and critical thinking SAT scores. After this, we have a total of 793 observations for these features. 
+SAT scores were aggregated into one composite variable called SAT_ALL, because SAT components were highly correlated and could easily be viewed as one entity. However, writing SAT scores had too few observations due to discontinued tracking. Therefore, SAT_ALL was formed by summing the math and critical thinking SAT scores. After this, we ended up with a total of 793 observations for the feature subset.
 
 Descriptive statistics for the resulting numerical variables can be found from the table below. Min is the minimum, 1st Qu. is the 1st quartile, Median is the median, Mean is the arithmetic mean, 3rd Qu. is the 3rd quartile, Max is the maximum and St.dev is the sample standard deviation.
 
@@ -209,7 +209,7 @@ The table shows that our dependent variable - median earnings 10 years after ent
 
 ## Phase 2 - Feature Selection with Correlation and Linear Association
 
-In the second phase of feature selection, a subset of features was selected from the 18 variables resulting from the first phase. We examined the correlations between the dependent variable and the features as well as between-features correlations. Moreover, we examined whether there were any linear relationships between the features and the dependent variable. Lastly, we visually examined categorical variables and engineered new features that we believed to have predictive ability over future earnings.
+In the second phase of feature selection, a subset of features was selected from the 18 variables resulting from the first phase. We examined the correlations between the dependent variable and the features as well as between-features correlations. Moreover, we examined the linear relationships between the features and the dependent variable. Lastly, we visually examined categorical variables and engineered new features that we believed could have predictive ability over the dependent variable.
 
 ### Numerical Variables
 
@@ -227,11 +227,11 @@ ggcorrplot(cor(numerical.vars.data),
 
 ```
 
-The correlation matrix shows on the bottom row that SAT scores, cost of attendance, and family income are the most positively correlated features with our dependent variable. The respective correlations are 0.76, 0.75, and 0.52. Most negatively correlated features are the percentage of first generation students, poverty rate, and average age of entry with respective correlations of -0.45, -0.4, and -0.31. These are interesting observations and make intuitive sense.
+The correlation matrix shows on the bottom row that SAT scores, cost of attendance, and family income are the most positively correlated features with our dependent variable. The respective correlations are 0.76, 0.75, and 0.52. Most negatively correlated features are the percentage of first generation students, poverty rate, and average age of entry with respective correlations of -0.45, -0.4, and -0.31. These are interesting observations and make intuitive sense as well.
 
 #### Bivariate Plotting
 
-The panel of figures below show scatter plots between the dependent variable and all numerical features.
+The panel of figures below show scatter plots between the dependent variable and all numerical features. The x-axis represents the value of the feature and the y-axis represents the value of the dependent variable.
 
 ```{r, echo=FALSE, fig.height=12, fig.width=12, fig.align='center'}
 
@@ -248,7 +248,7 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
 
 The figures show that many of the features exhibit a linear like relationship with the dependent variable. Especially, SAT scores (SAT_ALL) show a clear linear association. Other features that show a linear trend are e.g., family income (MD_FAMINC), completion rate (C140_4), and the percentage of first generation students (FIRST_GEN). There are hints of some non-linear relationships as well, e.g., poverty rate appears to have a convex non linear relationship with the dependent variable. Cost of attendance (COSTT4_A), on the other hand, suggests that there could be two groups, perhaps cheaper public school and private school.
 
-#### Remarks on the Feature Selection Process thus Far
+#### Summary of Numerical Feature Selection
 
 Based on the analysis presented thus far, we selected the following numerical variables: SAT_ALL (median sum of math and critical thinking SAT scores), MD_FAMINIC (median family income of the student), AGE_ENTRY (median age of starting at the college), COSTT4_A (median cost of college), and POVERTY_RATE (poverty rate in the area the college is located).
 
@@ -259,7 +259,6 @@ After including the obvious features, such as SAT scores, we included features w
 #### Box Plots
 
 The categorical variables were visualized with box plots to assess if income after college differs among the categories.
-
 
 ```{r, include=FALSE}
 
@@ -273,7 +272,7 @@ melted.categorial.locale <- melted.categorial %>% as_tibble() %>% filter(variabl
 
 The figure below shows the median earnings for different university types. CCBASIC stands for the Carnegie Classification for the university.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.width = "70%"}
 ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   geom_boxplot() +
   geom_jitter(color="black", size=0.4, alpha=0.9) +
@@ -286,10 +285,10 @@ ggplot(melted.categorial.ccbasic, aes(x=value, y=MD_EARN_WNE_P10, fill=value)) +
   labs(caption = "Doctoral (15-17), Master's (18-20), Bachelor's (21-23)")
 
 ```
+
 Based on the plot, CCBASIC was divided into two dummy variables: MASTER and DOCTORAL. These variables represent if the college is classified as Master's college and university or Doctoral's college and university. If a college does not belong to either of those, it is a Bachelor's college and university. Other special focus colleges and universities were discarded from the dataset to keep the model simpler and to avoid unnecessary outliers due to unconventional nature of some very specialized colleges. Our model does not attempt to provide accurate predictions for specialized colleges.
 
-
-The figure below shows the median earnings for different university locations. LOCALE specifies whether the unversity locates in a metropolis, city, suburb, town, or a rural area.
+The figure below shows the median earnings for different university locations. LOCALE specifies whether the university locates in a metropolis, city, suburb, town, or a rural area.
 
 ```{r, echo=FALSE, out.width = "70%"}
 
@@ -335,7 +334,6 @@ The stepwise regression suggested using all of the variables, except AGE ENTRY a
 
 The final features are listed in the table below:
 
-
 $$
 \begin{tabular} {rlll} 
 & Name & Data type & Description \\
@@ -348,8 +346,6 @@ $$
 6 & PRIVATE & binary & Private or public school \\
 \end{tabular}
 $$
-MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
-    POVERTY_RATE + URBAN + PRIVATE
 
 # 3. Model Descriptions
 
@@ -652,11 +648,13 @@ hierarchical.fit$summary()
 
 We used the following Stan options:
 
+- Interface: cmdstanr
+
 - Seed: 1234
 
-- Chains: 4
+- Chains: 4 (default)
 
-- Iterations per chain: 2000
+- Iterations per chain: 2000 (default)
 
 # 7. Convergence Diagnostics
 
@@ -899,7 +897,6 @@ ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 
 ```
 
-
  
 ## Model comparison (LOO, K hat)
 
@@ -1073,173 +1070,6 @@ Retrieved from: ttps://mc-stan.org/loo/reference/loo-glossary.html
 
 Stan. (n.d) Effective Sample Size [Website].
 Retrieved from: https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
-
-# 15. Appendix
-
-## Stepwise regression 
-
-```{r, warning = FALSE}
-
-# baseline model
-model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
-
-# step wise regression implied "best" model in terms of AIC
-step(model, direction = "backward")
-
-# step wise second iteration without MASTER and DOCTORAL
-
-data.stepwise <- select(data.joined.model, -c(MASTER, DOCTORAL))
-
-model <- lm(MD_EARN_WNE_P10 ~ ., data = data.stepwise)
-
-# step wise regression implied "best" model in terms of AIC
-step(model, direction = "backward")
-
-```
-
-## Separate model Stan code (separate.stan)
-
-```{r, warning = FALSE}
-"data {
-
-  // number of observations
-  int<lower=0> N;
-
-  // number of regions
-  int<lower=0> K;
-
-  // region indicators
-  int<lower=1, upper=K> x[N];
-
-<<<<<<< HEAD
-hierarchical.model.data <- list(N = nrow(data.joined.stan),
-                                K = length(unique(data.joined.stan$REGION)),
-                                x = data.joined.stan$REGION,
-                            
-                                SAT_ALL = data.joined.stan$SAT_ALL,
-                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                                COSTT4_A = data.joined.stan$COSTT4_A,
-                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                                URBAN = data.joined.stan$URBAN,
-                                PRIVATE = data.joined.stan$PRIVATE,
-                                y = data.joined.stan$MD_EARN_WNE_P10,
-                                
-                                pm_alpha = 0,
-                                ps_alpha = 10000 * scale_param,
-                                pm_s_alpha = 100,
-                                ps_s_alpha = 100 * scale_param,
-                                
-                                pm_SAT_ALL = 43,
-                                ps_SAT_ALL = 500 * scale_param,
-                                pm_s_SAT_ALL = 100,
-                                ps_s_SAT_ALL = 100 * scale_param,
-                                
-                                pm_MD_FAMINC = 0,
-                                ps_MD_FAMINC = 100 * scale_param,
-                                pm_s_MD_FAMINC = 10,
-                                ps_s_MD_FAMINC = 100 * scale_param,
-                                
-                                pm_COSTT4_A = 0,
-                                ps_COSTT4_A = 500 * scale_param,
-                                pm_s_COSTT4_A = 50,
-                                ps_s_COSTT4_A = 500 * scale_param,
-                                
-                                pm_POVERTY_RATE = 0,
-                                ps_POVERTY_RATE = 2500 * scale_param,
-                                pm_s_POVERTY_RATE = 500,
-                                ps_s_POVERTY_RATE = 500 * scale_param,
-                                
-                                pm_URBAN = 0,
-                                ps_URBAN = 2500 * scale_param,
-                                pm_s_URBAN = 500,
-                                ps_s_URBAN = 500 * scale_param,
-                                
-                                pm_PRIVATE = 0,
-                                ps_PRIVATE = 2500 * scale_param,
-                                pm_s_PRIVATE = 500,
-                                ps_s_PRIVATE = 500 * scale_param,
-                                
-                                pm_sigma = 10000,
-                                ps_sigma = 10000 * scale_param,
-                                pm_s_sigma = 500,
-                                ps_s_sigma = 500 * scale_param)
-
-hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
-                                              seed = 1234, refresh = 1e3)
-
-hierarchical.fit$summary()
-
-
-```
-
-
-Summary of model fit for main parameters with narrow priors:
-
-```{r, echo=FALSE, results = "hide", message=FALSE, warning = FALSE, eval = FALSE}
-
-hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
-
-scale_param <- 0.5
-
-hierarchical.model.data <- list(N = nrow(data.joined.stan),
-                                K = length(unique(data.joined.stan$REGION)),
-                                x = data.joined.stan$REGION,
-                            
-                                SAT_ALL = data.joined.stan$SAT_ALL,
-                                MD_FAMINIC = data.joined.stan$MD_FAMINC,
-                                COSTT4_A = data.joined.stan$COSTT4_A,
-                                POVERTY_RATE = data.joined.stan$POVERTY_RATE,
-                                URBAN = data.joined.stan$URBAN,
-                                PRIVATE = data.joined.stan$PRIVATE,
-                                y = data.joined.stan$MD_EARN_WNE_P10,
-                                
-                                pm_alpha = 0,
-                                ps_alpha = 10000 * scale_param,
-                                pm_s_alpha = 100,
-                                ps_s_alpha = 100 * scale_param,
-                                
-                                pm_SAT_ALL = 43,
-                                ps_SAT_ALL = 500 * scale_param,
-                                pm_s_SAT_ALL = 100,
-                                ps_s_SAT_ALL = 100 * scale_param,
-                                
-                                pm_MD_FAMINC = 0,
-                                ps_MD_FAMINC = 100 * scale_param,
-                                pm_s_MD_FAMINC = 10,
-                                ps_s_MD_FAMINC = 100 * scale_param,
-                                
-                                pm_COSTT4_A = 0,
-                                ps_COSTT4_A = 500 * scale_param,
-                                pm_s_COSTT4_A = 50,
-                                ps_s_COSTT4_A = 500 * scale_param,
-                                
-                                pm_POVERTY_RATE = 0,
-                                ps_POVERTY_RATE = 2500 * scale_param,
-                                pm_s_POVERTY_RATE = 500,
-                                ps_s_POVERTY_RATE = 500 * scale_param,
-                                
-                                pm_URBAN = 0,
-                                ps_URBAN = 2500 * scale_param,
-                                pm_s_URBAN = 500,
-                                ps_s_URBAN = 500 * scale_param,
-                                
-                                pm_PRIVATE = 0,
-                                ps_PRIVATE = 2500 * scale_param,
-                                pm_s_PRIVATE = 500,
-                                ps_s_PRIVATE = 500 * scale_param,
-                                
-                                pm_sigma = 10000,
-                                ps_sigma = 10000 * scale_param,
-                                pm_s_sigma = 500,
-                                ps_s_sigma = 500 * scale_param)
-
-hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
-                                              seed = 1234, refresh = 1e3)
-
-hierarchical.fit$summary()
-
-
-```
 
 # 15. Appendix
 
