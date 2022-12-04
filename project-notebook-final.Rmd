@@ -1021,6 +1021,17 @@ It was a shame we couldn't use a larger testing dataset because all data used fo
 As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
 In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income were very low and they would have been dropped from our model no matter what.
 
+# 11. Discussion of Issues and Potential Improvements.
+
+During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
+
+It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values and removed variables with too much missing data. For the feature selection, with more time we could have experimented with  alternative methods, like the LASSO or Ridge regression.
+
+As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
+In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income were very low and they would have been dropped from our model no matter what.
+
+Another clear improvement would be to do more extensive predictive assessment of the models. We only assessed the pooled model, so both the separate model and hierarchical model could be assessed if we had more time and space. Furthermore, we only computed a simple RMSE metric. Perhaps it would be interesting to look at the probabilistic certainty of the predictions by plotting confidence regions, for example. The test set could also have been a bit bigger, as it is under 5% of the total number of available observations.
+
 
 # 12. Conclusions
 
@@ -1040,6 +1051,22 @@ We got good k hat values for the separate model and the hierarchical model, whic
 
 As we have been building a predictive model, we though it would be important to perform predictive performance assessment. We use RMSE to assess the predictive ability of our model. Our data had been initially split into a training set and a test set. MITÄ TULOKSIA?
 
+# 12. Conclusions
+
+Like many previous studies, we found a strong link between education and income after school. The main aim of our project was to find a way to predict average income after studying at a university for any non-specialized university in the United States. We built three different multivariate models – separate, pooled and hierarchical – to predict income after school. All the models used the same set of numerical and categorical university-level independent variables.
+
+As our initial dataset had almost 3000 features, feature selection was a very important and influential part of our project.  We conducted feature selection in three phases: 1) We selected a subset of features based on insights from previous studies and also used common sense to come up with additional features that could predict future earnings. 2) We assessed the relationship of the features with our dependent variable and accounted for any multicollinearity arising from mutually correlated features. We also visualized categorical variables and engineered new features to be added to the model. 3) We utilized stepwise regression in streamlining our model to include only the most significant features.
+
+All our priors strived to be weakly informative but not too vague.  We experimented with three different prior specifications: our conservative estimate for a good set of priors as well as two sets of priors set to be either wider or narrower than the conservative estimate. Separate and hierarchical models are more sensitive to changes in priors compared to pooled model. This robustness could be explained by the fact that in pooled model the regions are considered as one and for that reason, there are more observations for that one entity compared to individual regions.
+
+We diagnosed convergence by calculating rhat, effective sample size and HMC specific convergence diagnostics for all models. None of the models converged perfectly according to all statistics. 
+
+Rhat statistics revealed that the separate model converged worse than the hierarchical or pooled model, both of which got good rhat convergence values for every beta in every chain. ESS diagnostics revealed that both the pooled model and the hierarchical model had autocorrelation issues. For the HMC specific convergence diagnostics, the separate model failed to produce results in reasonable running time. The separate model got satisfactory results from divergence diagnostics, E-BMFI, ESS and split rhat. The pooled model was overall satisfactory regarding these tests and the hierarchical model was also satisfactory save for a few hiccups when trying to obtain the HMC specific convergence diagnostics.
+
+We got good k hat values for the separate model and the hierarchical model, which means the PSIS-LOO estimates for these models can be considered reliable. However, for pooled model there were many k hat values that were much greater than 0.7 . This indicates that the pooled model may be biased and the estimates might not be reliable.
+
+We ran posterior predictive checks to compare our data to simulated results. The visual comparison did not give any reason for concern and our models performed well on these checks. Additionally, we used LOO to perform model comparison. LOO suggested the separate model followed closely by the hierarchical model.
+
 # 13. Self-reflection
 
 In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection, because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
@@ -1052,6 +1079,31 @@ Working with Stan is something none of us had done before this course. Stan is c
 
 Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
 Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
+
+Data Commons. (2020). Gross domestic product per capita in United States of America [Graph]. 
+Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
+
+Gelman, Andrew, and Jennifer Hill. Data analysis using regression and multilevel/hierarchical models. Cambridge university press, 2006.
+
+Gabry, Gelman, Vehtari. (2016) Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC.
+
+Number2. (2020). Average SAT Score [Blog Post].
+Retrieved from: https://www.number2.com/average-sat-score/
+
+Stan. (n.d) LOO package glossary [Website].
+Retrieved from: ttps://mc-stan.org/loo/reference/loo-glossary.html
+
+Stan. (n.d) Effective Sample Size [Website].
+Retrieved from: https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
+
+# 14. References
+
+Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
+Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
+
+Brewer, Dominic J., Eric R. Eide, and Ronald G. Ehrenberg. "Does it pay to attend an elite private college? Cross cohort evidence on the effects of college quality on earnings." (1996).
+
+Card, David, and Alan B. Krueger. "Does school quality matter? Returns to education and the characteristics of public schools in the United States." Journal of political Economy 100.1 (1992): 1-40.
 
 Data Commons. (2020). Gross domestic product per capita in United States of America [Graph]. 
 Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
@@ -1235,68 +1287,6 @@ hierarchical.fit$summary()
 
 
 ```
-
-# 11. Discussion of Issues and Potential Improvements.
-
-During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
-
-It was a shame we couldn't use a larger testing dataset because all data used for testing would be away from training the model. We tried to reduce the need to have a very long dataset by working very hard on removing independent variables. That work also ended up expanding our observation count from roughly 200 to over 700 observations, as we found variables with less null values and removed variables with too much missing data. For the feature selection, with more time we could have experimented with  alternative methods, like the LASSO or Ridge regression.
-
-As we were building a predictive model, we had to take certain ethical questions into account, especially to avoid building a discriminatory model. For example, if our model was used to by an employer to assess how well alumni from a certain school would perform in their career, it would be discriminatory to have a model that predicts lower performance for a university with say, high female or black student population as the real reason for differences in our data might be something else entirely than skin color or gender.
-In the end, this wasn't a big issue as for example the correlations between both gender vs income and share of white population vs income were very low and they would have been dropped from our model no matter what.
-
-Another clear improvement would be to do more extensive predictive assessment of the models. We only assessed the pooled model, so both the separate model and hierarchical model could be assessed if we had more time and space. Furthermore, we only computed a simple RMSE metric. Perhaps it would be interesting to look at the probabilistic certainty of the predictions by plotting confidence regions, for example. The test set could also have been a bit bigger, as it is under 5% of the total number of available observations.
-
-
-# 12. Conclusions
-
-Like many previous studies, we found a strong link between education and income after school. The main aim of our project was to find a way to predict average income after studying at a university for any non-specialized university in the United States. We built three different multivariate models – separate, pooled and hierarchical – to predict income after school. All the models used the same set of numerical and categorical university-level independent variables.
-
-As our initial dataset had almost 3000 features, feature selection was a very important and influential part of our project.  We conducted feature selection in three phases: 1) We selected a subset of features based on insights from previous studies and also used common sense to come up with additional features that could predict future earnings. 2) We assessed the relationship of the features with our dependent variable and accounted for any multicollinearity arising from mutually correlated features. We also visualized categorical variables and engineered new features to be added to the model. 3) We utilized stepwise regression in streamlining our model to include only the most significant features.
-
-All our priors strived to be weakly informative but not too vague.  We experimented with three different prior specifications: our conservative estimate for a good set of priors as well as two sets of priors set to be either wider or narrower than the conservative estimate. Separate and hierarchical models are more sensitive to changes in priors compared to pooled model. This robustness could be explained by the fact that in pooled model the regions are considered as one and for that reason, there are more observations for that one entity compared to individual regions.
-
-We diagnosed convergence by calculating rhat, effective sample size and HMC specific convergence diagnostics for all models. None of the models converged perfectly according to all statistics. 
-
-Rhat statistics revealed that the separate model converged worse than the hierarchical or pooled model, both of which got good rhat convergence values for every beta in every chain. ESS diagnostics revealed that both the pooled model and the hierarchical model had autocorrelation issues. For the HMC specific convergence diagnostics, the separate model failed to produce results in reasonable running time. The separate model got satisfactory results from divergence diagnostics, E-BMFI, ESS and split rhat. The pooled model was overall satisfactory regarding these tests and the hierarchical model was also satisfactory save for a few hiccups when trying to obtain the HMC specific convergence diagnostics.
-
-We got good k hat values for the separate model and the hierarchical model, which means the PSIS-LOO estimates for these models can be considered reliable. However, for pooled model there were many k hat values that were much greater than 0.7 . This indicates that the pooled model may be biased and the estimates might not be reliable.
-
-We ran posterior predictive checks to compare our data to simulated results. The visual comparison did not give any reason for concern and our models performed well on these checks. Additionally, we used LOO to perform model comparison. LOO suggested the separate model followed closely by the hierarchical model.
-
-
-# 13. Self-reflection
-
-In hindsight taking on a task of creating three multivariate models was very ambitious, because multivariable models had not been covered very much during the course. That ambition paid off, however, and we think we have now a much stronger grasp of how the different models - pooled, separate and hierarchical - work and also know how to build multivariate bayesian linear models in general. We also learned a lot about feature selection, because the 3000 variables in the dataset forced us to create sensible procedures for selection. The combination of using logic and feature engireering tools like stepwise regression is a very powerful skill we developed while making this project.
-
-I think this project made us think really hard about what do we want to show the reader to make our work as understandable as possible and we learned to visualize data and results in interesting ways and apply the visualization techniques covered on the course. Making the visualizations also aided our own thinking and certain visualizations gave valuable insight on our results and their quality. 
-
-Working with Stan is something none of us had done before this course. Stan is clearly a very powerful tool for statistical and data science use and we feel this project really ingrained basic Stan workflows and made working with Stan feel more of an efficient routine than an obstacle.
- 
-# 14. References
-
-Card, D. (1999). THE CAUSAL EFFECT OF EDUCATION ON EARNINGS.
-Wolla, S. A., & Sullivan, J. (2017). Education, Income, and Wealth. https://fred.stlouisfed.org/graph/?g=7yKu.
-
-Brewer, Dominic J., Eric R. Eide, and Ronald G. Ehrenberg. "Does it pay to attend an elite private college? Cross cohort evidence on the effects of college quality on earnings." (1996).
-
-Card, David, and Alan B. Krueger. "Does school quality matter? Returns to education and the characteristics of public schools in the United States." Journal of political Economy 100.1 (1992): 1-40.
-
-Data Commons. (2020). Gross domestic product per capita in United States of America [Graph]. 
-Retrieved from https://datacommons.org/place/country/USA?utm_medium=explore&mprop=income&popt=Person&cpv=age%2CYears15Onwards&hl=en
-
-Gelman, Andrew, and Jennifer Hill. Data analysis using regression and multilevel/hierarchical models. Cambridge university press, 2006.
-
-Gabry, Gelman, Vehtari. (2016) Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC.
-
-Number2. (2020). Average SAT Score [Blog Post].
-Retrieved from: https://www.number2.com/average-sat-score/
-
-Stan. (n.d) LOO package glossary [Website].
-Retrieved from: ttps://mc-stan.org/loo/reference/loo-glossary.html
-
-Stan. (n.d) Effective Sample Size [Website].
-Retrieved from: https://mc-stan.org/docs/2_19/reference-manual/effective-sample-size-section.html
 
 # 15. Appendix
 
