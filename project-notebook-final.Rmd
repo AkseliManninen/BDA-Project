@@ -844,13 +844,14 @@ ess.df
 
 ## HMC specific convergence diagnostics for all models
 
-Based on the HMC specific convergence diagnostics, the separate model reached the initial
-maximum treedepth of 10 in 100% of the transitions. The diagnostics
-state that this leads to premature termination of trajectories and slow exploration.
-The proposed action of increasing the limit was tested, but it resulted to too
-long running time for the already time consuming fitting of the separate model. 
-The rest of the diagnostics consisting of divergences, E-BMFI, effective sample 
-size and split R-hat satisfactory.
+HMC specific convergence diagnostics were analysed for all models. The R code
+and output for diagnostics can be found from the appendix. Based on the HMC specific 
+convergence diagnostics, the separate model reached the initial maximum treedepth of 10 
+in 100% of the transitions. The diagnostics state that this leads to premature 
+termination of trajectories and slow exploration. The proposed action of increasing the 
+limit was tested, but it resulted to too long running time for the already time 
+consuming fitting of the separate model. The rest of the diagnostics consisting 
+of divergences, E-BMFI, effective samplesize and split R-hat satisfactory.
 
 For the pooled model, treedepth, divergences, E-BFMI, effective sample size and 
 split R-hat were satifactory.
@@ -859,17 +860,6 @@ For the hierarchical model, only 4 out of 4000 hit the maximum treedepth and
 23 out of 4000 transitions did not converge. Due to relatively low numbers
 (0.1% and 0.57%) no actions were taken for the hierarchical model. The rest 
 of the diagnostics were satisfactory.
-
-
-```{r}
-
-separate.fit$cmdstan_diagnose()
-
-pooled.fit$cmdstan_diagnose()
-
-hierarchical.fit$cmdstan_diagnose()
-
-``` 
 
 # 8. Posterior Predictive Checks and Model Comparison
 
@@ -1416,3 +1406,15 @@ model <- lm(MD_EARN_WNE_P10 ~ ., data = data.stepwise)
 step(model, direction = "backward")
 
 ```
+
+## HMC diagnostics output
+
+```{r}
+
+separate.fit$cmdstan_diagnose()
+
+pooled.fit$cmdstan_diagnose()
+
+hierarchical.fit$cmdstan_diagnose()
+
+``` 
