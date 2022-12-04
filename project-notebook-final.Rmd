@@ -712,7 +712,7 @@ with our multivariate model and chose the less strict threshold of 1.05.
 
 ### Separate model Rhat
 
-```{r}
+```{r, echo=FALSE}
 
 rhat.df <- tibble()
 
@@ -736,7 +736,7 @@ rhat.df
 
 ### Pooled model Rhat
 
-```{r}
+```{r, echo=FALSE}
 
 params <- pooled.model$variables()$parameters %>% names()
 rhat.df <- tibble()
@@ -756,7 +756,7 @@ rhat.df
 
 ### Hierarchical model Rhat
 
-```{r}
+```{r,  echo=FALSE}
 
 rhat.df <- tibble()
 
@@ -777,6 +777,8 @@ rhat.df
 
 ``` 
 
+The codes for the plots are provided in the appendix.
+
 ## Effective sample size (ESS)
 
 Effective sample size (ESS) evaluates the uncertainty in estimates that is caused 
@@ -787,7 +789,7 @@ size is high, then the number of independent samples is high. (Stan reference ma
 
 For the separate model the ESS values range from 54 to 96 (N = 37). For the pooled
 model the ESS values range from 408 to 996 (N = 766). For the hierarchical
-model the ESS values range from 340 to 1225 (N = 776).
+model the ESS values range from 340 to 1225 (N = 766).
 
 For pooled and hierarchical models, for many but not all parameters there are auto correlated 
 samples that are reduced from the effective sample size. There are also in some cases
@@ -1872,6 +1874,74 @@ hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data,
 hierarchical.fit$summary()
 
 ```
+
+### Separate model Rhat
+
+```{r, eval = FALSE}
+
+rhat.df <- tibble()
+
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", "beta_COSTT4_A[1]", 
+            "beta_POVERTY_RATE[1]", "beta_URBAN[1]", "beta_PRIVATE[1]")
+
+for (param in params) {
+  rhats <- extract_variable_matrix(separate.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+
+rhat.df
+
+``` 
+
+
+### Pooled model Rhat
+
+```{r, eval = FALSE}
+
+params <- pooled.model$variables()$parameters %>% names()
+rhat.df <- tibble()
+for (param in params) {
+  rhats <- extract_variable_matrix(pooled.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+rhat.df
+
+```
+
+
+### Hierarchical model Rhat
+
+```{r, eval = FALSE}
+
+rhat.df <- tibble()
+
+params <- c("alpha[1]", "beta_SAT_ALL[1]", "beta_MD_FAMINIC[1]", "beta_COSTT4_A[1]", 
+            "beta_POVERTY_RATE[1]", "beta_URBAN[1]", "beta_PRIVATE[1]")
+
+for (param in params) {
+  rhats <- extract_variable_matrix(hierarchical.fit$draws(), variable = param) %>% apply(2, rhat)
+  row <- tibble("Parameter" = param, 
+                "Chain 1" = rhats[1], 
+                "Chain 2" = rhats[2], 
+                "Chain 3" = rhats[3], 
+                "Chain 4" = rhats[4])
+  rhat.df <- rbind(rhat.df, row)
+}
+
+rhat.df
+
+``` 
+
 
 ## HMC diagnostics output
 
