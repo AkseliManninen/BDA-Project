@@ -952,6 +952,13 @@ loo_compare(separate.loo, pooled.loo, hierarchical.loo)
 
 ## K hat
 
+In general, if $\hat{k}$ values are greater than 0.7 the PSIS-LOO estimates
+might be too optimistic (biased), and on the contrary, if the $\hat{k}$ values
+are smaller than 0.7 the estimated can be considered reliable.
+
+
+source: https://link.springer.com/article/10.1007/s11222-016-9696-4
+
 ```{r}
 
 pareto_k_table(separate.fit$loo())
