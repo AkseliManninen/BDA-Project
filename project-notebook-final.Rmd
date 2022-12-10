@@ -24,6 +24,7 @@ library(tidyverse)
 library(reshape2)
 library(ggcorrplot)
 library(kableExtra)
+library(vroom)
 set_cmdstan_path('/coursedata/cmdstan')
 
 ```
@@ -43,10 +44,10 @@ As this study is conducted in a university environment by university students an
 ```{r, include=FALSE}
 
 # read in data sets
-data <- read.csv2("./Data/Most-Recent-Cohorts-Institution.csv", sep = ",", fileEncoding="UTF-8-BOM") %>%
+data <- vroom("./Data/Most-Recent-Cohorts-Institution.zip") %>%
   as_tibble()
 
-data.description <- read.csv2("./Data/CollegeScorecardDataDictionary.csv", sep = ",", fileEncoding="UTF-8-BOM") %>%
+data.description <- vroom("./Data/CollegeScorecardDataDictionary.zip") %>%
   as_tibble()
 
 ```
@@ -69,8 +70,8 @@ schooltype.filter <- seq(14,23)
 
 # create map for variable descriptions
 variable.descriptions <- data.description %>%
-  select(VARIABLE.NAME, NAME.OF.DATA.ELEMENT, NOTES) %>%
-  filter(VARIABLE.NAME %in% c(id.vars, categorical.vars, numerical.vars))
+  select(`VARIABLE NAME`,`NAME OF DATA ELEMENT`, `NOTES`) %>%
+  filter(`VARIABLE NAME` %in% c(id.vars, categorical.vars, numerical.vars))
 
 # extract categorical variables
 data.categorical <- data %>%
@@ -83,7 +84,7 @@ data.categorical.dropna <- data.categorical %>%
 # extract numerical variables
 data.numerical <- data %>%
   select(all_of(id.vars), all_of(numerical.vars)) %>%
-  mutate(across(.cols = c(id.vars[1], numerical.vars), .fns = as.numeric))
+  mutate(across(.cols = c(id.vars[1], all_of(numerical.vars)), .fns = as.numeric))
 
 data.numerical.dropna <- data.numerical %>%
   drop_na()
