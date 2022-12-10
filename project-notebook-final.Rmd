@@ -1410,7 +1410,7 @@ data.joined.stan.test
 
 Summary of model fit for main parameters with wide priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
 scale_param <- 3
@@ -1456,7 +1456,7 @@ separate.fit$summary()
 
 Summary of model fit for main parameters with narrow priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
 scale_param <- 0.5
@@ -1503,7 +1503,7 @@ separate.fit$summary()
 
 Summary of model fit for main parameters with wide priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
 scale_param <- 3
@@ -1546,7 +1546,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters with narrow priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
 scale_param <- 0.5
@@ -1591,7 +1591,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters with wide priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -1660,7 +1660,7 @@ hierarchical.fit$summary()
 
 Summary of model fit for main parameters with narrow priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
