@@ -491,7 +491,7 @@ We used cmdstanr for our models. Source code for all three models can be found i
 
 Summary of model fit for main parameters:
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
@@ -529,15 +529,20 @@ separate.model.data <- list(N = nrow(data.joined.stan),
 
 separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, refresh = 1e3)
 
-separate.fit$summary()
+```
+
+```{r, echo=FALSE}
+
+separate.fit$print(max_rows=100)
 
 ```
+
 
 ## Pooled model
 
 Summary of model fit for main parameters:
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
 
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
@@ -573,15 +578,20 @@ pooled.model.data <- list(N = nrow(data.joined.stan),
 
 pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh = 1e3)
 
-pooled.fit$summary()
+```
+
+```{r, echo=FALSE}
+
+pooled.fit$print(max_rows=100)
 
 ```
+
 
 ## Hierarchical model
 
 Summary of model fit for main parameters:
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -640,9 +650,14 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
 hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data, 
                                               seed = 1234, refresh = 1e3)
 
-hierarchical.fit$summary()
+```
+
+```{r, echo=FALSE}
+
+hierarchical.fit$print(max_rows=100)
 
 ```
+
 
 
 # 6. Stan Specifications
