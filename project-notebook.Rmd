@@ -860,8 +860,7 @@ with all three models, although it seems that the y_rep values are on average
 somewhat more on right (higher estimates for earnings). There are also intervals
 where y is suddenly changing direction, which are not visible in y_rep values.
 
-
-```{r, echo=FALSE, out.width = "70%"}
+```{r, echo=FALSE}
 
 separate.extract <- separate.fit$draws(variable = "y_rep")
 
@@ -869,21 +868,11 @@ y <- data.joined.stan$MD_EARN_WNE_P10
 
 y_rep <- matrix(data = separate.extract[,1,], nrow = 1000)
 
-separate.ppctitle <- ggtitle("Separate model",
-                             "Comparing densities of y and y_rep")
-
-ppc_dens_overlay(y, y_rep) + separate.ppctitle
-
 # Pooled
 
 pooled.extract <- pooled.fit$draws(variable = "y_rep")
 
 y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
-
-pooled.ppctitle <- ggtitle("Pooled model",
-                             "Comparing densities of y and y_rep")
-
-ppc_dens_overlay(y, y_rep) + pooled.ppctitle
 
 # Hierarchical
 
@@ -891,14 +880,32 @@ hierarchical.extract <- hierarchical.fit$draws(variable = "y_rep")
 
 y_rep <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
 
+```
+
+```{r, echo=FALSE, out.width = "70%"}
+
+separate.ppctitle <- ggtitle("Separate model",
+                             "Comparing densities of y and y_rep")
+ppc_dens_overlay(y, y_rep) + separate.ppctitle
+
+```
+
+```{r, echo=FALSE, out.width = "70%"}
+
+pooled.ppctitle <- ggtitle("Pooled model",
+                             "Comparing densities of y and y_rep")
+ppc_dens_overlay(y, y_rep) + pooled.ppctitle
+
+```
+
+```{r, echo=FALSE, out.width = "70%"}
+
 hierarchical.ppctitle <- ggtitle("Hierarchical model",
                              "Comparing densities of y and y_rep")
-
 ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
 
 ```
 
- 
 ## Model comparison (LOO, K hat)
 
 LOO elpd_loo is an estimate of the expected log pointwise pridictive dentisty (ELPD).
@@ -943,7 +950,15 @@ The more precise diagnostics for $\hat{k}$ are available in appendix.
 
 plot(separate.fit$loo(), main = "Separate model PSIS diagnostics")
   
+``` 
+
+```{r, echo=FALSE, warning=FALSE, out.width = "70%"}
+
 plot(pooled.fit$loo(), main = "Pooled model PSIS diagnostics")
+
+``` 
+
+```{r, echo=FALSE, warning=FALSE, out.width = "70%"}
 
 plot(hierarchical.fit$loo(), main = "Hierarchical model PSIS diagnostics")
 
