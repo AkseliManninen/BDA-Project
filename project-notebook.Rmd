@@ -672,6 +672,8 @@ We used the following Stan options:
 
 - Iterations per chain: 2000 (default)
 
+- Warmup/burnin: 1000 iterations (default)
+
 # 7. Convergence Diagnostics
 
 In this section, we are performing the diagnostics for the separate and hierarchical model based on the first region (N = 37). This region was selected at random, and it is not the region with the lowest or highest number of samples. Although, considering separately all regions would have given a better overall picture, for simplicity reasons, one region is selected. For the project group, this seemed to be more interesting way to do analysis than blending all the regions together with for example averages.
@@ -1040,7 +1042,7 @@ As the codes of the sensitivity analysis are long, they are included in the appe
 
 ## Separate model sensitivity analysis
 
-# 11. Discussion of Issues and Potential Improvements.
+# 11. Discussion of Issues and Potential Improvements
 
 During the project, the large amount of variables also posed challenges, as it was arguably rather slow and burdensome to find the most relevant variables to use in our analysis. It was somewhat surprising how fast the observation count started to shrink in data cleaning process, so in hindsight more attention could have been paid to cleanliness, as this dataset had for example a lot of missing values.
 
@@ -1153,8 +1155,6 @@ print(hierarchical.model)
 
 ## Separate model fit
 
-Summary of model fit for main parameters:
-
 ```{r, results = "hide", warning=FALSE, eval =FALSE}
 
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
@@ -1198,8 +1198,6 @@ separate.fit$summary()
 ```
 
 ## Pooled model fit
-
-Summary of model fit for main parameters:
 
 ```{r, results = "hide", warning=FALSE, eval =FALSE}
 
@@ -1245,7 +1243,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters:
 
-```{r, echo=FALSE, results = "hide", warning=FALSE, , eval =FALSE}
+```{r, results = "hide", warning=FALSE, , eval =FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -1378,7 +1376,7 @@ rhat.df
 
 ## HMC diagnostics output
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 separate.fit$cmdstan_diagnose()
 
@@ -1390,7 +1388,7 @@ hierarchical.fit$cmdstan_diagnose()
 
 ## K hat
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 pareto_k_table(separate.fit$loo())
 
@@ -1432,7 +1430,7 @@ rmse <- sqrt(mean(se))
 
 ```{r}
 
-data.joined.stan.test 
+data.joined.stan.test %>% print(n=30) 
   
 ```
 
@@ -1440,7 +1438,8 @@ data.joined.stan.test
 
 Summary of model fit for main parameters with wide priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
+
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
 scale_param <- 3
@@ -1486,7 +1485,7 @@ separate.fit$summary()
 
 Summary of model fit for main parameters with narrow priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 separate.model <- cmdstan_model(stan_file = "./Stan/separate.stan")
 
 scale_param <- 0.5
@@ -1533,7 +1532,7 @@ separate.fit$summary()
 
 Summary of model fit for main parameters with wide priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
 scale_param <- 3
@@ -1576,7 +1575,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters with narrow priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 pooled.model <- cmdstan_model(stan_file = "./Stan/pooled.stan")
 
 scale_param <- 0.5
@@ -1621,7 +1620,7 @@ pooled.fit$summary()
 
 Summary of model fit for main parameters with wide priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
@@ -1690,7 +1689,7 @@ hierarchical.fit$summary()
 
 Summary of model fit for main parameters with narrow priors:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
