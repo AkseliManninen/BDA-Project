@@ -1,5 +1,5 @@
 ---
-title: "BDA Project"
+title: "Bayesian Multivariate Regression on Income of University Alumni in the U.S."
 author: "Niko Miller, Akseli Manninen, Santeri Löppönen"
 output:
   pdf_document:
