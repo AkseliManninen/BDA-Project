@@ -1,6 +1,6 @@
 ---
 title: "BDA Project"
-author: "Anonymous"
+author: "Niko Miller, Akseli Manninen, Santeri Löppönen"
 output:
   pdf_document:
     toc: yes
@@ -12,6 +12,7 @@ urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
+
 knitr::opts_chunk$set(echo = TRUE)
 library(aaltobda)
 library(tidyverse)
