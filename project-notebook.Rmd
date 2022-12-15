@@ -226,6 +226,7 @@ ggcorrplot(cor(numerical.vars.data),
           lab_size = 2,
           title = "Correlations",
           tl.cex = 8)
+ggsave("./Figures/correlations.png")
 
 ```
 
@@ -245,7 +246,7 @@ ggplot(melted.numerical.vars.data, aes(x = value, y = MD_EARN_WNE_P10)) +
   geom_point(shape=20, color="black") +
   ggtitle("Median earnings after 10 years and the independent variables") +
   xlab("Feature value") + ylab("Median earnings")
-
+ggsave("./Figures/bivariate.png")
 ```
 
 The figures show that many of the features exhibit a linear like relationship with the dependent variable. Especially, SAT scores (SAT_ALL) show a clear linear association. Other features that show a linear trend are e.g., family income (MD_FAMINC), completion rate (C140_4), and the percentage of first generation students (FIRST_GEN). There are hints of some non-linear relationships as well, e.g., poverty rate appears to have a convex non linear relationship with the dependent variable. Cost of attendance (COSTT4_A), on the other hand, suggests that there could be two groups, perhaps cheaper public school and private school.
