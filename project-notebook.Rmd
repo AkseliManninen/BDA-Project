@@ -678,6 +678,7 @@ hierarchical.fit$print(variables = "root_mean_squared_error")
 
 color_scheme_set("blue")
 bayesplot::mcmc_hist(x = hierarchical.fit$draws(), pars = "root_mean_squared_error")
+ggsave("./Figures/ypred-mcmc-hist.png")
 
 ```
 
@@ -906,19 +907,19 @@ separate.extract <- separate.fit$draws(variable = "y_rep")
 
 y <- data.joined.stan$MD_EARN_WNE_P10
 
-y_rep <- matrix(data = separate.extract[,1,], nrow = 1000)
+y_rep_separate <- matrix(data = separate.extract[,1,], nrow = 1000)
 
 # Pooled
 
 pooled.extract <- pooled.fit$draws(variable = "y_rep")
 
-y_rep <- matrix(data = pooled.extract[,1,], nrow = 1000)
+y_rep_pooled <- matrix(data = pooled.extract[,1,], nrow = 1000)
 
 # Hierarchical
 
 hierarchical.extract <- hierarchical.fit$draws(variable = "y_rep")
 
-y_rep <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
+y_rep_hierarchical <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
 
 ```
 
@@ -926,7 +927,7 @@ y_rep <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
 
 separate.ppctitle <- ggtitle("Separate model",
                              "Comparing densities of y and y_rep")
-ppc_dens_overlay(y, y_rep) + separate.ppctitle
+ppc_dens_overlay(y, y_rep_separate) + separate.ppctitle
 
 ```
 
@@ -934,7 +935,7 @@ ppc_dens_overlay(y, y_rep) + separate.ppctitle
 
 pooled.ppctitle <- ggtitle("Pooled model",
                              "Comparing densities of y and y_rep")
-ppc_dens_overlay(y, y_rep) + pooled.ppctitle
+ppc_dens_overlay(y, y_rep_pooled) + pooled.ppctitle
 
 ```
 
@@ -942,7 +943,7 @@ ppc_dens_overlay(y, y_rep) + pooled.ppctitle
 
 hierarchical.ppctitle <- ggtitle("Hierarchical model",
                              "Comparing densities of y and y_rep")
-ppc_dens_overlay(y, y_rep) + hierarchical.ppctitle
+ppc_dens_overlay(y, y_rep_hierarchical) + hierarchical.ppctitle
 
 ```
 
