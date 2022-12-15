@@ -538,7 +538,7 @@ separate.fit <- separate.model$sample(data = separate.model.data, seed = 1234, r
 
 ```{r, echo=FALSE}
 
-separate.fit$print(max_rows=100)
+separate.fit$print(max_rows=73)
 
 ```
 
@@ -601,8 +601,11 @@ Summary of model fit for main parameters:
 hierarchical.model <- cmdstan_model(stan_file = "./Stan/hierarchical.stan")
 
 hierarchical.model.data <- list(N = nrow(data.joined.stan),
+                                N_tilde = nrow(data.joined.stan.test),
                                 K = length(unique(data.joined.stan$REGION)),
+                                
                                 x = data.joined.stan$REGION,
+                                x_tilde = data.joined.stan.test$REGION,
                             
                                 SAT_ALL = data.joined.stan$SAT_ALL,
                                 MD_FAMINIC = data.joined.stan$MD_FAMINC,
@@ -611,6 +614,14 @@ hierarchical.model.data <- list(N = nrow(data.joined.stan),
                                 URBAN = data.joined.stan$URBAN,
                                 PRIVATE = data.joined.stan$PRIVATE,
                                 y = data.joined.stan$MD_EARN_WNE_P10,
+                                
+                                SAT_ALL_test = data.joined.stan.test$SAT_ALL,
+                                MD_FAMINIC_test = data.joined.stan.test$MD_FAMINC,
+                                COSTT4_A_test = data.joined.stan.test$COSTT4_A,
+                                POVERTY_RATE_test = data.joined.stan.test$POVERTY_RATE,
+                                URBAN_test = data.joined.stan.test$URBAN,
+                                PRIVATE_test = data.joined.stan.test$PRIVATE,
+                                y_test = data.joined.stan.test$MD_EARN_WNE_P10,
                                 
                                 pm_alpha = 0,
                                 ps_alpha = 10000,
@@ -660,6 +671,13 @@ hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data,
 ```{r, echo=FALSE}
 
 hierarchical.fit$print(max_rows=100)
+hierarchical.fit$print(variables = "y_tilde", max_rows = nrow(data.joined.stan.test))
+hierarchical.fit$print(variables = "indiv_squared_errors", max_rows = nrow(data.joined.stan.test))
+hierarchical.fit$print(variables = "sum_of_squares")
+hierarchical.fit$print(variables = "root_mean_squared_error")
+
+color_scheme_set("blue")
+bayesplot::mcmc_hist(x = hierarchical.fit$draws(), pars = "root_mean_squared_error")
 
 ```
 
