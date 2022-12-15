@@ -476,7 +476,7 @@ categorical.vars.model <- c("URBAN", "PRIVATE", "DOCTORAL", "MASTER")
 
 # data with REGION identifier for STAN
 data.joined.stan <- data.joined.model %>%
-  select(REGION, all_of(numerical.vars.model), categorical.vars.model)
+  select(REGION, all_of(numerical.vars.model), all_of(categorical.vars.model))
 
 data.joined.stan.test <- data.joined.stan %>% 
   sample_n(30)
