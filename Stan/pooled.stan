@@ -92,10 +92,10 @@ generated quantities {
   }
   
   for (i in 1:N_tilde) {
-   y_tilde[i] = normal_rng(alpha[x_tilde[i]] + beta_SAT_ALL[x_tilde[i]] * SAT_ALL_test[i]
-    + beta_MD_FAMINIC[x_tilde[i]] * MD_FAMINIC_test[i]  + beta_COSTT4_A[x_tilde[i]] * COSTT4_A_test[i] + beta_POVERTY_RATE[x_tilde[i]] *
-    POVERTY_RATE_test[i] + beta_URBAN[x_tilde[i]] * URBAN_test[i] + 
-    beta_PRIVATE[x_tilde[i]] * PRIVATE_test[i], sigma);
+   y_tilde[i] = normal_rng(alpha + beta_SAT_ALL * SAT_ALL_test[i]
+    + beta_MD_FAMINIC * MD_FAMINIC_test[i]  + beta_COSTT4_A * COSTT4_A_test[i] + beta_POVERTY_RATE *
+    POVERTY_RATE_test[i] + beta_URBAN * URBAN_test[i] + 
+    beta_PRIVATE * PRIVATE_test[i], sigma);
     
    indiv_squared_errors[i] = (y_test[i] - y_tilde[i])^2;
    
