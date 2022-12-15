@@ -587,7 +587,7 @@ pooled.fit <- pooled.model$sample(data = pooled.model.data, seed = 1234, refresh
 
 ```{r, echo=FALSE}
 
-pooled.fit$print(max_rows=100)
+pooled.fit$print(max_rows=9)
 
 ```
 
@@ -670,7 +670,7 @@ hierarchical.fit <- hierarchical.model$sample(data = hierarchical.model.data,
 
 ```{r, echo=FALSE}
 
-hierarchical.fit$print(max_rows=100)
+hierarchical.fit$print(max_rows=81)
 hierarchical.fit$print(variables = "y_tilde", max_rows = nrow(data.joined.stan.test))
 hierarchical.fit$print(variables = "indiv_squared_errors", max_rows = nrow(data.joined.stan.test))
 hierarchical.fit$print(variables = "sum_of_squares")
