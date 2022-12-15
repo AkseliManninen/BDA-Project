@@ -928,6 +928,7 @@ y_rep_hierarchical <- matrix(data = hierarchical.extract[,1,], nrow = 1000)
 separate.ppctitle <- ggtitle("Separate model",
                              "Comparing densities of y and y_rep")
 ppc_dens_overlay(y, y_rep_separate) + separate.ppctitle
+ggsave("./Figures/post-pred-check-sep.png")
 
 ```
 
@@ -936,6 +937,7 @@ ppc_dens_overlay(y, y_rep_separate) + separate.ppctitle
 pooled.ppctitle <- ggtitle("Pooled model",
                              "Comparing densities of y and y_rep")
 ppc_dens_overlay(y, y_rep_pooled) + pooled.ppctitle
+ggsave("./Figures/post-pred-check-pooled.png")
 
 ```
 
@@ -944,6 +946,7 @@ ppc_dens_overlay(y, y_rep_pooled) + pooled.ppctitle
 hierarchical.ppctitle <- ggtitle("Hierarchical model",
                              "Comparing densities of y and y_rep")
 ppc_dens_overlay(y, y_rep_hierarchical) + hierarchical.ppctitle
+ggsave("./Figures/post-pred-check-hier.png")
 
 ```
 
@@ -1134,20 +1137,17 @@ Retrieved from: https://mc-stan.org/docs/2_19/reference-manual/effective-sample-
 
 ```{r, warning = FALSE, eval=FALSE}
 
-# baseline model
-model <- lm(MD_EARN_WNE_P10 ~ ., data = data.joined.model)
-
-# step wise regression implied "best" model in terms of AIC
-step(model, direction = "backward")
-
-# step wise second iteration without MASTER and DOCTORAL
-
 data.stepwise <- select(data.joined.model, -c(MASTER, DOCTORAL))
 
 model <- lm(MD_EARN_WNE_P10 ~ ., data = data.stepwise)
 
 # step wise regression implied "best" model in terms of AIC
 step(model, direction = "backward")
+
+final.model <- lm(formula = MD_EARN_WNE_P10 ~ SAT_ALL + MD_FAMINC + COSTT4_A + 
+    POVERTY_RATE + URBAN + PRIVATE, data = data.stepwise)
+
+summary(final.model)
 
 ```
 
