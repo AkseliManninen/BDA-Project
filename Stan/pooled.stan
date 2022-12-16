@@ -1,6 +1,7 @@
 data {
 
   int<lower=0> N; // number of observations
+  int<lower=0> N_tilde; // number of observations in test set
 
   // data vectors
   vector[N] SAT_ALL;
@@ -10,6 +11,15 @@ data {
   vector[N] URBAN;
   vector[N] PRIVATE;
   vector[N] y;
+  
+  // data vectors test set
+  vector[N_tilde] SAT_ALL_test; // SAT score
+  vector[N_tilde] MD_FAMINIC_test; // medain family income
+  vector[N_tilde] COSTT4_A_test; // average cost of education
+  vector[N_tilde] POVERTY_RATE_test; // poverty rate in school area
+  vector[N_tilde] URBAN_test; // urban dummy
+  vector[N_tilde] PRIVATE_test; // private innstitution dummy
+  vector[N_tilde] y_test; // median earnings
 
   // prior distribution parameters
   real pm_alpha; // prior mean of intercept term
@@ -64,6 +74,10 @@ model {
 generated quantities {
   vector[N] log_lik;
   vector[N] y_rep;
+  vector[N_tilde] y_tilde;
+  vector[N_tilde] indiv_squared_errors;
+  real <lower = 0> sum_of_squares;
+  real <lower = 0> root_mean_squared_error;
 
   for (i in 1:N) {
     log_lik[i] = normal_lpdf(y[i] | alpha + beta_SAT_ALL * SAT_ALL
@@ -76,5 +90,18 @@ generated quantities {
     beta_COSTT4_A * COSTT4_A[i] + beta_POVERTY_RATE * POVERTY_RATE[i] 
     + beta_URBAN * URBAN[i] + beta_PRIVATE * PRIVATE[i], sigma);
   }
+  
+  for (i in 1:N_tilde) {
+   y_tilde[i] = normal_rng(alpha + beta_SAT_ALL * SAT_ALL_test[i]
+    + beta_MD_FAMINIC * MD_FAMINIC_test[i]  + beta_COSTT4_A * COSTT4_A_test[i] + beta_POVERTY_RATE *
+    POVERTY_RATE_test[i] + beta_URBAN * URBAN_test[i] + 
+    beta_PRIVATE * PRIVATE_test[i], sigma);
+    
+   indiv_squared_errors[i] = (y_test[i] - y_tilde[i])^2;
+   
+ }
+ 
+ sum_of_squares = sum(indiv_squared_errors);
+ root_mean_squared_error = sqrt(sum_of_squares / N_tilde);
 
 }

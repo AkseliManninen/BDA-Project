@@ -1,13 +1,11 @@
 data {
 
-  // number of observations
-  int<lower=0> N;
-
-  // number of regions
-  int<lower=0> K;
-
-  // region indicators
-  int<lower=1, upper=K> x[N];
+  int<lower=0> N; // number of observations in training set
+  int<lower=0> N_tilde; // number of observations in test set
+  
+  int<lower=0> K; // number of regions
+  int<lower=1, upper=K> x[N]; // discrete group indicators in training set
+  int<lower=1, upper=K> x_tilde[N_tilde]; // discrete group indicators in test set
 
   // data vectors
   vector[N] SAT_ALL; // composite SAT score
@@ -17,6 +15,15 @@ data {
   vector[N] URBAN; // urban dummy
   vector[N] PRIVATE; // private institution dummy
   vector[N] y; // dependent variable (median earnings 10 years post-graduation)
+
+  // data vectors test set
+  vector[N_tilde] SAT_ALL_test; // SAT score
+  vector[N_tilde] MD_FAMINIC_test; // medain family income
+  vector[N_tilde] COSTT4_A_test; // average cost of education
+  vector[N_tilde] POVERTY_RATE_test; // poverty rate in school area
+  vector[N_tilde] URBAN_test; // urban dummy
+  vector[N_tilde] PRIVATE_test; // private innstitution dummy
+  vector[N_tilde] y_test; // median earnings
 
   // prior distribution parameters
   real pm_alpha; // prior mean of intercept term
@@ -79,9 +86,12 @@ model {
 
 generated quantities {
 
-  // log-likelihoods
   vector[N] log_lik;
   vector[N] y_rep;
+  vector[N_tilde] y_tilde;
+  vector[N_tilde] indiv_squared_errors;
+  real <lower = 0> sum_of_squares;
+  real <lower = 0> root_mean_squared_error;
 
   for (i in 1:N) {
     log_lik[i] = normal_lpdf(y[i] | alpha[x[i]] + beta_SAT_ALL[x[i]]
@@ -94,5 +104,17 @@ generated quantities {
     * POVERTY_RATE[i] + beta_URBAN[x[i]] * URBAN[i] +
     beta_PRIVATE[x[i]] * PRIVATE[i], sigma[x[i]]);
   }
+  
+  for (i in 1:N_tilde) {
+    y_tilde[i] = normal_rng(alpha[x_tilde[i]] + beta_SAT_ALL[x_tilde[i]] * SAT_ALL_test[i] + 
+    beta_MD_FAMINIC[x_tilde[i]] * MD_FAMINIC_test[i] + beta_COSTT4_A[x_tilde[i]] * COSTT4_A_test[i] + 
+    beta_POVERTY_RATE[x_tilde[i]] * POVERTY_RATE_test[i] + beta_URBAN[x_tilde[i]] * URBAN_test[i] +
+    beta_PRIVATE[x_tilde[i]] * PRIVATE_test[i], sigma[x_tilde[i]]);
+    
+    indiv_squared_errors[i] = (y_test[i] - y_tilde[i])^2;
+ }
+ 
+ sum_of_squares = sum(indiv_squared_errors);
+ root_mean_squared_error = sqrt(sum_of_squares / N_tilde);
 
 }
